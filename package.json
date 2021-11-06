@@ -1,0 +1,14 @@
+{
+  "name": "crypto_accountant",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "quentinbalin@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.4.4"
+  },
+  "scripts": {
+    "build": "npx tsc",
+    "start": "npx tsc -w"
+  }
+}
