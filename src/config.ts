@@ -18,7 +18,7 @@ interface DecentralizedAccountConfig {
   readonly nickname: string
 }
 
-interface AccountsConfiguration {
+export interface AccountsConfiguration {
   centralizedAccounts: Array<CentralizedAccountConfig>
   decentralizedAccounts: Array<DecentralizedAccountConfig>
 }
@@ -49,10 +49,16 @@ class Config {
       if (!SUPPORTED_PLATFORMS.includes(account.platformName)) {
         throw new Error(`Unsupported platformName for account ${JSON.stringify(account)}. Must be one of ${SUPPORTED_PLATFORMS}`);
       }
+      if (Object.values(account).some((value) => !value)) {
+        throw new Error(`Please add a value for each field: ${Object.keys(account)}`);
+      }
     });
     this.decentralizedAccounts.forEach((account) => {
       if (!SUPPORTED_BLOCKCHAINS.includes(account.blockchainName)) {
         throw new Error(`Unsupported blockchainName for account ${JSON.stringify(account)}. Must be one of ${SUPPORTED_BLOCKCHAINS}`);
+      }
+      if (Object.values(account).some((value) => !value)) {
+        throw new Error(`Please add a value for each field: ${Object.keys(account)}`);
       }
     });
     const nicknamesCount = [
