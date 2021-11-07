@@ -20,7 +20,7 @@
     "husky": "^7.0.0"
   },
   "scripts": {
-    "start": "npx tsc -w",
+    "start": "yarn install; npx tsc -w",
     "test": "yarn jest",
     "lint": "yarn eslint --ext .ts,.js .",
     "prepare": "husky install"
