@@ -4,6 +4,7 @@ import Config, { AccountsConfiguration } from '../src/config';
 jest.mock('fs');
 
 describe('Config.parse', () => {
+  const configFilePath = './path/to/config/file.json';
   let mockExistsSync: jest.SpyInstance;
   let mockWriteFileSync: jest.SpyInstance;
   let mockReadFileSync: jest.SpyInstance;
@@ -40,13 +41,13 @@ describe('Config.parse', () => {
     });
 
     it('does not create a default file', () => {
-      Config.parse();
-      expect(mockExistsSync).toHaveBeenCalledWith('./config.json');
+      Config.parse(configFilePath);
+      expect(mockExistsSync).toHaveBeenCalledWith(configFilePath);
       expect(mockWriteFileSync).not.toHaveBeenCalled();
     });
 
     it('returns a config object', () => {
-      const conf = Config.parse();
+      const conf = Config.parse(configFilePath);
       expect(conf.centralizedAccounts[0].platformName).toEqual('binance');
       expect(conf.centralizedAccounts[0].privateApiKey).toEqual('SomeKey');
       expect(conf.centralizedAccounts[0].nickname).toEqual('Binance Main Account');
@@ -80,7 +81,7 @@ describe('Config.parse', () => {
       });
 
       it('raises an error', () => {
-        expect(() => Config.parse()).toThrowError(/Account nicknames should be unique, you re-used "Main Account" multiple times/);
+        expect(() => Config.parse(configFilePath)).toThrowError(/Account nicknames should be unique, you re-used "Main Account" multiple times/);
       });
     });
 
@@ -107,7 +108,7 @@ describe('Config.parse', () => {
       });
 
       it('raises an error', () => {
-        expect(() => Config.parse()).toThrowError(/Unsupported platformName for account/);
+        expect(() => Config.parse(configFilePath)).toThrowError(/Unsupported platformName for account/);
       });
     });
 
@@ -134,7 +135,7 @@ describe('Config.parse', () => {
       });
 
       it('raises an error', () => {
-        expect(() => Config.parse()).toThrowError(/Unsupported blockchainName for account/);
+        expect(() => Config.parse(configFilePath)).toThrowError(/Unsupported blockchainName for account/);
       });
     });
 
@@ -161,7 +162,7 @@ describe('Config.parse', () => {
       });
 
       it('raises an error', () => {
-        expect(() => Config.parse()).toThrowError(/Please add a value for each field: blockchainName,privateApiKey,walletAddress,nickname/);
+        expect(() => Config.parse(configFilePath)).toThrowError(/Please add a value for each field: blockchainName,privateApiKey,walletAddress,nickname/);
       });
     });
 
@@ -188,7 +189,7 @@ describe('Config.parse', () => {
       });
 
       it('raises an error', () => {
-        expect(() => Config.parse()).toThrowError(/Please add a value for each field: platformName,privateApiKey,nickname/);
+        expect(() => Config.parse(configFilePath)).toThrowError(/Please add a value for each field: platformName,privateApiKey,nickname/);
       });
     });
   });
@@ -224,12 +225,15 @@ describe('Config.parse', () => {
     });
 
     it('creates a default file', () => {
-      expect(() => Config.parse()).toThrow();
-      expect(mockWriteFileSync).toHaveBeenCalledWith('./config.json', JSON.stringify(defaultConfig, null, 2));
+      expect(() => Config.parse(configFilePath)).toThrow();
+      expect(mockWriteFileSync).toHaveBeenCalledWith(
+        configFilePath,
+        JSON.stringify(defaultConfig, null, 2),
+      );
     });
 
     it('throws an error', () => {
-      expect(() => Config.parse()).toThrowError(/Unsupported platformName for account/);
+      expect(() => Config.parse(configFilePath)).toThrowError(/Unsupported platformName for account/);
     });
   });
 });

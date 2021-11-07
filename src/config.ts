@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 import fs from 'fs';
 
-const configFilePath = './config.json';
 const SUPPORTED_PLATFORMS = ['kucoin', 'coinbase', 'binance'];
 const SUPPORTED_BLOCKCHAINS = ['ethereum', 'polygon', 'binancesmartchain'];
 
@@ -80,7 +79,7 @@ class Config {
     }
   }
 
-  static parse() : Config {
+  static parse(configFilePath: string) : Config {
     if (!fs.existsSync(configFilePath)) {
       console.info(`Config file not found at ${configFilePath}. Creating one.`);
       const content = {
