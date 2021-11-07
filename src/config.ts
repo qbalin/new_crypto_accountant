@@ -23,6 +23,8 @@ interface AccountsConfiguration {
   decentralizedAccounts: Array<DecentralizedAccountConfig>
 }
 
+const notEmpty = (object: { [key: string]: any }) : boolean => Object.keys(object).length > 0;
+
 class Config {
   readonly centralizedAccounts: Array<CentralizedAccountConfig>
 
@@ -30,13 +32,13 @@ class Config {
 
   constructor({ centralizedAccounts, decentralizedAccounts }: AccountsConfiguration) {
     this.centralizedAccounts = centralizedAccounts
-      .filter((account) => Object.keys(account).length > 0)
+      .filter(notEmpty)
       .map((account) => ({
         ...account,
         platformName: account.platformName.toLowerCase(),
       }));
     this.decentralizedAccounts = decentralizedAccounts
-      .filter((account) => Object.keys(account).length > 0)
+      .filter(notEmpty)
       .map((account) => ({
         ...account,
         blockchainName: account.blockchainName.toLowerCase(),
