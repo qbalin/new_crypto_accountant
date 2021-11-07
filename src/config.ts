@@ -26,9 +26,9 @@ export interface AccountsConfiguration {
 const notEmpty = (object: { [key: string]: any }) : boolean => Object.keys(object).length > 0;
 
 class Config {
-  readonly centralizedAccounts: Array<CentralizedAccountConfig>
+  readonly centralizedAccounts: Array<CentralizedAccountConfig>;
 
-  readonly decentralizedAccounts: Array<DecentralizedAccountConfig>
+  readonly decentralizedAccounts: Array<DecentralizedAccountConfig>;
 
   constructor({ centralizedAccounts, decentralizedAccounts }: AccountsConfiguration) {
     this.centralizedAccounts = centralizedAccounts
