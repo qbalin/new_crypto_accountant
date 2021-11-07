@@ -1,3 +1,4 @@
+import Config from './config';
 /*
 # Goal
 
@@ -28,3 +29,4 @@ Do achieve this, we will need to:
 1. Pull the data archive from all accounts and output it in a normalized way
 2. Process the data to output Atomic Ledger Entries
 */
+Config.parse();
