@@ -4,22 +4,27 @@ import fs from 'fs';
 const SUPPORTED_PLATFORMS = ['kucoin', 'coinbase', 'binance'];
 const SUPPORTED_BLOCKCHAINS = ['ethereum', 'polygon', 'binancesmartchain'];
 
-interface CentralizedAccountConfig {
+export interface CentralizedAccountConfig {
   readonly platformName: string
   readonly privateApiKey: string
   readonly nickname: string
 }
 
-interface DecentralizedAccountConfig {
+export interface DecentralizedAccountConfig {
   readonly blockchainName: string
   readonly privateApiKey: string
   readonly walletAddress: string
   readonly nickname: string
 }
 
+interface Keys {
+  ethereumInfuraApiKey: string
+}
+
 export interface AccountsConfiguration {
   centralizedAccounts: Array<CentralizedAccountConfig>
   decentralizedAccounts: Array<DecentralizedAccountConfig>
+  keys: Keys
 }
 
 const notEmpty = (object: { [key: string]: any }) : boolean => Object.keys(object).length > 0;
@@ -29,7 +34,9 @@ class Config {
 
   readonly decentralizedAccounts: Array<DecentralizedAccountConfig>;
 
-  constructor({ centralizedAccounts, decentralizedAccounts }: AccountsConfiguration) {
+  readonly keys: Keys;
+
+  constructor({ centralizedAccounts, decentralizedAccounts, keys }: AccountsConfiguration) {
     this.centralizedAccounts = centralizedAccounts
       .filter(notEmpty)
       .map((account) => ({
@@ -77,6 +84,7 @@ class Config {
     if (duplicatedNicknames.length > 0) {
       throw new Error(`Account nicknames should be unique, you re-used "${duplicatedNicknames}" multiple times`);
     }
+    this.keys = keys;
   }
 
   static parse(configFilePath: string) : Config {
