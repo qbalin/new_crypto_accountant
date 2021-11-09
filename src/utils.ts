@@ -1,4 +1,10 @@
+import { IncomingMessage } from 'http';
 import https from 'https';
+
+interface FetchResponse {
+    data: any
+    response: IncomingMessage
+}
 
 const fetchJson = ({
   url,
@@ -8,7 +14,7 @@ const fetchJson = ({
     url: string,
     method: string,
     headers?: Record<string, string>
-}) => new Promise((resolve, reject) => {
+}) : Promise<FetchResponse> => new Promise((resolve, reject) => {
   const req = https.request(
     url,
     {

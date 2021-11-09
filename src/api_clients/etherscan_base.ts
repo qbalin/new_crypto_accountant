@@ -51,7 +51,8 @@ class Client {
     this.apiKey = apiKey;
   }
 
-  private privateCall({ url, method }: { url: URL, method: string }) {
+  private async privateCall({ url, method }: { url: URL, method: string }) :
+  Promise<{ data: { result: { [key: string]: any, timeStamp: string }[] } }> {
     url.searchParams.set('apikey', this.apiKey);
 
     if (process.env.LOG_LEVEL === 'DEBUG') {
@@ -69,7 +70,7 @@ class Client {
     requestPath, since = new Date('1970'), until = new Date(), method = 'GET',
   }: { requestPath: string, since?: Date, until?: Date, method?: string }) {
     let collection: {
-        [key: string]: string,
+        [key: string]: any,
         timeStamp: string
     }[] = [];
     const url = new URL(`${this.baseUrl}${requestPath}`);
@@ -82,7 +83,7 @@ class Client {
 
     let {
       data: { result: data },
-    } = await this.privateCall({
+    } : { data: { result: { timeStamp: string }[] } } = await this.privateCall({
       url,
       method,
     });
@@ -95,7 +96,10 @@ class Client {
     collection = collection.concat(data);
     let lastEntry = collection[collection.length - 1];
 
-    while (data.length >= 10_000 && new Date(parseInt(lastEntry.timeStamp, 10) * 1000) >= since) {
+    while (data.length
+      && data.length >= 10_000
+      && new Date(parseInt(lastEntry.timeStamp, 10) * 1000) >= since
+    ) {
       url.searchParams.set('endblock', (parseInt(lastEntry.blockNumber, 10) - 1).toString());
 
       /* eslint-disable-next-line no-await-in-loop */
