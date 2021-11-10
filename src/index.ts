@@ -32,8 +32,8 @@ Do achieve this, we will need to:
 */
 const config = Config.parse('./config.json');
 const client = new EthescanClient({
-  etherscanApiKey: config.decentralizedAccounts[0].privateApiKey,
-  infuraApiKey: config.keys.ethereumInfuraApiKey,
+  etherscanApiKey: config.decentralizedAccounts[0].blockchainExplorerApiKey,
+  infuraApiKey: config.decentralizedAccounts[0].nodeProviderApiKey,
 });
 client.call({
   requestPath: `?module=account&action=txlist&address=${config.decentralizedAccounts[0].walletAddress}`,

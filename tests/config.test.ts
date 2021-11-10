@@ -31,9 +31,10 @@ describe('Config.parse', () => {
         decentralizedAccounts: [
           {
             blockchainName: 'Ethereum',
-            privateApiKey: 'SomeOtherKey',
+            blockchainExplorerApiKey: 'SomeOtherKey',
             walletAddress: 'anAddress',
             nickname: 'Ethereum Main Account',
+            nodeProviderApiKey: 'Infura API key',
           },
         ],
       };
@@ -53,7 +54,7 @@ describe('Config.parse', () => {
       expect(conf.centralizedAccounts[0].nickname).toEqual('Binance Main Account');
 
       expect(conf.decentralizedAccounts[0].blockchainName).toEqual('ethereum');
-      expect(conf.decentralizedAccounts[0].privateApiKey).toEqual('SomeOtherKey');
+      expect(conf.decentralizedAccounts[0].blockchainExplorerApiKey).toEqual('SomeOtherKey');
       expect(conf.decentralizedAccounts[0].walletAddress).toEqual('anaddress');
       expect(conf.decentralizedAccounts[0].nickname).toEqual('Ethereum Main Account');
     });
@@ -71,9 +72,10 @@ describe('Config.parse', () => {
           decentralizedAccounts: [
             {
               blockchainName: 'Ethereum',
-              privateApiKey: 'SomeOtherKey',
+              blockchainExplorerApiKey: 'SomeOtherKey',
               walletAddress: 'anAddress',
               nickname: 'Main Account',
+              nodeProviderApiKey: 'Infura API key',
             },
           ],
         };
@@ -98,9 +100,10 @@ describe('Config.parse', () => {
           decentralizedAccounts: [
             {
               blockchainName: 'Ethereum',
-              privateApiKey: 'SomeOtherKey',
+              blockchainExplorerApiKey: 'SomeOtherKey',
               walletAddress: 'anAddress',
               nickname: 'Ethereum Main Account',
+              nodeProviderApiKey: 'Infura API key',
             },
           ],
         };
@@ -125,9 +128,10 @@ describe('Config.parse', () => {
           decentralizedAccounts: [
             {
               blockchainName: 'Unsupported',
-              privateApiKey: 'SomeOtherKey',
+              blockchainExplorerApiKey: 'SomeOtherKey',
               walletAddress: 'anAddress',
               nickname: 'Unsupported Main Account',
+              nodeProviderApiKey: 'Infura API key',
             },
           ],
         };
@@ -152,9 +156,10 @@ describe('Config.parse', () => {
           decentralizedAccounts: [
             {
               blockchainName: 'Ethereum',
-              privateApiKey: 'SomeOtherKey',
+              blockchainExplorerApiKey: 'SomeOtherKey',
               walletAddress: '',
               nickname: 'Ethereum Main Account',
+              nodeProviderApiKey: 'Infura API key',
             },
           ],
         };
@@ -179,9 +184,10 @@ describe('Config.parse', () => {
           decentralizedAccounts: [
             {
               blockchainName: 'Ethereum',
-              privateApiKey: 'SomeOtherKey',
+              blockchainExplorerApiKey: 'SomeOtherKey',
               walletAddress: 'anAddress',
               nickname: 'Ethereum Main Account',
+              nodeProviderApiKey: 'Infura API key',
             },
           ],
         };

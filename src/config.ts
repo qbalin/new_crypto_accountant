@@ -12,19 +12,15 @@ export interface CentralizedAccountConfig {
 
 export interface DecentralizedAccountConfig {
   readonly blockchainName: string
-  readonly privateApiKey: string
+  readonly blockchainExplorerApiKey: string
   readonly walletAddress: string
   readonly nickname: string
-}
-
-interface Keys {
-  ethereumInfuraApiKey: string
+  readonly nodeProviderApiKey: string
 }
 
 export interface AccountsConfiguration {
   centralizedAccounts: Array<CentralizedAccountConfig>
   decentralizedAccounts: Array<DecentralizedAccountConfig>
-  keys: Keys
 }
 
 const notEmpty = (object: { [key: string]: any }) : boolean => Object.keys(object).length > 0;
@@ -34,9 +30,7 @@ class Config {
 
   readonly decentralizedAccounts: Array<DecentralizedAccountConfig>;
 
-  readonly keys: Keys;
-
-  constructor({ centralizedAccounts, decentralizedAccounts, keys }: AccountsConfiguration) {
+  constructor({ centralizedAccounts, decentralizedAccounts }: AccountsConfiguration) {
     this.centralizedAccounts = centralizedAccounts
       .filter(notEmpty)
       .map((account) => ({
@@ -84,7 +78,6 @@ class Config {
     if (duplicatedNicknames.length > 0) {
       throw new Error(`Account nicknames should be unique, you re-used "${duplicatedNicknames}" multiple times`);
     }
-    this.keys = keys;
   }
 
   static parse(configFilePath: string) : Config {
@@ -104,9 +97,10 @@ class Config {
         decentralizedAccounts: [
           {
             blockchainName: 'Ethereum or Polygon, etc...',
-            privateApiKey: 'The private API generated from your Explorer account.',
+            blockchainExplorerApiKey: 'The private API generated from your Explorer account.',
             walletAddress: 'Your public wallet address on the blockchain',
             nickname: 'A unique name to recognize your account',
+            nodeProviderApiKey: 'Api key from Infura, or Alchemy, etc',
           },
           {
 
