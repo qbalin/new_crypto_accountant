@@ -22,7 +22,7 @@
   "scripts": {
     "start": "yarn install; npx tsc -w",
     "test": "yarn jest",
-    "debug": "yarn jest --detectOpenHandles",
+    "debug": "node --inspect-brk node_modules/.bin/jest --runInBand --detectOpenHandles",
     "lint": "yarn eslint --ext .ts,.js .",
     "prepare": "husky install"
   },

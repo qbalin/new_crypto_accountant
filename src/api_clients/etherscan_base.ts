@@ -5,7 +5,7 @@ import { fetchJson } from '../utils';
 
 const pathToErc20TokenCache = (chainName: string) => `./downloads/${chainName}_erc20_tokens.json`;
 
-class Client {
+abstract class Client {
   readonly pathToErc20TokenCache: string;
 
   readonly erc20tokens: Record<string, string>;
@@ -33,17 +33,6 @@ class Client {
     this.chainName = chainName;
     this.baseUrl = baseUrl;
     this.apiKey = apiKey;
-  }
-
-  private async privateCall({ url, method }: { url: URL, method: string }) :
-  Promise<{ data: { result: { [key: string]: any, timeStamp: string }[] } }> {
-    url.searchParams.set('apikey', this.apiKey);
-
-    if (process.env.LOG_LEVEL === 'DEBUG') {
-      console.log('Etherscan call:', url.href);
-    }
-
-    return fetchJson({ url: url.href, method });
   }
 
   static isPaginatedResult(data: any | any[]): boolean {
@@ -103,6 +92,12 @@ class Client {
       const createdAt = new Date(parseInt(entry.timeStamp, 10) * 1000);
       return createdAt >= since && createdAt <= until;
     });
+  }
+
+  private async privateCall({ url, method }: { url: URL, method: string }) :
+  Promise<{ data: { result: { [key: string]: any, timeStamp: string }[] } }> {
+    url.searchParams.set('apikey', this.apiKey);
+    return fetchJson({ url: url.href, method });
   }
 }
 
