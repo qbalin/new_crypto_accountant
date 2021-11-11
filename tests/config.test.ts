@@ -1,5 +1,5 @@
 import fs from 'fs';
-import Config, { AccountsConfiguration } from '../src/config';
+import Config from '../src/config';
 
 jest.mock('fs');
 
@@ -16,19 +16,19 @@ describe('Config.parse', () => {
   });
 
   describe('when a config file exists', () => {
-    let config: AccountsConfiguration;
+    let config: Record<string, any>;
 
     beforeEach(() => {
       mockExistsSync.mockImplementation(() => true);
       config = {
-        centralizedAccounts: [
+        centralizedAccountsConfig: [
           {
             platformName: 'Binance',
             privateApiKey: 'SomeKey',
             nickname: 'Binance Main Account',
           },
         ],
-        decentralizedAccounts: [
+        decentralizedAccountsConfig: [
           {
             blockchainName: 'Ethereum',
             blockchainExplorerApiKey: 'SomeOtherKey',
@@ -49,27 +49,27 @@ describe('Config.parse', () => {
 
     it('returns a config object', () => {
       const conf = Config.parse(configFilePath);
-      expect(conf.centralizedAccounts[0].platformName).toEqual('binance');
-      expect(conf.centralizedAccounts[0].privateApiKey).toEqual('SomeKey');
-      expect(conf.centralizedAccounts[0].nickname).toEqual('Binance Main Account');
+      expect(conf.centralizedAccountsConfig[0].platformName).toEqual('binance');
+      expect(conf.centralizedAccountsConfig[0].privateApiKey).toEqual('SomeKey');
+      expect(conf.centralizedAccountsConfig[0].nickname).toEqual('Binance Main Account');
 
-      expect(conf.decentralizedAccounts[0].blockchainName).toEqual('ethereum');
-      expect(conf.decentralizedAccounts[0].blockchainExplorerApiKey).toEqual('SomeOtherKey');
-      expect(conf.decentralizedAccounts[0].walletAddress).toEqual('anaddress');
-      expect(conf.decentralizedAccounts[0].nickname).toEqual('Ethereum Main Account');
+      expect(conf.decentralizedAccountsConfig[0].blockchainName).toEqual('ethereum');
+      expect(conf.decentralizedAccountsConfig[0].blockchainExplorerApiKey).toEqual('SomeOtherKey');
+      expect(conf.decentralizedAccountsConfig[0].walletAddress).toEqual('anaddress');
+      expect(conf.decentralizedAccountsConfig[0].nickname).toEqual('Ethereum Main Account');
     });
 
     describe('and the same nickname is used more than once', () => {
       beforeEach(() => {
         config = {
-          centralizedAccounts: [
+          centralizedAccountsConfig: [
             {
               platformName: 'Binance',
               privateApiKey: 'SomeKey',
               nickname: 'Main Account',
             },
           ],
-          decentralizedAccounts: [
+          decentralizedAccountsConfig: [
             {
               blockchainName: 'Ethereum',
               blockchainExplorerApiKey: 'SomeOtherKey',
@@ -90,14 +90,14 @@ describe('Config.parse', () => {
     describe('and a platformName is not supported', () => {
       beforeEach(() => {
         config = {
-          centralizedAccounts: [
+          centralizedAccountsConfig: [
             {
               platformName: 'Unsupported',
               privateApiKey: 'SomeKey',
               nickname: 'Unsupported Main Account',
             },
           ],
-          decentralizedAccounts: [
+          decentralizedAccountsConfig: [
             {
               blockchainName: 'Ethereum',
               blockchainExplorerApiKey: 'SomeOtherKey',
@@ -118,14 +118,14 @@ describe('Config.parse', () => {
     describe('and a blockchainName is not supported', () => {
       beforeEach(() => {
         config = {
-          centralizedAccounts: [
+          centralizedAccountsConfig: [
             {
               platformName: 'Binance',
               privateApiKey: 'SomeKey',
               nickname: 'Binance Main Account',
             },
           ],
-          decentralizedAccounts: [
+          decentralizedAccountsConfig: [
             {
               blockchainName: 'Unsupported',
               blockchainExplorerApiKey: 'SomeOtherKey',
@@ -146,14 +146,14 @@ describe('Config.parse', () => {
     describe('and a field is missing from a decentralized account', () => {
       beforeEach(() => {
         config = {
-          centralizedAccounts: [
+          centralizedAccountsConfig: [
             {
               platformName: 'Binance',
               privateApiKey: 'SomeKey',
               nickname: 'Binance Main Account',
             },
           ],
-          decentralizedAccounts: [
+          decentralizedAccountsConfig: [
             {
               blockchainName: 'Ethereum',
               blockchainExplorerApiKey: 'SomeOtherKey',
@@ -174,14 +174,14 @@ describe('Config.parse', () => {
     describe('and a field is missing from a centralized account', () => {
       beforeEach(() => {
         config = {
-          centralizedAccounts: [
+          centralizedAccountsConfig: [
             {
               platformName: 'Binance',
               privateApiKey: '',
               nickname: 'Binance Main Account',
             },
           ],
-          decentralizedAccounts: [
+          decentralizedAccountsConfig: [
             {
               blockchainName: 'Ethereum',
               blockchainExplorerApiKey: 'SomeOtherKey',
@@ -202,7 +202,7 @@ describe('Config.parse', () => {
 
   describe('when a config file does not exist', () => {
     const defaultConfig = {
-      centralizedAccounts: [
+      centralizedAccountsConfig: [
         {
           platformName: 'Coinbase or KuCoin or Binance, etc..',
           privateApiKey: 'The private API generated from your account. Read-only is enough.',
@@ -212,12 +212,13 @@ describe('Config.parse', () => {
 
         },
       ],
-      decentralizedAccounts: [
+      decentralizedAccountsConfig: [
         {
-          blockchainName: 'Ethereum or Polygon, etc...',
-          privateApiKey: 'The private API generated from your Explorer account.',
+          blockchainName: 'Ethereum',
+          blockchainExplorerApiKey: 'The private API generated from your Explorer account.',
           walletAddress: 'Your public wallet address on the blockchain',
           nickname: 'A unique name to recognize your account',
+          nodeProviderApiKey: 'Api key from Infura, or Alchemy, etc',
         },
         {
 

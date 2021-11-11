@@ -5,14 +5,6 @@ import { fetchJson } from '../utils';
 
 const pathToErc20TokenCache = (chainName: string) => `./downloads/${chainName}_erc20_tokens.json`;
 
-const fallbackTokenData = {
-  '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': {
-    name: 'USD Coin',
-    symbol: 'USDC',
-    decimals: 6,
-  },
-};
-
 class Client {
   readonly pathToErc20TokenCache: string;
 
@@ -119,58 +111,6 @@ class Client {
       const createdAt = new Date(parseInt(entry.timeStamp, 10) * 1000);
       return createdAt >= since && createdAt <= until;
     });
-  }
-
-  async findErc20Token({ contractAddress }: { contractAddress: string }) {
-    const lowerCasedContractAddress = contractAddress.toLowerCase();
-    if (this.erc20tokens[lowerCasedContractAddress]) {
-      const token = this.erc20tokens[lowerCasedContractAddress];
-      return {
-        ...token,
-        rawValueToAmount(value) {
-          return value * 10 ** (-1 * this.decimals);
-        },
-      };
-    }
-    console.log(
-      `Token ${lowerCasedContractAddress} is unknown. Fetching info from the blockchain.`,
-    );
-    const abi = JSON.parse(
-      await this.call({
-        requestPath: `?module=contract&action=getabi&address=${lowerCasedContractAddress}`,
-      }),
-    );
-    const contract = new this.web3.eth.Contract(abi, lowerCasedContractAddress);
-
-    let name;
-    let decimals;
-    let symbol;
-    if (contract.methods.name && contract.methods.decimals && contract.methods.symbol) {
-      name = await contract.methods.name().call();
-      decimals = parseInt(await contract.methods.decimals().call(), 10);
-      symbol = await contract.methods.symbol().call();
-    } else if (fallbackTokenData[lowerCasedContractAddress]) {
-      const tokenData = fallbackTokenData[lowerCasedContractAddress];
-      name = tokenData.name;
-      decimals = tokenData.decimals;
-      symbol = tokenData.symbol;
-    } else {
-      throw new Error(`Erc 20 Token ${contractAddress} is unsupported!`);
-    }
-
-    const newToken = {
-      symbol,
-      name,
-      decimals,
-    };
-    this.erc20tokens[lowerCasedContractAddress] = newToken;
-    fs.writeFileSync(this.pathToErc20TokenCache, JSON.stringify(this.erc20tokens));
-    return {
-      ...newToken,
-      rawValueToAmount(value) {
-        return value * 10 ** (-1 * this.decimals);
-      },
-    };
   }
 }
 

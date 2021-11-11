@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-import EtherscanBaseClient from './etherscan_base.js';
+import EtherscanBaseClient from './etherscan_base';
 
 class Client extends EtherscanBaseClient {
   constructor({ etherscanApiKey, infuraApiKey }: { etherscanApiKey: string, infuraApiKey: string}) {

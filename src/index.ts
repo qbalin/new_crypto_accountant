@@ -1,5 +1,4 @@
 import Config from './config';
-import EthescanClient from './api_clients/etherscan';
 /*
 # Goal
 
@@ -30,11 +29,9 @@ Do achieve this, we will need to:
 1. Pull the data archive from all accounts and output it in a normalized way
 2. Process the data to output Atomic Ledger Entries
 */
-const config = Config.parse('./config.json');
-const client = new EthescanClient({
-  etherscanApiKey: config.decentralizedAccounts[0].blockchainExplorerApiKey,
-  infuraApiKey: config.decentralizedAccounts[0].nodeProviderApiKey,
-});
-client.call({
-  requestPath: `?module=account&action=txlist&address=${config.decentralizedAccounts[0].walletAddress}`,
+const accounts = Config.parse('./config.json');
+
+accounts.forEach((account) => {
+  account.fetch();
+  account.printTransactions();
 });

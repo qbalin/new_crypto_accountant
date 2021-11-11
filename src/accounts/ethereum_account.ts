@@ -1,22 +1,36 @@
-import BaseAccount from './base_account';
+import Account from './account';
 import { DecentralizedAccountConfig } from '../config';
+import EtherscanClient from '../api_clients/etherscan';
 
-class EthereumAccount extends BaseAccount {
+class EthereumAccount extends Account {
   readonly nickname: string
 
-  readonly blockchainExplorerApiKey: string
-
   readonly walletAddress: string;
+
+  readonly blockchainName: string;
+
+  readonly etherscanClient: EtherscanClient;
+
+  transations: { timeStamp: string; }[];
 
   constructor(config: DecentralizedAccountConfig) {
     super();
     this.nickname = config.nickname;
-    this.blockchainExplorerApiKey = config.blockchainExplorerApiKey;
     this.walletAddress = config.walletAddress;
+    this.blockchainName = config.blockchainName;
+    this.etherscanClient = new EtherscanClient({
+      etherscanApiKey: config.blockchainExplorerApiKey,
+      infuraApiKey: config.nodeProviderApiKey,
+    });
+    this.transations = [];
   }
 
-  async fetch() {
+  async fetch() : Promise<void> {
+    this.transations = await this.etherscanClient.call({ requestPath: `?module=account&action=txlist&address=${this.walletAddress}` });
+  }
 
+  printTransactions() {
+    console.log(this.transations);
   }
 }
 

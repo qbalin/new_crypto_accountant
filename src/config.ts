@@ -1,17 +1,31 @@
 /* eslint-disable no-param-reassign */
 import fs from 'fs';
+import EthereumAccount from './accounts/ethereum_account';
+import Account from './accounts/account';
 
-const SUPPORTED_PLATFORMS = ['kucoin', 'coinbase', 'binance'];
-const SUPPORTED_BLOCKCHAINS = ['ethereum', 'polygon', 'binancesmartchain'];
+enum SupportedPlatform {
+  KuCoin = 'kucoin',
+  Coinbase = 'coinbase',
+  Binance = 'binance',
+}
+
+const SUPPORTED_PLATFORMS = Object.values(SupportedPlatform);
+
+enum SupportedBlockchain {
+  Ethereum = 'ethereum',
+  Polygon = 'polygon',
+}
+
+const SUPPORTED_BLOCKCHAINS = Object.values(SupportedBlockchain);
 
 export interface CentralizedAccountConfig {
-  readonly platformName: string
+  readonly platformName: SupportedPlatform
   readonly privateApiKey: string
   readonly nickname: string
 }
 
 export interface DecentralizedAccountConfig {
-  readonly blockchainName: string
+  readonly blockchainName: SupportedBlockchain
   readonly blockchainExplorerApiKey: string
   readonly walletAddress: string
   readonly nickname: string
@@ -19,33 +33,34 @@ export interface DecentralizedAccountConfig {
 }
 
 export interface AccountsConfiguration {
-  centralizedAccounts: Array<CentralizedAccountConfig>
-  decentralizedAccounts: Array<DecentralizedAccountConfig>
+  centralizedAccountsConfig: Array<CentralizedAccountConfig>
+  decentralizedAccountsConfig: Array<DecentralizedAccountConfig>
 }
 
 const notEmpty = (object: { [key: string]: any }) : boolean => Object.keys(object).length > 0;
+const isPresent = <T>(arg: T | undefined | 0 | null | false | ''): arg is T => !!arg;
 
 class Config {
-  readonly centralizedAccounts: Array<CentralizedAccountConfig>;
+  readonly centralizedAccountsConfig: Array<CentralizedAccountConfig>;
 
-  readonly decentralizedAccounts: Array<DecentralizedAccountConfig>;
+  readonly decentralizedAccountsConfig: Array<DecentralizedAccountConfig>;
 
-  constructor({ centralizedAccounts, decentralizedAccounts }: AccountsConfiguration) {
-    this.centralizedAccounts = centralizedAccounts
+  constructor({ centralizedAccountsConfig, decentralizedAccountsConfig }: AccountsConfiguration) {
+    this.centralizedAccountsConfig = centralizedAccountsConfig
       .filter(notEmpty)
       .map((account) => ({
         ...account,
-        platformName: account.platformName.toLowerCase(),
+        platformName: account.platformName.toLowerCase() as SupportedPlatform,
       }));
-    this.decentralizedAccounts = decentralizedAccounts
+    this.decentralizedAccountsConfig = decentralizedAccountsConfig
       .filter(notEmpty)
       .map((account) => ({
         ...account,
-        blockchainName: account.blockchainName.toLowerCase(),
+        blockchainName: account.blockchainName.toLowerCase() as SupportedBlockchain,
         walletAddress: account.walletAddress.toLowerCase(),
       }));
 
-    this.centralizedAccounts.forEach((account) => {
+    this.centralizedAccountsConfig.forEach((account) => {
       if (!SUPPORTED_PLATFORMS.includes(account.platformName)) {
         throw new Error(`Unsupported platformName for account ${JSON.stringify(account)}. Must be one of ${SUPPORTED_PLATFORMS}`);
       }
@@ -53,7 +68,7 @@ class Config {
         throw new Error(`Please add a value for each field: ${Object.keys(account)}`);
       }
     });
-    this.decentralizedAccounts.forEach((account) => {
+    this.decentralizedAccountsConfig.forEach((account) => {
       if (!SUPPORTED_BLOCKCHAINS.includes(account.blockchainName)) {
         throw new Error(`Unsupported blockchainName for account ${JSON.stringify(account)}. Must be one of ${SUPPORTED_BLOCKCHAINS}`);
       }
@@ -62,8 +77,8 @@ class Config {
       }
     });
     const nicknamesCount = [
-      ...this.decentralizedAccounts.map((account) => account.nickname),
-      ...this.centralizedAccounts.map((account) => account.nickname),
+      ...this.decentralizedAccountsConfig.map((account) => account.nickname),
+      ...this.centralizedAccountsConfig.map((account) => account.nickname),
     ].reduce<Record<string, number>>((memo, nickname: string) => {
       if (typeof memo[nickname] === 'number') {
         memo[nickname] += 1;
@@ -80,13 +95,13 @@ class Config {
     }
   }
 
-  static parse(configFilePath: string) : Config {
+  static parse(configFilePath: string) : Account[] {
     if (!fs.existsSync(configFilePath)) {
       console.info(`Config file not found at ${configFilePath}. Creating one.`);
       const content = {
-        centralizedAccounts: [
+        centralizedAccountsConfig: [
           {
-            platformName: 'Coinbase or KuCoin or Binance, etc..',
+            platformName: 'Coinbase',
             privateApiKey: 'The private API generated from your account. Read-only is enough.',
             nickname: 'A unique name to recognize your account',
           },
@@ -96,7 +111,7 @@ class Config {
         ],
         decentralizedAccounts: [
           {
-            blockchainName: 'Ethereum or Polygon, etc...',
+            blockchainName: 'Ethereum',
             blockchainExplorerApiKey: 'The private API generated from your Explorer account.',
             walletAddress: 'Your public wallet address on the blockchain',
             nickname: 'A unique name to recognize your account',
@@ -110,7 +125,17 @@ class Config {
 
       fs.writeFileSync(configFilePath, JSON.stringify(content, null, 2));
     }
-    return new Config(JSON.parse(fs.readFileSync(configFilePath, { encoding: 'utf8' })));
+
+    const config = new Config(JSON.parse(fs.readFileSync(configFilePath, { encoding: 'utf8' })));
+
+    const centralizedAccounts = config.centralizedAccountsConfig.map(() => null);
+    const decentralizedAccounts = config.decentralizedAccountsConfig.map((accountConfig) => {
+      switch (accountConfig.blockchainName) {
+        case 'ethereum': return new EthereumAccount(accountConfig);
+        default: throw new Error(`Blockchain name unexpected (${accountConfig.blockchainName}) for account config ${JSON.stringify(accountConfig)}`);
+      }
+    });
+    return [...centralizedAccounts, ...decentralizedAccounts].filter(isPresent);
   }
 }
 
