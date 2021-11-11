@@ -21,14 +21,6 @@ class Client {
   constructor({
     apiKey, baseUrl, chainName, web3Instance,
   }: {apiKey: string, baseUrl: string, chainName: string, web3Instance: Web3}) {
-    if (!apiKey || !baseUrl || !chainName) {
-      throw new Error(
-        `An Etherscan-like client must be provided with an apiKey, baseUrl and chainName, got ${JSON.stringify(
-          { apiKey, baseUrl, chainName },
-        )}`,
-      );
-    }
-
     this.pathToErc20TokenCache = pathToErc20TokenCache(chainName);
 
     fs.writeFileSync(this.pathToErc20TokenCache, '', { flag: 'a' });

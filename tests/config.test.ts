@@ -1,4 +1,5 @@
 import fs from 'fs';
+import Web3 from 'web3';
 import EthereumAccount from '../src/accounts/ethereum_account';
 import Account from '../src/accounts/account';
 import Config, { SupportedBlockchain } from '../src/config';
@@ -10,11 +11,14 @@ describe('Config.parse', () => {
   let mockExistsSync: jest.SpyInstance;
   let mockWriteFileSync: jest.SpyInstance;
   let mockReadFileSync: jest.SpyInstance;
+  let mockWeb3WebSocketProvider: jest.SpyInstance;
 
   beforeEach(() => {
     mockExistsSync = jest.spyOn(fs, 'existsSync');
     mockWriteFileSync = jest.spyOn(fs, 'writeFileSync');
     mockReadFileSync = jest.spyOn(fs, 'readFileSync');
+    mockWeb3WebSocketProvider = jest.spyOn(Web3.providers, 'WebsocketProvider');
+    mockWeb3WebSocketProvider.mockImplementation(() => null);
   });
 
   describe('when a config file exists', () => {
