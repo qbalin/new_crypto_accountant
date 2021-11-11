@@ -109,7 +109,7 @@ class Config {
 
           },
         ],
-        decentralizedAccounts: [
+        decentralizedAccountsConfig: [
           {
             blockchainName: 'Ethereum',
             blockchainExplorerApiKey: 'The private API generated from your Explorer account.',
@@ -124,6 +124,7 @@ class Config {
       };
 
       fs.writeFileSync(configFilePath, JSON.stringify(content, null, 2));
+      throw new Error(`No config file could be found. A default one was created at ${configFilePath}`);
     }
 
     const config = new Config(JSON.parse(fs.readFileSync(configFilePath, { encoding: 'utf8' })));

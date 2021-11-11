@@ -240,7 +240,7 @@ describe('Config.parse', () => {
     });
 
     it('throws an error', () => {
-      expect(() => Config.parse(configFilePath)).toThrowError(/Unsupported platformName for account/);
+      expect(() => Config.parse(configFilePath)).toThrowError(`No config file could be found. A default one was created at ${configFilePath}`);
     });
   });
 });
