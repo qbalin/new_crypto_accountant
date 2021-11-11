@@ -16,8 +16,8 @@ class EthereumAccount extends Account {
   constructor(config: DecentralizedAccountConfig) {
     super();
     this.nickname = config.nickname;
-    this.walletAddress = config.walletAddress;
-    this.blockchainName = config.blockchainName;
+    this.walletAddress = config.walletAddress.toLowerCase();
+    this.blockchainName = config.blockchainName.toLowerCase();
     this.etherscanClient = new EtherscanClient({
       etherscanApiKey: config.blockchainExplorerApiKey,
       infuraApiKey: config.nodeProviderApiKey,

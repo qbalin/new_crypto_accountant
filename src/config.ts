@@ -3,7 +3,7 @@ import fs from 'fs';
 import EthereumAccount from './accounts/ethereum_account';
 import Account from './accounts/account';
 
-enum SupportedPlatform {
+export enum SupportedPlatform {
   KuCoin = 'kucoin',
   Coinbase = 'coinbase',
   Binance = 'binance',
@@ -11,7 +11,7 @@ enum SupportedPlatform {
 
 const SUPPORTED_PLATFORMS = Object.values(SupportedPlatform);
 
-enum SupportedBlockchain {
+export enum SupportedBlockchain {
   Ethereum = 'ethereum',
   Polygon = 'polygon',
 }

@@ -1,5 +1,7 @@
 import fs from 'fs';
-import Config from '../src/config';
+import EthereumAccount from '../src/accounts/ethereum_account';
+import Account from '../src/accounts/account';
+import Config, { SupportedBlockchain } from '../src/config';
 
 jest.mock('fs');
 
@@ -32,7 +34,7 @@ describe('Config.parse', () => {
           {
             blockchainName: 'Ethereum',
             blockchainExplorerApiKey: 'SomeOtherKey',
-            walletAddress: 'anAddress',
+            walletAddress: '0xAdd4355',
             nickname: 'Ethereum Main Account',
             nodeProviderApiKey: 'Infura API key',
           },
@@ -44,19 +46,18 @@ describe('Config.parse', () => {
     it('does not create a default file', () => {
       Config.parse(configFilePath);
       expect(mockExistsSync).toHaveBeenCalledWith(configFilePath);
-      expect(mockWriteFileSync).not.toHaveBeenCalled();
+      expect(mockWriteFileSync).not.toHaveBeenCalledWith(configFilePath, expect.anything());
     });
 
-    it('returns a config object', () => {
-      const conf = Config.parse(configFilePath);
-      expect(conf.centralizedAccountsConfig[0].platformName).toEqual('binance');
-      expect(conf.centralizedAccountsConfig[0].privateApiKey).toEqual('SomeKey');
-      expect(conf.centralizedAccountsConfig[0].nickname).toEqual('Binance Main Account');
-
-      expect(conf.decentralizedAccountsConfig[0].blockchainName).toEqual('ethereum');
-      expect(conf.decentralizedAccountsConfig[0].blockchainExplorerApiKey).toEqual('SomeOtherKey');
-      expect(conf.decentralizedAccountsConfig[0].walletAddress).toEqual('anaddress');
-      expect(conf.decentralizedAccountsConfig[0].nickname).toEqual('Ethereum Main Account');
+    it('return accounts', () => {
+      const accounts = Config.parse(configFilePath);
+      const ethereumAccounts: Account[] = accounts
+        .filter((account) => account instanceof EthereumAccount);
+      expect(ethereumAccounts).toHaveLength(1);
+      const ethereumAccount = ethereumAccounts[0] as EthereumAccount;
+      expect(ethereumAccount.nickname).toEqual('Ethereum Main Account');
+      expect(ethereumAccount.walletAddress).toEqual('0xadd4355');
+      expect(ethereumAccount.blockchainName).toEqual(SupportedBlockchain.Ethereum);
     });
 
     describe('and the same nickname is used more than once', () => {
@@ -167,7 +168,7 @@ describe('Config.parse', () => {
       });
 
       it('raises an error', () => {
-        expect(() => Config.parse(configFilePath)).toThrowError(/Please add a value for each field: blockchainName,privateApiKey,walletAddress,nickname/);
+        expect(() => Config.parse(configFilePath)).toThrowError('Please add a value for each field: blockchainName,blockchainExplorerApiKey,walletAddress,nickname,nodeProviderApiKey');
       });
     });
 
@@ -204,7 +205,7 @@ describe('Config.parse', () => {
     const defaultConfig = {
       centralizedAccountsConfig: [
         {
-          platformName: 'Coinbase or KuCoin or Binance, etc..',
+          platformName: 'Coinbase',
           privateApiKey: 'The private API generated from your account. Read-only is enough.',
           nickname: 'A unique name to recognize your account',
         },
