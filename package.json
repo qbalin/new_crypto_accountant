@@ -23,6 +23,7 @@
     "start": "yarn install; npx tsc -w",
     "test": "yarn jest",
     "debug": "node --inspect-brk node_modules/.bin/jest --runInBand --detectOpenHandles",
+    "detectOpenHandles": "yarn jest --detectOpenHandles",
     "lint": "yarn eslint --ext .ts,.js .",
     "prepare": "husky install"
   },

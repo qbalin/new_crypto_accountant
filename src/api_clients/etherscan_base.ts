@@ -54,12 +54,10 @@ abstract class Client {
     url.searchParams.set('endblock', url.searchParams.get('endblock') || '99999999');
     url.searchParams.set('sort', 'desc');
 
-    let {
-      data: { result: data },
-    } : { data: { result: { timeStamp: string }[] } } = await this.privateCall({
+    let data = (await this.privateCall({
       url,
       method,
-    });
+    })).data.result;
 
     // If what is returned is a single object, i.e. it does not have pagination info, we're done
     if (!Client.isPaginatedResult(data)) {
@@ -76,12 +74,11 @@ abstract class Client {
       url.searchParams.set('endblock', (parseInt(lastEntry.blockNumber, 10) - 1).toString());
 
       /* eslint-disable-next-line no-await-in-loop */
-      const res = await this.privateCall({
+      data = (await this.privateCall({
         url,
         method,
-      });
+      })).data.result;
 
-      data = res.data.result;
       collection = collection.concat(data);
       lastEntry = collection[collection.length - 1];
     }
