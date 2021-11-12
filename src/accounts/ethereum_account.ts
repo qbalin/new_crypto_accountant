@@ -1,23 +1,25 @@
-import Account from './account';
+import DecentralizedAccount from './decentralized_account';
 import { DecentralizedAccountConfig } from '../config';
 import EtherscanClient from '../api_clients/etherscan';
+import EthereumTransaction, { Attributes } from '../models/ethereum_transaction';
+import ModelLoader from '../models/loader';
 
-class EthereumAccount extends Account {
+class EthereumAccount extends DecentralizedAccount {
   readonly nickname: string
 
-  readonly walletAddress: string;
-
-  readonly blockchainName: string;
-
   readonly etherscanClient: EtherscanClient;
+
+  private static readonly Loader = new ModelLoader();
+
+  private static readonly recordTypes = {
+    txlist: EthereumTransaction,
+  }
 
   transations: { timeStamp: string; }[];
 
   constructor(config: DecentralizedAccountConfig) {
-    super();
+    super(config);
     this.nickname = config.nickname;
-    this.walletAddress = config.walletAddress.toLowerCase();
-    this.blockchainName = config.blockchainName.toLowerCase();
     this.etherscanClient = new EtherscanClient({
       etherscanApiKey: config.blockchainExplorerApiKey,
       infuraApiKey: config.nodeProviderApiKey,
@@ -26,7 +28,17 @@ class EthereumAccount extends Account {
   }
 
   async fetch() : Promise<void> {
-    this.transations = await this.etherscanClient.call({ requestPath: `?module=account&action=txlist&address=${this.walletAddress}` });
+    Object.entries(EthereumAccount.recordTypes).forEach(async ([key, Model]) => {
+      const transactions = EthereumAccount.Loader.load({ path: `./downloads/${this.identifier}-${key}.json`, Model });
+      transactions.sort((a, b) => +a.timeStamp - +b.timeStamp);
+      const firstTimeStamp = transactions[0]?.timeStamp || new Date();
+      const lastTimeStamp = transactions[transactions.length - 1]?.timeStamp || new Date();
+
+      const previousTransactions = (await this.etherscanClient.call({ requestPath: `?module=account&action=txlist&address=${this.walletAddress}`, until: new Date(+firstTimeStamp - 1) })).map((obj) => new Model(obj as Attributes));
+      const laterTransactions = (await this.etherscanClient.call({ requestPath: `?module=account&action=txlist&address=${this.walletAddress}`, since: new Date(+lastTimeStamp + 1) })).map((obj) => new Model(obj as Attributes));
+
+      EthereumAccount.Loader.save({ path: `./downloads/${this.identifier}-${key}.json`, collection: [...transactions, ...previousTransactions, ...laterTransactions] });
+    });
   }
 
   printTransactions() {
