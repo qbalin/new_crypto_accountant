@@ -83,8 +83,6 @@ abstract class Client {
       lastEntry = collection[collection.length - 1];
     }
 
-    console.log(JSON.stringify(collection, null, 2));
-
     return collection.filter((entry): boolean => {
       const createdAt = new Date(parseInt(entry.timeStamp, 10) * 1000);
       return createdAt >= since && createdAt <= until;
