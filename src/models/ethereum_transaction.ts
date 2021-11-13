@@ -1,31 +1,18 @@
 /* eslint-disable camelcase */
-
-export interface Attributes {
-    blockNumber: string;
-    timeStamp: string;
-    hash: string;
-    nonce: string;
-    blockHash: string;
-    transactionIndex: string;
-    from: string;
-    to: string;
-    value: string;
-    gas: string;
-    gasPrice: string;
-    isError: string;
-    txreceipt_status: string;
-    input: string;
-    contractAddress: string;
-    cumulativeGasUsed: string;
-    gasUsed: string;
-    confirmations: string;
-}
+import { EthereumTransactionAttributes as Attributes } from './attribute_types';
 
 class EthereumTransaction {
   private attributes: Attributes
 
-  constructor(attributes: Attributes) {
-    this.attributes = attributes;
+  static attributesList = ['blockNumber', 'timeStamp', 'hash', 'nonce', 'blockHash', 'transactionIndex', 'from', 'to', 'value', 'gas', 'gasPrice', 'isError', 'txreceipt_status', 'input', 'contractAddress', 'cumulativeGasUsed', 'gasUsed', 'confirmations'] as const;
+
+  constructor(attributes: Record<string, any>) {
+    EthereumTransaction.attributesList.forEach((attribute) => {
+      if (!Object.keys(attributes).includes(attribute)) {
+        throw new Error(`expected to find ${attribute} in ${Object.keys(attributes)}`);
+      }
+    });
+    this.attributes = attributes as Attributes;
   }
 
   get blockNumber() {
