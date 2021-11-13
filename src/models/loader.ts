@@ -15,6 +15,7 @@ class Loader {
     if (!fs.existsSync(path)) {
       fs.writeFileSync(path, '[]');
     }
+
     this.objectsLoaded[path] = JSON.parse(fs.readFileSync(path, { encoding: 'utf8' })).map((obj: Record<string, any>) => new Model({ attributes: obj }));
 
     return this.objectsLoaded[path];
