@@ -1,5 +1,5 @@
 import Account from './account';
-import { SupportedBlockchain } from '../config';
+import { SupportedBlockchain } from '../config_types';
 
 abstract class DecentralizedAccount extends Account {
     readonly walletAddress: string;

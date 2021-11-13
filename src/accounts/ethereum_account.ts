@@ -1,5 +1,5 @@
 import DecentralizedAccount from './decentralized_account';
-import { DecentralizedAccountConfig } from '../config';
+import type { DecentralizedAccountConfig } from '../config_types';
 import EtherscanClient from '../api_clients/etherscan';
 import EthereumTransaction from '../models/ethereum_transaction';
 
@@ -18,8 +18,7 @@ class EthereumAccount extends DecentralizedAccount {
   }
 
   async fetch() : Promise<void> {
-    const transaction = await EthereumTransaction.allForAccount(this);
-    const internalTransaction = await EthereumInternalTransaction.allForAccount(this);
+    console.log('-------------------', await EthereumTransaction.all({ accountIndentifier: this.identifier, walletAddress: this.walletAddress, blockchainExplorerClient: this.etherscanClient }));
   }
 }
 

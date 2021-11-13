@@ -2,7 +2,8 @@ import fs from 'fs';
 import Web3 from 'web3';
 import EthereumAccount from '../src/accounts/ethereum_account';
 import Account from '../src/accounts/account';
-import Config, { SupportedBlockchain } from '../src/config';
+import { SupportedBlockchain } from '../src/config_types';
+import Config from '../src/config';
 
 jest.mock('fs');
 

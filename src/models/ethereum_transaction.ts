@@ -1,7 +1,7 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable camelcase */
-import { EthereumTransactionAttributes as Attributes } from './attribute_types';
-import EthereumAccount from '../accounts/ethereum_account';
 import Loader from './loader';
+import EtherscanClient from '../api_clients/etherscan';
 
 class EthereumTransaction {
   private attributes: Attributes
@@ -10,17 +10,22 @@ class EthereumTransaction {
 
   static Loader = new Loader();
 
-  static allForAccount = async (account: EthereumAccount) => {
-    const transactions = this.Loader.load({ path: `./downloads/${account.identifier}-txlist.json`, Model: this });
+  static all = async ({ accountIndentifier, walletAddress, blockchainExplorerClient }:
+    {
+      accountIndentifier: string,
+      walletAddress: string,
+      blockchainExplorerClient: EtherscanClient
+    }) => {
+    const transactions = this.Loader.load({ path: `./downloads/${accountIndentifier}-txlist.json`, Model: this });
     transactions.sort((a, b) => +a.timeStamp - +b.timeStamp);
     const firstTimeStamp = transactions[0]?.timeStamp || new Date();
     const lastTimeStamp = transactions[transactions.length - 1]?.timeStamp || new Date();
 
-    const previousTransactions = (await account.etherscanClient.call({ requestPath: `?module=account&action=txlist&address=${account.walletAddress}`, until: new Date(+firstTimeStamp - 1) })).map((attributes) => { console.log('obk', attributes); return new this({ attributes }); });
-    const laterTransactions = (await account.etherscanClient.call({ requestPath: `?module=account&action=txlist&address=${account.walletAddress}`, since: new Date(+lastTimeStamp + 1) })).map((attributes) => { console.log('obk', attributes); return new this({ attributes }); });
+    const previousTransactions = (await blockchainExplorerClient.call({ requestPath: `?module=account&action=txlist&address=${walletAddress}`, until: new Date(+firstTimeStamp - 1) })).map((attributes) => new this({ attributes }));
+    const laterTransactions = (await blockchainExplorerClient.call({ requestPath: `?module=account&action=txlist&address=${walletAddress}`, since: new Date(+lastTimeStamp + 1) })).map((attributes) => new this({ attributes }));
 
     const allTransactions = [...transactions, ...previousTransactions, ...laterTransactions];
-    this.Loader.save({ path: `./downloads/${account.identifier}-txlist.json`, collection: allTransactions });
+    this.Loader.save({ path: `./downloads/${accountIndentifier}-txlist.json`, collection: allTransactions });
     return allTransactions;
   }
 
@@ -109,5 +114,10 @@ class EthereumTransaction {
     return this.attributes;
   }
 }
+
+export type Attributes = Record<
+  typeof EthereumTransaction.attributesList[number],
+  string
+>
 
 export default EthereumTransaction;

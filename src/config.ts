@@ -2,40 +2,16 @@
 import fs from 'fs';
 import EthereumAccount from './accounts/ethereum_account';
 import Account from './accounts/account';
-
-export enum SupportedPlatform {
-  KuCoin = 'kucoin',
-  Coinbase = 'coinbase',
-  Binance = 'binance',
-}
+import {
+  SupportedPlatform,
+  SupportedBlockchain,
+  CentralizedAccountConfig,
+  DecentralizedAccountConfig,
+  AccountsConfiguration,
+} from './config_types';
 
 const SUPPORTED_PLATFORMS = Object.values(SupportedPlatform);
-
-export enum SupportedBlockchain {
-  Ethereum = 'ethereum',
-  Polygon = 'polygon',
-}
-
 const SUPPORTED_BLOCKCHAINS = Object.values(SupportedBlockchain);
-
-export interface CentralizedAccountConfig {
-  readonly platformName: SupportedPlatform
-  readonly privateApiKey: string
-  readonly nickname: string
-}
-
-export interface DecentralizedAccountConfig {
-  readonly blockchainName: SupportedBlockchain
-  readonly blockchainExplorerApiKey: string
-  readonly walletAddress: string
-  readonly nickname: string
-  readonly nodeProviderApiKey: string
-}
-
-export interface AccountsConfiguration {
-  centralizedAccountsConfig: Array<CentralizedAccountConfig>
-  decentralizedAccountsConfig: Array<DecentralizedAccountConfig>
-}
 
 const notEmpty = (object: { [key: string]: any }) : boolean => Object.keys(object).length > 0;
 const isPresent = <T>(arg: T | undefined | 0 | null | false | ''): arg is T => !!arg;

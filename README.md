@@ -14,7 +14,8 @@ for VSCode
 1. Install [Node.js](https://nodejs.org/en/) on your machine if you don't have it
 2. Install [Yarn.js](https://classic.yarnpkg.com/en/docs/getting-started)
 3. Install the dependencies: in the code root directory, run `yarn install`
-4. In VSCode, Using Ctrl+Shift+P or Cmd+Shift+P, open `Preferences: Open Settings (JSON)` and add the following entries:
+4. Optional: install [GraphViz](https://graphviz.org/download/) on your system, which is a dependency of [Madge](https://github.com/pahen/madge)
+5. In VSCode, Using Ctrl+Shift+P or Cmd+Shift+P, open `Preferences: Open Settings (JSON)` and add the following entries:
 ```
     "files.trimTrailingWhitespace": true,
     "eslint.validate": ["typescript"],
@@ -22,7 +23,7 @@ for VSCode
         "source.fixAll.eslint": true
     }
 ```
-5. Restart VSCode
+6. Restart VSCode
 
 
 ## Development
