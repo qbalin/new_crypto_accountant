@@ -2,8 +2,9 @@ import fs from 'fs';
 import Web3 from 'web3';
 import EthereumAccount from '../src/accounts/ethereum_account';
 import Account from '../src/accounts/account';
-import { SupportedBlockchain } from '../src/config_types';
+import { SupportedBlockchain, SupportedPlatform } from '../src/config_types';
 import Config from '../src/config';
+import CoinbaseAccount from '../src/accounts/coinbase_account';
 
 jest.mock('fs');
 
@@ -31,7 +32,7 @@ describe('Config.parse', () => {
         centralizedAccountsConfig: [
           {
             platformName: 'Coinbase',
-            privateApiKey: 'SomeKey',
+            privateApiKey: 'SomeCoinbaseKey',
             nickname: 'Coinbase Main Account',
           },
         ],
@@ -63,6 +64,14 @@ describe('Config.parse', () => {
       expect(ethereumAccount.nickname).toEqual('Ethereum Main Account');
       expect(ethereumAccount.walletAddress).toEqual('0xadd4355');
       expect(ethereumAccount.blockchainName).toEqual(SupportedBlockchain.Ethereum);
+
+      const coinbaseAccounts: Account[] = accounts
+        .filter((account) => account instanceof CoinbaseAccount);
+      expect(coinbaseAccounts).toHaveLength(1);
+      const coinbaseAccount = coinbaseAccounts[0] as CoinbaseAccount;
+      expect(coinbaseAccount.nickname).toEqual('Coinbase Main Account');
+      expect(coinbaseAccount.apiKey).toEqual('SomeCoinbaseKey');
+      expect(coinbaseAccount.platformName).toEqual(SupportedPlatform.Coinbase);
     });
 
     describe('and the same nickname is used more than once', () => {
