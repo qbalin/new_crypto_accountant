@@ -30,9 +30,9 @@ describe('Config.parse', () => {
       config = {
         centralizedAccountsConfig: [
           {
-            platformName: 'Binance',
+            platformName: 'Coinbase',
             privateApiKey: 'SomeKey',
-            nickname: 'Binance Main Account',
+            nickname: 'Coinbase Main Account',
           },
         ],
         decentralizedAccountsConfig: [

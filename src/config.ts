@@ -10,6 +10,7 @@ import {
   DecentralizedAccountConfig,
   AccountsConfiguration,
 } from './config_types';
+import CoinbaseAccount from './accounts/coinbase_account';
 
 const SUPPORTED_PLATFORMS = Object.values(SupportedPlatform);
 const SUPPORTED_BLOCKCHAINS = Object.values(SupportedBlockchain);
@@ -106,7 +107,12 @@ class Config {
 
     const config = new Config(JSON.parse(fs.readFileSync(configFilePath, { encoding: 'utf8' })));
 
-    const centralizedAccounts = config.centralizedAccountsConfig.map(() => null);
+    const centralizedAccounts = config.centralizedAccountsConfig.map((accountConfig) => {
+      switch (accountConfig.platformName) {
+        case SupportedPlatform.Coinbase: return new CoinbaseAccount(accountConfig);
+        default: throw new Error(`Platform name unexpected (${accountConfig.platformName}) for account config ${JSON.stringify(accountConfig)}`);
+      }
+    });
     const decentralizedAccounts = config.decentralizedAccountsConfig.map((accountConfig) => {
       switch (accountConfig.blockchainName) {
         case SupportedBlockchain.Ethereum: return new EthereumAccount(accountConfig);
