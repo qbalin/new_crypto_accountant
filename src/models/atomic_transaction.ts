@@ -14,10 +14,10 @@ class AtomicTransaction {
 
   readonly transactionHash: string;
 
-  readonly dataSource: string;
+  readonly amount: number;
 
   constructor({
-    createdAt, action, currency, from, to, transactionHash, dataSource, chain,
+    createdAt, action, currency, from, to, transactionHash, chain, amount,
   }: {
     createdAt: Date,
     action: string,
@@ -25,8 +25,8 @@ class AtomicTransaction {
     from: string,
     to: string,
     transactionHash: string,
-    dataSource: string,
     chain: SupportedBlockchain,
+    amount: number,
   }) {
     this.createdAt = createdAt;
     this.action = action;
@@ -34,7 +34,7 @@ class AtomicTransaction {
     this.from = new EthereumLikeAddress({ address: from, chain });
     this.to = new EthereumLikeAddress({ address: to, chain });
     this.transactionHash = transactionHash;
-    this.dataSource = dataSource;
+    this.amount = amount;
   }
 }
 

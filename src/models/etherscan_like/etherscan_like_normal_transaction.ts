@@ -1,6 +1,7 @@
 /* eslint-disable no-use-before-define */
 import AtomicTransaction from '../atomic_transaction';
 import { SupportedBlockchain } from '../../config_types';
+import chainToCoinMap from '../../currencies';
 
 class EtherscanLikeNormalTransaction {
   private readonly attributes: Attributes
@@ -55,16 +56,12 @@ class EtherscanLikeNormalTransaction {
     return this.attributes.to.toLowerCase();
   }
 
-  get value() {
-    return parseInt(this.attributes.value, 10);
+  get amount() {
+    return parseInt(this.attributes.value, 10) * 10 ** -18;
   }
 
   get gas() {
     return parseInt(this.attributes.gas, 10);
-  }
-
-  get gasPrice() {
-    return parseInt(this.attributes.gasPrice, 10);
   }
 
   get isError() {
@@ -87,8 +84,10 @@ class EtherscanLikeNormalTransaction {
     return parseInt(this.attributes.cumulativeGasUsed, 10);
   }
 
-  get gasUsed() {
-    return parseInt(this.attributes.gasUsed, 10);
+  get gasSpentInEth() {
+    return parseInt(this.attributes.gasUsed, 10)
+    * parseInt(this.attributes.gasPrice, 10)
+    * 10 ** -18;
   }
 
   get confirmations() {
@@ -104,43 +103,25 @@ class EtherscanLikeNormalTransaction {
       new AtomicTransaction({
         createdAt: this.timeStamp,
         action: '-----',
-        currency: 'ETH',
+        currency: chainToCoinMap[this.chain],
         from: this.from,
         to: this.to,
+        amount: this.amount,
         transactionHash: this.hash,
-        dataSource: 'plop',
+        chain: this.chain,
+      }),
+      new AtomicTransaction({
+        createdAt: this.timeStamp,
+        action: 'PAY_FEE',
+        currency: chainToCoinMap[this.chain],
+        from: this.from,
+        to: this.to,
+        amount: this.gasSpentInEth,
+        transactionHash: this.hash,
         chain: this.chain,
       }),
     ];
   }
-  // {
-  //   createdAt: new Date(entry.timeStamp * 1000).toISOString(),
-  //   bundleId: entry.hash.toLowerCase(),
-  //   action: '----------',
-  //   currency: this.coin,
-  //   from: entry.from.toLowerCase(),
-  //   amount: entry.value * 10 ** -18,
-  //   to: entry.to.toLowerCase(),
-  //   transactionHash: entry.hash.toLowerCase(),
-  //   dataSource: 'explorer',
-  //   chain: this.chain,
-  //   contractAddress: entry.to.toLowerCase(),
-  //   input: entry.input,
-  // },
-  // {
-  //   createdAt: new Date(entry.timeStamp * 1000).toISOString(),
-  //   bundleId: entry.hash.toLowerCase(),
-  //   action: 'PAY_FEE',
-  //   currency: this.coin,
-  //   from: entry.from.toLowerCase(),
-  //   amount: entry.gasUsed * entry.gasPrice * 10 ** -18,
-  //   to: `_${this.coin} miner`,
-  //   transactionHash: entry.hash.toLowerCase(),
-  //   dataSource: 'explorer',
-  //   chain: this.chain,
-  // }
-
-  // }
 }
 
 export type Attributes = Record<
