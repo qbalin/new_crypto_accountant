@@ -16,6 +16,7 @@ class EthereumInternalTransaction {
     accountIndentifier,
     walletAddress,
     blockchainExplorerClient,
+    action: 'txlistinternal',
     Model: this,
   })
 
@@ -29,7 +30,7 @@ class EthereumInternalTransaction {
   }
 
   get blockNumber() {
-    return this.attributes.blockNumber;
+    return parseInt(this.attributes.blockNumber, 10);
   }
 
   get timeStamp() {
@@ -65,7 +66,7 @@ class EthereumInternalTransaction {
   }
 
   get contractAddress() {
-    return this.attributes.contractAddress;
+    return this.attributes.contractAddress.toLowerCase();
   }
 
   get gasUsed() {

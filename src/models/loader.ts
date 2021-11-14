@@ -1,14 +1,17 @@
 import fs from 'fs';
 
+const basePath = './downloads';
+
 class Loader {
   private readonly loaded: {[key: string]: boolean} = {}
 
   private readonly objectsLoaded: {[key: string]: any[]} = {}
 
-  load<T>({ path, Model } : {
-      path: string,
+  load<T>({ group, Model } : {
+    group: string,
       Model: new({ attributes }: { attributes: any}) => T
     }) : T[] {
+    const path = `${basePath}/${group}.json`;
     if (Array.isArray(this.objectsLoaded[path])) {
       return this.objectsLoaded[path];
     }
@@ -21,8 +24,10 @@ class Loader {
     return this.objectsLoaded[path];
   }
 
-  save<T extends { toJson:() => Record<string, any> }>({ path, collection } :
-     { path: string, collection: T[]}) {
+  save<T extends { toJson:() => Record<string, any> }>({ group, collection } :
+     { group: string, collection: T[]}) {
+    const path = `${basePath}/${group}.json`;
+
     this.objectsLoaded[path] = collection;
     fs.writeFileSync(path, JSON.stringify(collection.map((record) => record.toJson()), null, 2));
   }
