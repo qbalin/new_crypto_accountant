@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import fs from 'fs';
 import EthereumAccount from './accounts/ethereum_account';
+import PolygonAccount from './accounts/polygon_account';
 import Account from './accounts/account';
 import {
   SupportedPlatform,
@@ -108,7 +109,8 @@ class Config {
     const centralizedAccounts = config.centralizedAccountsConfig.map(() => null);
     const decentralizedAccounts = config.decentralizedAccountsConfig.map((accountConfig) => {
       switch (accountConfig.blockchainName) {
-        case 'ethereum': return new EthereumAccount(accountConfig);
+        case SupportedBlockchain.Ethereum: return new EthereumAccount(accountConfig);
+        case SupportedBlockchain.Polygon: return new PolygonAccount(accountConfig);
         default: throw new Error(`Blockchain name unexpected (${accountConfig.blockchainName}) for account config ${JSON.stringify(accountConfig)}`);
       }
     });

@@ -1,6 +1,6 @@
 import DecentralizedAccount from './decentralized_account';
 import type { DecentralizedAccountConfig } from '../config_types';
-import EtherscanClient from '../api_clients/etherscan';
+import PolygonscanClient from '../api_clients/polygonscan';
 import EtherscanLikeTransaction from '../models/etherscan_like_transaction';
 import EtherscanLikeInternalTransaction from '../models/etherscan_like_internal_transaction';
 import EtherscanLikeTokenTransaction from '../models/etherscan_like_token_transaction';
@@ -8,13 +8,13 @@ import EtherscanLikeTokenTransaction from '../models/etherscan_like_token_transa
 class EthereumAccount extends DecentralizedAccount {
   readonly nickname: string
 
-  readonly etherscanClient: EtherscanClient;
+  readonly polygonscanClient: PolygonscanClient;
 
   constructor(config: DecentralizedAccountConfig) {
     super(config);
     this.nickname = config.nickname;
-    this.etherscanClient = new EtherscanClient({
-      etherscanApiKey: config.blockchainExplorerApiKey,
+    this.polygonscanClient = new PolygonscanClient({
+      polygonscanApiKey: config.blockchainExplorerApiKey,
       infuraApiKey: config.nodeProviderApiKey,
     });
   }
@@ -23,17 +23,17 @@ class EthereumAccount extends DecentralizedAccount {
     await EtherscanLikeTransaction.all({
       accountIndentifier: this.identifier,
       walletAddress: this.walletAddress,
-      blockchainExplorerClient: this.etherscanClient,
+      blockchainExplorerClient: this.polygonscanClient,
     });
     await EtherscanLikeInternalTransaction.all({
       accountIndentifier: this.identifier,
       walletAddress: this.walletAddress,
-      blockchainExplorerClient: this.etherscanClient,
+      blockchainExplorerClient: this.polygonscanClient,
     });
     await EtherscanLikeTokenTransaction.all({
       accountIndentifier: this.identifier,
       walletAddress: this.walletAddress,
-      blockchainExplorerClient: this.etherscanClient,
+      blockchainExplorerClient: this.polygonscanClient,
     });
   }
 }
