@@ -1,0 +1,106 @@
+/* eslint-disable no-use-before-define */
+import Loader from './loader';
+import EtherscanClient from '../api_clients/etherscan';
+
+class EthereumInternalTransaction {
+  private attributes: Attributes
+
+  static attributesList = ['blockNumber', 'timeStamp', 'hash', 'from', 'to', 'value', 'contractAddress', 'input', 'type', 'gas', 'gasUsed', 'traceId', 'isError', 'errCode'] as const;
+
+  static Loader = new Loader();
+
+  static all = async ({ accountIndentifier, walletAddress, blockchainExplorerClient }:
+    {
+      accountIndentifier: string,
+      walletAddress: string,
+      blockchainExplorerClient: EtherscanClient
+    }) => {
+    const transactions = this.Loader.load({ path: `./downloads/${accountIndentifier}-txlistinternal.json`, Model: this });
+    transactions.sort((a, b) => +a.timeStamp - +b.timeStamp);
+    const firstTimeStamp = transactions[0]?.timeStamp || new Date();
+    const lastTimeStamp = transactions[transactions.length - 1]?.timeStamp || new Date();
+
+    const previousTransactions = (await blockchainExplorerClient.call({ requestPath: `?module=account&action=txlistinternal&address=${walletAddress}`, until: new Date(+firstTimeStamp - 1) })).map((attributes) => new this({ attributes }));
+    const laterTransactions = (await blockchainExplorerClient.call({ requestPath: `?module=account&action=txlistinternal&address=${walletAddress}`, since: new Date(+lastTimeStamp + 1) })).map((attributes) => new this({ attributes }));
+
+    const allTransactions = [...transactions, ...previousTransactions, ...laterTransactions];
+    this.Loader.save({ path: `./downloads/${accountIndentifier}-txlistinternal.json`, collection: allTransactions });
+    return allTransactions;
+  }
+
+  constructor({ attributes }: Record<string, any>) {
+    EthereumInternalTransaction.attributesList.forEach((attribute) => {
+      if (!Object.keys(attributes).includes(attribute)) {
+        throw new Error(`expected to find ${attribute} in ${Object.keys(attributes)}`);
+      }
+    });
+    this.attributes = attributes as Attributes;
+  }
+
+  get blockNumber() {
+    return this.attributes.blockNumber;
+  }
+
+  get timeStamp() {
+    return new Date(parseInt(this.attributes.timeStamp, 10) * 1000);
+  }
+
+  get hash() {
+    return this.attributes.hash.toLowerCase();
+  }
+
+  get from() {
+    return this.attributes.from.toLowerCase();
+  }
+
+  get to() {
+    return this.attributes.to.toLowerCase();
+  }
+
+  get value() {
+    return parseInt(this.attributes.value, 10);
+  }
+
+  get gas() {
+    return parseInt(this.attributes.gas, 10);
+  }
+
+  get isError() {
+    return this.attributes.isError !== '0';
+  }
+
+  get input() {
+    return this.attributes.input;
+  }
+
+  get contractAddress() {
+    return this.attributes.contractAddress;
+  }
+
+  get gasUsed() {
+    return this.attributes.gasUsed;
+  }
+
+  get type() {
+    return this.attributes.type;
+  }
+
+  get traceId() {
+    return this.attributes.type;
+  }
+
+  get errCode() {
+    return this.attributes.errCode;
+  }
+
+  toJson() {
+    return this.attributes;
+  }
+}
+
+export type Attributes = Record<
+  typeof EthereumInternalTransaction.attributesList[number],
+  string
+>
+
+export default EthereumInternalTransaction;
