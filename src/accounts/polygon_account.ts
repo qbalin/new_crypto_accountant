@@ -43,7 +43,7 @@ class EthereumAccount extends DecentralizedAccount {
     super(config);
     this.nickname = config.nickname;
     this.polygonscanClient = new PolygonscanClient({
-      polygonscanApiKey: config.blockchainExplorerApiKey,
+      etherscanLikeApiKey: config.blockchainExplorerApiKey,
       infuraApiKey: config.nodeProviderApiKey,
     });
   }

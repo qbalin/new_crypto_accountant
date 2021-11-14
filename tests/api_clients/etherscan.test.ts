@@ -8,9 +8,9 @@ jest.mock('../../src/utils');
 
 describe('EtherscanClient', () => {
   let mockWeb3WebSocketProvider: jest.SpyInstance;
-  const etherscanApiKey = 'etherscan-api-key';
+  const etherscanLikeApiKey = 'etherscan-api-key';
   let infuraApiKey: string;
-  const instance = () => new EtherscanClient({ etherscanApiKey, infuraApiKey });
+  const instance = () => new EtherscanClient({ etherscanLikeApiKey, infuraApiKey });
 
   beforeEach(() => {
     mockWeb3WebSocketProvider = jest.spyOn(Web3.providers, 'WebsocketProvider');
@@ -54,7 +54,7 @@ describe('EtherscanClient', () => {
         expect(mockFetchJson).toHaveBeenCalledTimes(1);
         expect(mockFetchJson).toHaveBeenCalledWith({
           method: 'GET',
-          url: `https://api.etherscan.io/api${requestPath}?page=1&offset=10000&startblock=0&endblock=99999999&sort=desc&apikey=${etherscanApiKey}`,
+          url: `https://api.etherscan.io/api${requestPath}?page=1&offset=10000&startblock=0&endblock=99999999&sort=desc&apikey=${etherscanLikeApiKey}`,
         });
         expect(data).toEqual('hello');
       }));
@@ -70,7 +70,7 @@ describe('EtherscanClient', () => {
         expect(mockFetchJson).toHaveBeenCalledTimes(1);
         expect(mockFetchJson).toHaveBeenCalledWith({
           method: 'GET',
-          url: `https://api.etherscan.io/api/some/path?startblock=11&endblock=22&page=1&offset=10000&sort=desc&apikey=${etherscanApiKey}`,
+          url: `https://api.etherscan.io/api/some/path?startblock=11&endblock=22&page=1&offset=10000&sort=desc&apikey=${etherscanLikeApiKey}`,
         });
         expect(data).toEqual('hello');
       }));
@@ -100,7 +100,7 @@ describe('EtherscanClient', () => {
         expect(mockFetchJson).toHaveBeenCalledTimes(1);
         expect(mockFetchJson).toHaveBeenCalledWith({
           method: 'GET',
-          url: `https://api.etherscan.io/api${requestPath}?page=1&offset=10000&startblock=0&endblock=99999999&sort=desc&apikey=${etherscanApiKey}`,
+          url: `https://api.etherscan.io/api${requestPath}?page=1&offset=10000&startblock=0&endblock=99999999&sort=desc&apikey=${etherscanLikeApiKey}`,
         });
         expect(data).toEqual([{
           timeStamp: new Date('2021-01-01').valueOf() / 1000,
@@ -130,7 +130,7 @@ describe('EtherscanClient', () => {
         expect(mockFetchJson).toHaveBeenCalledTimes(1);
         expect(mockFetchJson).toHaveBeenCalledWith({
           method: 'GET',
-          url: `https://api.etherscan.io/api${requestPath}?page=1&offset=10000&startblock=0&endblock=99999999&sort=desc&apikey=${etherscanApiKey}`,
+          url: `https://api.etherscan.io/api${requestPath}?page=1&offset=10000&startblock=0&endblock=99999999&sort=desc&apikey=${etherscanLikeApiKey}`,
         });
         expect(data).toEqual([{
           timeStamp: new Date('2021-01-02').valueOf() / 1000,
@@ -170,13 +170,13 @@ describe('EtherscanClient', () => {
         expect(mockFetchJson).toHaveBeenCalledTimes(2);
         expect(mockFetchJson).toHaveBeenNthCalledWith(1, {
           method: 'GET',
-          url: `https://api.etherscan.io/api${requestPath}?page=1&offset=10000&startblock=0&endblock=99999999&sort=desc&apikey=${etherscanApiKey}`,
+          url: `https://api.etherscan.io/api${requestPath}?page=1&offset=10000&startblock=0&endblock=99999999&sort=desc&apikey=${etherscanLikeApiKey}`,
         });
         // At the second call, it looks up to the block of the oldest
         // transaction returned by the first call, minus 1
         expect(mockFetchJson).toHaveBeenNthCalledWith(2, {
           method: 'GET',
-          url: `https://api.etherscan.io/api${requestPath}?page=1&offset=10000&startblock=0&endblock=${12345 - 1}&sort=desc&apikey=${etherscanApiKey}`,
+          url: `https://api.etherscan.io/api${requestPath}?page=1&offset=10000&startblock=0&endblock=${12345 - 1}&sort=desc&apikey=${etherscanLikeApiKey}`,
         });
         expect(data).toEqual([
           {

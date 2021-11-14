@@ -3,15 +3,15 @@ import EtherscanBaseClient from './etherscan_like';
 import { SupportedBlockchain } from '../config_types';
 
 class Client extends EtherscanBaseClient {
-  constructor({ polygonscanApiKey, infuraApiKey }:
-    { polygonscanApiKey: string, infuraApiKey: string}) {
+  constructor({ etherscanLikeApiKey, infuraApiKey }:
+    { etherscanLikeApiKey: string, infuraApiKey: string}) {
     const web3Instance = new Web3(
       new Web3.providers.WebsocketProvider(
         `wss://mainnet.infura.io/ws/v3/${infuraApiKey}`,
       ),
     );
     super({
-      apiKey: polygonscanApiKey,
+      apiKey: etherscanLikeApiKey,
       baseUrl: 'https://api.polygonscan.com/api',
       chainName: SupportedBlockchain.Polygon,
       web3Instance,
