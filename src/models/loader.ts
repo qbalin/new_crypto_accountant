@@ -7,7 +7,7 @@ class Loader {
 
   load<T>({ path, Model } : {
       path: string,
-      Model: new(arg: any) => T
+      Model: new({ attributes }: { attributes: any}) => T
     }) : T[] {
     if (Array.isArray(this.objectsLoaded[path])) {
       return this.objectsLoaded[path];

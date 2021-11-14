@@ -1,35 +1,26 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable camelcase */
-import Loader from './loader';
 import EtherscanClient from '../api_clients/etherscan';
+import FetchingStrategies from './fetching_strategies';
 
 class EthereumTransaction {
   private attributes: Attributes
 
   static attributesList = ['blockNumber', 'timeStamp', 'hash', 'nonce', 'blockHash', 'transactionIndex', 'from', 'to', 'value', 'gas', 'gasPrice', 'isError', 'txreceipt_status', 'input', 'contractAddress', 'cumulativeGasUsed', 'gasUsed', 'confirmations'] as const;
 
-  static Loader = new Loader();
-
   static all = async ({ accountIndentifier, walletAddress, blockchainExplorerClient }:
     {
       accountIndentifier: string,
       walletAddress: string,
       blockchainExplorerClient: EtherscanClient
-    }) => {
-    const transactions = this.Loader.load({ path: `./downloads/${accountIndentifier}-txlist.json`, Model: this });
-    transactions.sort((a, b) => +a.timeStamp - +b.timeStamp);
-    const firstTimeStamp = transactions[0]?.timeStamp || new Date();
-    const lastTimeStamp = transactions[transactions.length - 1]?.timeStamp || new Date();
+    }) => FetchingStrategies.ETHERSCAN_LIKE.cacheDiskNetwork({
+    accountIndentifier,
+    walletAddress,
+    blockchainExplorerClient,
+    Model: this,
+  })
 
-    const previousTransactions = (await blockchainExplorerClient.call({ requestPath: `?module=account&action=txlist&address=${walletAddress}`, until: new Date(+firstTimeStamp - 1) })).map((attributes) => new this({ attributes }));
-    const laterTransactions = (await blockchainExplorerClient.call({ requestPath: `?module=account&action=txlist&address=${walletAddress}`, since: new Date(+lastTimeStamp + 1) })).map((attributes) => new this({ attributes }));
-
-    const allTransactions = [...transactions, ...previousTransactions, ...laterTransactions];
-    this.Loader.save({ path: `./downloads/${accountIndentifier}-txlist.json`, collection: allTransactions });
-    return allTransactions;
-  }
-
-  constructor({ attributes }: Record<string, any>) {
+  constructor({ attributes }: { attributes: Record<string, any> }) {
     EthereumTransaction.attributesList.forEach((attribute) => {
       if (!Object.keys(attributes).includes(attribute)) {
         throw new Error(`expected to find ${attribute} in ${Object.keys(attributes)}`);
