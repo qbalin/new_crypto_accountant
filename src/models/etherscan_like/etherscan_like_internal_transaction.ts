@@ -1,5 +1,7 @@
 /* eslint-disable no-use-before-define */
 import { SupportedBlockchain } from '../../config_types';
+import chainToCoinMap from '../../currencies';
+import AtomicTransaction from '../atomic_transaction';
 
 class EtherscanLikeInternalTransaction {
   private readonly attributes: Attributes
@@ -42,8 +44,8 @@ class EtherscanLikeInternalTransaction {
     return this.attributes.to.toLowerCase();
   }
 
-  get value() {
-    return parseInt(this.attributes.value, 10);
+  get amount() {
+    return parseInt(this.attributes.value, 10) * 10 ** -18;
   }
 
   get gas() {
@@ -80,6 +82,21 @@ class EtherscanLikeInternalTransaction {
 
   toJson() {
     return this.attributes;
+  }
+
+  toAtomicTransactions() {
+    return [
+      new AtomicTransaction({
+        createdAt: this.timeStamp,
+        action: '---------',
+        currency: chainToCoinMap[this.chain],
+        from: this.from,
+        to: this.to,
+        amount: this.amount,
+        transactionHash: this.hash,
+        chain: this.chain,
+      }),
+    ];
   }
 }
 
