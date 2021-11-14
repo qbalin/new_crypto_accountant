@@ -70,7 +70,7 @@ class EthereumInternalTransaction {
   }
 
   get gasUsed() {
-    return this.attributes.gasUsed;
+    return parseInt(this.attributes.gasUsed, 10);
   }
 
   get type() {
