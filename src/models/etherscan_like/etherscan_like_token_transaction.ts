@@ -1,5 +1,7 @@
 /* eslint-disable no-use-before-define */
 import { SupportedBlockchain } from '../../config_types';
+import chainToCoinMap from '../../currencies';
+import AtomicTransaction from '../atomic_transaction';
 
 class EtherscanLikeTokenTransaction {
   private readonly attributes: Attributes
@@ -46,8 +48,9 @@ class EtherscanLikeTokenTransaction {
     return this.attributes.to.toLowerCase();
   }
 
-  get value() {
-    return parseInt(this.attributes.value, 10);
+  get amount() {
+    return parseInt(this.attributes.value, 10)
+    * 10 ** (-1 * parseInt(this.attributes.tokenDecimal, 10));
   }
 
   get tokenName() {
@@ -56,10 +59,6 @@ class EtherscanLikeTokenTransaction {
 
   get tokenSymbol() {
     return this.attributes.tokenSymbol.toUpperCase();
-  }
-
-  get tokenDecimal() {
-    return parseInt(this.attributes.tokenDecimal, 10);
   }
 
   get transactionIndex() {
@@ -96,6 +95,26 @@ class EtherscanLikeTokenTransaction {
 
   toJson() {
     return this.attributes;
+  }
+
+  toAtomicTransactions() {
+    return [
+      // Never take into account the fees from an erc20 token transaction:
+      // A normal transaction will bear the fees, that's where we get them from.
+      // A normal transaction can contain several erc20 token transactions, we don't
+      // want to count the fees multiple times. E.g.:
+      // https://polygonscan.com/tx/0x2d86c15bad5bc03dd43d06bd97c2ec389fbf400f38f2189eb92a6441327f721d
+      new AtomicTransaction({
+        createdAt: this.timeStamp,
+        action: '-----',
+        currency: chainToCoinMap[this.chain],
+        from: this.from,
+        to: this.to,
+        amount: this.amount,
+        transactionHash: this.hash,
+        chain: this.chain,
+      }),
+    ];
   }
 }
 
