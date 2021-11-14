@@ -1,6 +1,6 @@
 node_modules/
 dist/
 yarn-error.log
-config.json
+config.json*
 downloads/*
 circular_dependencies.svg

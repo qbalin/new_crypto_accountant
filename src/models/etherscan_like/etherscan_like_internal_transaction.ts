@@ -1,32 +1,25 @@
 /* eslint-disable no-use-before-define */
-import EtherscanClient from '../api_clients/etherscan';
-import FetchingStrategies from './fetching_strategies';
+import { SupportedBlockchain } from '../../config_types';
 
 class EtherscanLikeInternalTransaction {
-  private attributes: Attributes
+  private readonly attributes: Attributes
 
-  static attributesList = ['blockNumber', 'timeStamp', 'hash', 'from', 'to', 'value', 'contractAddress', 'input', 'type', 'gas', 'gasUsed', 'traceId', 'isError', 'errCode'] as const;
+  readonly chain: SupportedBlockchain;
 
-  static all = async ({ accountIndentifier, walletAddress, blockchainExplorerClient }:
-    {
-      accountIndentifier: string,
-      walletAddress: string,
-      blockchainExplorerClient: EtherscanClient
-    }) => FetchingStrategies.ETHERSCAN_LIKE.cacheDiskNetwork({
-    accountIndentifier,
-    walletAddress,
-    blockchainExplorerClient,
-    action: 'txlistinternal',
-    Model: this,
-  })
+  static readonly attributesList = ['blockNumber', 'timeStamp', 'hash', 'from', 'to', 'value', 'contractAddress', 'input', 'type', 'gas', 'gasUsed', 'traceId', 'isError', 'errCode'] as const;
 
-  constructor({ attributes }: { attributes: Record<string, any> }) {
+  static readonly fetchAction = 'txlistinternal'
+
+  constructor(
+    { attributes, chain } : { attributes: Record<string, any>, chain: SupportedBlockchain },
+  ) {
     EtherscanLikeInternalTransaction.attributesList.forEach((attribute) => {
       if (!Object.keys(attributes).includes(attribute)) {
         throw new Error(`expected to find ${attribute} in ${Object.keys(attributes)}`);
       }
     });
     this.attributes = attributes as Attributes;
+    this.chain = chain;
   }
 
   get blockNumber() {

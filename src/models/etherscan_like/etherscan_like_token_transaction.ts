@@ -1,32 +1,25 @@
 /* eslint-disable no-use-before-define */
-import EtherscanClient from '../api_clients/etherscan';
-import FetchingStrategies from './fetching_strategies';
+import { SupportedBlockchain } from '../../config_types';
 
 class EtherscanLikeTokenTransaction {
-  private attributes: Attributes
+  private readonly attributes: Attributes
 
-  static attributesList = ['blockNumber', 'timeStamp', 'hash', 'nonce', 'blockHash', 'from', 'contractAddress', 'to', 'value', 'tokenName', 'tokenSymbol', 'tokenDecimal', 'transactionIndex', 'gas', 'gasPrice', 'gasUsed', 'cumulativeGasUsed', 'input', 'confirmations'] as const;
+  readonly chain: SupportedBlockchain;
 
-  static all = async ({ accountIndentifier, walletAddress, blockchainExplorerClient }:
-    {
-      accountIndentifier: string,
-      walletAddress: string,
-      blockchainExplorerClient: EtherscanClient
-    }) => FetchingStrategies.ETHERSCAN_LIKE.cacheDiskNetwork({
-    accountIndentifier,
-    walletAddress,
-    blockchainExplorerClient,
-    action: 'tokentx',
-    Model: this,
-  })
+  static readonly attributesList = ['blockNumber', 'timeStamp', 'hash', 'nonce', 'blockHash', 'from', 'contractAddress', 'to', 'value', 'tokenName', 'tokenSymbol', 'tokenDecimal', 'transactionIndex', 'gas', 'gasPrice', 'gasUsed', 'cumulativeGasUsed', 'input', 'confirmations'] as const;
 
-  constructor({ attributes }: { attributes: Record<string, any> }) {
+  static readonly fetchAction = 'tokentx'
+
+  constructor(
+    { attributes, chain } : { attributes: Record<string, any>, chain: SupportedBlockchain },
+  ) {
     EtherscanLikeTokenTransaction.attributesList.forEach((attribute) => {
       if (!Object.keys(attributes).includes(attribute)) {
         throw new Error(`expected to find ${attribute} in ${Object.keys(attributes)}`);
       }
     });
     this.attributes = attributes as Attributes;
+    this.chain = chain;
   }
 
   get blockNumber() {
