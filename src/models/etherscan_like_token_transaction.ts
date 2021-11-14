@@ -2,7 +2,7 @@
 import EtherscanClient from '../api_clients/etherscan';
 import FetchingStrategies from './fetching_strategies';
 
-class EthereumTokenTransaction {
+class EtherscanLikeTokenTransaction {
   private attributes: Attributes
 
   static attributesList = ['blockNumber', 'timeStamp', 'hash', 'nonce', 'blockHash', 'from', 'contractAddress', 'to', 'value', 'tokenName', 'tokenSymbol', 'tokenDecimal', 'transactionIndex', 'gas', 'gasPrice', 'gasUsed', 'cumulativeGasUsed', 'input', 'confirmations'] as const;
@@ -21,7 +21,7 @@ class EthereumTokenTransaction {
   })
 
   constructor({ attributes }: { attributes: Record<string, any> }) {
-    EthereumTokenTransaction.attributesList.forEach((attribute) => {
+    EtherscanLikeTokenTransaction.attributesList.forEach((attribute) => {
       if (!Object.keys(attributes).includes(attribute)) {
         throw new Error(`expected to find ${attribute} in ${Object.keys(attributes)}`);
       }
@@ -107,8 +107,8 @@ class EthereumTokenTransaction {
 }
 
 export type Attributes = Record<
-  typeof EthereumTokenTransaction.attributesList[number],
+  typeof EtherscanLikeTokenTransaction.attributesList[number],
   string
 >
 
-export default EthereumTokenTransaction;
+export default EtherscanLikeTokenTransaction;

@@ -1,11 +1,12 @@
 /* eslint-disable no-use-before-define */
+/* eslint-disable camelcase */
 import EtherscanClient from '../api_clients/etherscan';
 import FetchingStrategies from './fetching_strategies';
 
-class EthereumInternalTransaction {
+class EtherscanLikeTransaction {
   private attributes: Attributes
 
-  static attributesList = ['blockNumber', 'timeStamp', 'hash', 'from', 'to', 'value', 'contractAddress', 'input', 'type', 'gas', 'gasUsed', 'traceId', 'isError', 'errCode'] as const;
+  static attributesList = ['blockNumber', 'timeStamp', 'hash', 'nonce', 'blockHash', 'transactionIndex', 'from', 'to', 'value', 'gas', 'gasPrice', 'isError', 'txreceipt_status', 'input', 'contractAddress', 'cumulativeGasUsed', 'gasUsed', 'confirmations'] as const;
 
   static all = async ({ accountIndentifier, walletAddress, blockchainExplorerClient }:
     {
@@ -15,13 +16,13 @@ class EthereumInternalTransaction {
     }) => FetchingStrategies.ETHERSCAN_LIKE.cacheDiskNetwork({
     accountIndentifier,
     walletAddress,
+    action: 'txlist',
     blockchainExplorerClient,
-    action: 'txlistinternal',
     Model: this,
   })
 
   constructor({ attributes }: { attributes: Record<string, any> }) {
-    EthereumInternalTransaction.attributesList.forEach((attribute) => {
+    EtherscanLikeTransaction.attributesList.forEach((attribute) => {
       if (!Object.keys(attributes).includes(attribute)) {
         throw new Error(`expected to find ${attribute} in ${Object.keys(attributes)}`);
       }
@@ -41,6 +42,18 @@ class EthereumInternalTransaction {
     return this.attributes.hash.toLowerCase();
   }
 
+  get nonce() {
+    return this.attributes.nonce;
+  }
+
+  get blockHash() {
+    return this.attributes.blockHash.toLowerCase();
+  }
+
+  get transactionIndex() {
+    return this.attributes.transactionIndex;
+  }
+
   get from() {
     return this.attributes.from.toLowerCase();
   }
@@ -57,8 +70,16 @@ class EthereumInternalTransaction {
     return parseInt(this.attributes.gas, 10);
   }
 
+  get gasPrice() {
+    return parseInt(this.attributes.gasPrice, 10);
+  }
+
   get isError() {
     return this.attributes.isError !== '0';
+  }
+
+  get txreceipt_status() {
+    return this.attributes.txreceipt_status;
   }
 
   get input() {
@@ -69,20 +90,16 @@ class EthereumInternalTransaction {
     return this.attributes.contractAddress.toLowerCase();
   }
 
+  get cumulativeGasUsed() {
+    return parseInt(this.attributes.cumulativeGasUsed, 10);
+  }
+
   get gasUsed() {
     return parseInt(this.attributes.gasUsed, 10);
   }
 
-  get type() {
-    return this.attributes.type;
-  }
-
-  get traceId() {
-    return this.attributes.type;
-  }
-
-  get errCode() {
-    return this.attributes.errCode;
+  get confirmations() {
+    return parseInt(this.attributes.confirmations, 10);
   }
 
   toJson() {
@@ -91,8 +108,8 @@ class EthereumInternalTransaction {
 }
 
 export type Attributes = Record<
-  typeof EthereumInternalTransaction.attributesList[number],
+  typeof EtherscanLikeTransaction.attributesList[number],
   string
 >
 
-export default EthereumInternalTransaction;
+export default EtherscanLikeTransaction;

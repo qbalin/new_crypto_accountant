@@ -1,6 +1,6 @@
-import EthereumTransaction from './ethereum_transaction';
-import EthereumInternalTransaction from './ethereum_internal_transaction';
+import EtherscanLikeTransaction from './etherscan_like_transaction';
+import EtherscanLikeInternalTransaction from './etherscan_like_internal_transaction';
 
-type Transaction = EthereumTransaction | EthereumInternalTransaction
+type Transaction = EtherscanLikeTransaction | EtherscanLikeInternalTransaction
 
 export default Transaction;
