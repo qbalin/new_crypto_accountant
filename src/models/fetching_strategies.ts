@@ -1,5 +1,5 @@
 import Loader from './loader';
-import EtherscanBase from '../api_clients/etherscan_base';
+import EtherscanBase from '../api_clients/etherscan_like';
 
 export default {
   ETHERSCAN_LIKE: {

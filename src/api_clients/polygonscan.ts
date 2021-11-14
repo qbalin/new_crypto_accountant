@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-import EtherscanBaseClient from './etherscan_base';
+import EtherscanBaseClient from './etherscan_like';
 import { SupportedBlockchain } from '../config_types';
 
 class Client extends EtherscanBaseClient {
