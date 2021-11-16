@@ -35,7 +35,7 @@ abstract class Client {
     this.apiKey = apiKey;
   }
 
-  static isPaginatedResult(data: any | any[]): boolean {
+  static isPaginatedResult(data: any) {
     return Array.isArray(data);
   }
 

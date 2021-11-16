@@ -20,11 +20,8 @@ export default {
       const firstTimeStamp = transactions[0]?.timeStamp || new Date();
       const lastTimeStamp = transactions[transactions.length - 1]?.timeStamp || new Date();
 
-      console.log('transactions', transactions);
-
       const previousTransactions = (await blockchainExplorerClient.call({ requestPath: `?module=account&action=${action}&address=${walletAddress}`, until: new Date(+firstTimeStamp - 1) }));
       const laterTransactions = (await blockchainExplorerClient.call({ requestPath: `?module=account&action=${action}&address=${walletAddress}`, since: new Date(+lastTimeStamp + 1) }));
-      console.log('previousTransactions', previousTransactions);
 
       const allTransactions = [...transactions, ...previousTransactions, ...laterTransactions];
       Loader.save({ group, collection: allTransactions });
