@@ -11,6 +11,8 @@ export enum SupportedBlockchain {
 export interface CentralizedAccountConfig {
   readonly platformName: SupportedPlatform
   readonly privateApiKey: string
+  readonly privateApiPassphrase: string
+  readonly privateApiSecret: string
   readonly nickname: string
 }
 

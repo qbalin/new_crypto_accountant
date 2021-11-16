@@ -81,6 +81,8 @@ class Config {
           {
             platformName: 'Coinbase',
             privateApiKey: 'The private API generated from your account. Read-only is enough.',
+            privateApiSecret: 'The private API secret that goes with the key. Optional sometimes.',
+            privateApiPassphrase: 'The private API passphrase that goes with the key. Optional sometimes.',
             nickname: 'A unique name to recognize your account',
           },
           {

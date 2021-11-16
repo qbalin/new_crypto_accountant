@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { fetchJson } from '../utils.js';
+import { fetchJson } from '../utils';
 
 const signature = (
   secret: string,
@@ -78,10 +78,10 @@ class Client {
     body = {},
   }: {
     requestPath: string,
-    since: Date,
-    until: Date,
-    method: string,
-    body: Record<string, any>,
+    since?: Date,
+    until?: Date,
+    method?: string,
+    body?: Record<string, any>,
   }) {
     let collection: Record<string, any> = [];
     const url = new URL(`${this.baseUrl}${requestPath}`);

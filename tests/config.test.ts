@@ -33,6 +33,8 @@ describe('Config.parse', () => {
           {
             platformName: 'Coinbase',
             privateApiKey: 'SomeCoinbaseKey',
+            privateApiPassphrase: 'SomeCoinbaseApiPassphrase',
+            privateApiSecret: 'SomeCoinbaseApiSecret',
             nickname: 'Coinbase Main Account',
           },
         ],
@@ -70,7 +72,6 @@ describe('Config.parse', () => {
       expect(coinbaseAccounts).toHaveLength(1);
       const coinbaseAccount = coinbaseAccounts[0] as CoinbaseAccount;
       expect(coinbaseAccount.nickname).toEqual('Coinbase Main Account');
-      expect(coinbaseAccount.apiKey).toEqual('SomeCoinbaseKey');
       expect(coinbaseAccount.platformName).toEqual(SupportedPlatform.Coinbase);
     });
 
@@ -81,6 +82,8 @@ describe('Config.parse', () => {
             {
               platformName: 'Binance',
               privateApiKey: 'SomeKey',
+              privateApiPassphrase: 'SomeApiPassphrase',
+              privateApiSecret: 'SomeApiSecret',
               nickname: 'Main Account',
             },
           ],
@@ -109,6 +112,8 @@ describe('Config.parse', () => {
             {
               platformName: 'Unsupported',
               privateApiKey: 'SomeKey',
+              privateApiPassphrase: 'SomeApiPassphrase',
+              privateApiSecret: 'SomeApiSecret',
               nickname: 'Unsupported Main Account',
             },
           ],
@@ -137,6 +142,8 @@ describe('Config.parse', () => {
             {
               platformName: 'Binance',
               privateApiKey: 'SomeKey',
+              privateApiPassphrase: 'SomeApiPassphrase',
+              privateApiSecret: 'SomeApiSecret',
               nickname: 'Binance Main Account',
             },
           ],
@@ -165,6 +172,8 @@ describe('Config.parse', () => {
             {
               platformName: 'Binance',
               privateApiKey: 'SomeKey',
+              privateApiPassphrase: 'SomeApiPassphrase',
+              privateApiSecret: 'SomeApiSecret',
               nickname: 'Binance Main Account',
             },
           ],
@@ -193,6 +202,8 @@ describe('Config.parse', () => {
             {
               platformName: 'Binance',
               privateApiKey: '',
+              privateApiPassphrase: 'SomeApiPassphrase',
+              privateApiSecret: 'SomeApiSecret',
               nickname: 'Binance Main Account',
             },
           ],
@@ -210,7 +221,7 @@ describe('Config.parse', () => {
       });
 
       it('raises an error', () => {
-        expect(() => Config.parse(configFilePath)).toThrowError(/Please add a value for each field: platformName,privateApiKey,nickname/);
+        expect(() => Config.parse(configFilePath)).toThrowError('Please add a value for each field: platformName,privateApiKey,privateApiPassphrase,privateApiSecret,nickname');
       });
     });
   });
@@ -221,6 +232,8 @@ describe('Config.parse', () => {
         {
           platformName: 'Coinbase',
           privateApiKey: 'The private API generated from your account. Read-only is enough.',
+          privateApiSecret: 'The private API secret that goes with the key. Optional sometimes.',
+          privateApiPassphrase: 'The private API passphrase that goes with the key. Optional sometimes.',
           nickname: 'A unique name to recognize your account',
         },
         {
