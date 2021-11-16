@@ -46,9 +46,8 @@ class Client {
   } : {
       url: URL, method: string, body: Record<string, any>, timestamp: string,
   }) {
-    if (process.env.LOG_LEVEL === 'DEBUG') {
-      console.log('CoinbaseClient call:', url.href);
-    }
+    console.log('CoinbaseClient call:', url.href);
+
     const headers = {
       'CB-ACCESS-KEY': this.apiKey,
       'CB-ACCESS-PASSPHRASE': this.apiPassphrase,
