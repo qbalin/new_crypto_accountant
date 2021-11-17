@@ -10,8 +10,6 @@ class EtherscanLikeInternalTransaction {
 
   static readonly attributesList = ['blockNumber', 'timeStamp', 'hash', 'from', 'to', 'value', 'contractAddress', 'input', 'type', 'gas', 'gasUsed', 'traceId', 'isError', 'errCode'] as const;
 
-  static readonly fetchAction = 'txlistinternal'
-
   constructor(
     { attributes, chain } : { attributes: Record<string, any>, chain: SupportedBlockchain },
   ) {

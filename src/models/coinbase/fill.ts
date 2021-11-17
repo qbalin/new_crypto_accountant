@@ -21,8 +21,8 @@ class Fill {
   constructor({ attributes } : { attributes: Record<string, any> }) {
     const attributesPassed = new Set(Object.keys(attributes));
     const attributesRequired = new Set(['created_at', 'trade_id', 'product_id', 'order_id', 'user_id', 'profile_id', 'liquidity', 'price', 'size', 'fee', 'side', 'settled', 'usd_volume']);
-    if (attributesPassed.size + attributesRequired.size
-      !== new Set([Array.from(attributesPassed), Array.from(attributesRequired)]).size
+    if ((attributesPassed.size + attributesRequired.size) / 2
+      !== new Set([...Array.from(attributesPassed), ...Array.from(attributesRequired)]).size
     ) {
       throw new Error(`expected to find exactly ${Array.from(attributesRequired)} in ${Object.keys(attributes)}`);
     }

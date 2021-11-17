@@ -5,7 +5,7 @@ const basePath = './downloads';
 class Loader {
   static load({ group } : {
     group: string,
-    }) : Record<string, any> {
+    }) : Record<string, any>[] {
     const path = `${basePath}/${group}.json`;
 
     if (!fs.existsSync(path)) {

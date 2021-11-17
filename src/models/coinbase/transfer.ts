@@ -62,8 +62,8 @@ class Transfer {
   constructor({ attributes } : { attributes: Record<string, any> }) {
     const attributesPassed = new Set(Object.keys(attributes));
     const attributesRequired = new Set(['id', 'type', 'created_at', 'completed_at', 'canceled_at', 'processed_at', 'account_id', 'user_id', 'user_nonce', 'amount', 'details', 'idem']);
-    if (attributesPassed.size + attributesRequired.size
-      !== new Set([Array.from(attributesPassed), Array.from(attributesRequired)]).size
+    if ((attributesPassed.size + attributesRequired.size) / 2
+      !== new Set([...Array.from(attributesPassed), ...Array.from(attributesRequired)]).size
     ) {
       throw new Error(`expected to find exactly ${Array.from(attributesRequired)} in ${Object.keys(attributes)}`);
     }

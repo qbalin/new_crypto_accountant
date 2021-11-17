@@ -10,8 +10,6 @@ class EtherscanLikeNormalTransaction {
 
   static readonly attributesList = ['blockNumber', 'timeStamp', 'hash', 'nonce', 'blockHash', 'transactionIndex', 'from', 'to', 'value', 'gas', 'gasPrice', 'isError', 'txreceipt_status', 'input', 'contractAddress', 'cumulativeGasUsed', 'gasUsed', 'confirmations'] as const;
 
-  static readonly fetchAction = 'txlist'
-
   constructor(
     { attributes, chain } : { attributes: Record<string, any>, chain: SupportedBlockchain },
   ) {

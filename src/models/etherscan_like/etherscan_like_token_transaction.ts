@@ -10,8 +10,6 @@ class EtherscanLikeTokenTransaction {
 
   static readonly attributesList = ['blockNumber', 'timeStamp', 'hash', 'nonce', 'blockHash', 'from', 'contractAddress', 'to', 'value', 'tokenName', 'tokenSymbol', 'tokenDecimal', 'transactionIndex', 'gas', 'gasPrice', 'gasUsed', 'cumulativeGasUsed', 'input', 'confirmations'] as const;
 
-  static readonly fetchAction = 'tokentx'
-
   constructor(
     { attributes, chain } : { attributes: Record<string, any>, chain: SupportedBlockchain },
   ) {

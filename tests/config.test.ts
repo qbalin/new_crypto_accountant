@@ -72,7 +72,7 @@ describe('Config.parse', () => {
       expect(coinbaseAccounts).toHaveLength(1);
       const coinbaseAccount = coinbaseAccounts[0] as CoinbaseAccount;
       expect(coinbaseAccount.nickname).toEqual('Coinbase Main Account');
-      expect(coinbaseAccount.platformName).toEqual(SupportedPlatform.Coinbase);
+      expect(coinbaseAccount.platform).toEqual(SupportedPlatform.Coinbase);
     });
 
     describe('and the same nickname is used more than once', () => {

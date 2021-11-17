@@ -28,8 +28,8 @@ class Product {
   constructor({ attributes } : { attributes: Record<string, any> }) {
     const attributesPassed = new Set(Object.keys(attributes));
     const attributesRequired = new Set(['id', 'base_currency', 'quote_currency', 'base_min_size', 'base_max_size', 'quote_increment', 'base_increment', 'display_name', 'min_market_funds', 'max_market_funds', 'margin_enabled', 'fx_stablecoin', 'max_slippage_percentage', 'post_only', 'limit_only', 'cancel_only', 'trading_disabled', 'status', 'status_message', 'auction_mode']);
-    if (attributesPassed.size + attributesRequired.size
-      !== new Set([Array.from(attributesPassed), Array.from(attributesRequired)]).size
+    if ((attributesPassed.size + attributesRequired.size) / 2
+      !== new Set([...Array.from(attributesPassed), ...Array.from(attributesRequired)]).size
     ) {
       throw new Error(`expected to find exactly ${Array.from(attributesRequired)} in ${Object.keys(attributes)}`);
     }

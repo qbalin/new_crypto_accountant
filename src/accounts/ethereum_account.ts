@@ -7,25 +7,25 @@ import EtherscanClient from '../api_clients/etherscan';
 import FetchingStrategies from '../models/fetching_strategies';
 
 const all = async <T>({
-  accountIndentifier, walletAddress, blockchainExplorerClient, Model,
+  accountIndentifier, walletAddress, apiClient, Model, fetchAction,
 }:
   {
     accountIndentifier: string,
     walletAddress: string,
-    blockchainExplorerClient: EtherscanClient,
+    apiClient: EtherscanClient,
     Model: {
       new ({ attributes } : {
         attributes: Record<string, any>,
         chain: SupportedBlockchain
       }): T,
-      fetchAction: string
     },
+    fetchAction: string
   }) : Promise<T[]> => {
   const transactions = await FetchingStrategies.ETHERSCAN_LIKE.diskNetwork({
     accountIndentifier,
     walletAddress,
-    action: Model.fetchAction,
-    blockchainExplorerClient,
+    action: fetchAction,
+    apiClient,
   });
 
   return transactions.map((attributes) => new Model({
@@ -53,19 +53,22 @@ class EthereumAccount extends DecentralizedAccount {
       Model: EtherscanLikeNormalTransaction,
       accountIndentifier: this.identifier,
       walletAddress: this.walletAddress,
-      blockchainExplorerClient: this.etherscanClient,
+      apiClient: this.etherscanClient,
+      fetchAction: 'txlist',
     });
     await all({
       Model: EtherscanLikeInternalTransaction,
       accountIndentifier: this.identifier,
       walletAddress: this.walletAddress,
-      blockchainExplorerClient: this.etherscanClient,
+      apiClient: this.etherscanClient,
+      fetchAction: 'txlistinternal',
     });
     await all({
       Model: EtherscanLikeTokenTransaction,
       accountIndentifier: this.identifier,
       walletAddress: this.walletAddress,
-      blockchainExplorerClient: this.etherscanClient,
+      apiClient: this.etherscanClient,
+      fetchAction: 'tokentx',
     });
   }
 
