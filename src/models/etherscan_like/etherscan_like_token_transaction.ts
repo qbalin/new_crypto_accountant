@@ -1,6 +1,5 @@
 /* eslint-disable no-use-before-define */
 import { SupportedBlockchain } from '../../config_types';
-import chainToCoinMap from '../../currencies';
 import AtomicTransaction from '../atomic_transaction';
 
 class EtherscanLikeTokenTransaction {
@@ -105,7 +104,7 @@ class EtherscanLikeTokenTransaction {
       new AtomicTransaction({
         createdAt: this.timeStamp,
         action: '-----',
-        currency: chainToCoinMap[this.chain],
+        currency: this.tokenSymbol,
         from: this.from,
         to: this.to,
         amount: this.amount,

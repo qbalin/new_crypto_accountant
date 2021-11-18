@@ -113,7 +113,7 @@ class EtherscanLikeNormalTransaction {
         action: 'PAY_FEE',
         currency: chainToCoinMap[this.chain],
         from: this.from,
-        to: this.to,
+        to: 'Miner',
         amount: this.gasSpentInEth,
         transactionHash: this.hash,
         chain: this.chain,
