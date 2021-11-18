@@ -59,7 +59,10 @@ interface Attributes {
 class Transfer {
   private readonly attributes: Attributes;
 
-  constructor({ attributes } : { attributes: Record<string, any> }) {
+  private readonly accountNickname: string;
+
+  constructor({ attributes, accountNickname } :
+    { attributes: Record<string, any>, accountNickname: string }) {
     const attributesPassed = new Set(Object.keys(attributes));
     const attributesRequired = new Set(['id', 'type', 'created_at', 'completed_at', 'canceled_at', 'processed_at', 'account_id', 'user_id', 'user_nonce', 'amount', 'details', 'idem']);
     if ((attributesPassed.size + attributesRequired.size) / 2
@@ -68,6 +71,7 @@ class Transfer {
       throw new Error(`expected to find exactly ${Array.from(attributesRequired)} in ${Object.keys(attributes)}`);
     }
 
+    this.accountNickname = accountNickname;
     this.attributes = attributes as Attributes;
   }
 

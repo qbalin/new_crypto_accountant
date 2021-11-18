@@ -1,11 +1,13 @@
 import { SupportedBlockchain } from '../config_types';
+import Address from './address';
 
-class EthereumLikeAddress {
+class EthereumLikeAddress extends Address {
   readonly address: string;
 
   readonly chain: SupportedBlockchain;
 
   constructor({ address, chain }: { address: string, chain: SupportedBlockchain }) {
+    super();
     const lowerCasedAddress = address.toLowerCase();
     if (lowerCasedAddress.length !== 42) {
       throw new Error(`Ethereum-like addresses must have 42 characters, got: "${address}"`);

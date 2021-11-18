@@ -8,18 +8,20 @@ import Transfer from '../models/coinbase/transfer';
 import Product from '../models/coinbase/product';
 
 const all = async <T>({
-  accountIndentifier, apiClient, Model, iterationParams, fetchAction,
+  accountIndentifier, apiClient, Model, iterationParams, fetchAction, nickname,
 }:
   {
     accountIndentifier: string,
     apiClient: CoinbaseClient,
     Model: {
       new ({ attributes } : {
-        attributes: Record<string, any>
+        attributes: Record<string, any>,
+        accountNickname: string,
       }): T
     },
     iterationParams?: { key: string, values: string[] },
-    fetchAction: string
+    fetchAction: string,
+    nickname: string,
   }) : Promise<T[]> => {
   let records;
   if (['fills', 'transfers'].includes(fetchAction)) {
@@ -37,7 +39,7 @@ const all = async <T>({
     });
   }
 
-  return records.map((attributes) => new Model({ attributes }));
+  return records.map((attributes) => new Model({ attributes, accountNickname: nickname }));
 };
 
 class CoinbaseAccount extends CentralizedAccount {
@@ -56,18 +58,21 @@ class CoinbaseAccount extends CentralizedAccount {
     const accounts = await all({
       accountIndentifier: this.identifier,
       apiClient: this.coinbaseClient,
+      nickname: this.nickname,
       Model: Account,
       fetchAction: 'accounts',
     });
     const products = await all({
       accountIndentifier: this.identifier,
       apiClient: this.coinbaseClient,
+      nickname: this.nickname,
       Model: Product,
       fetchAction: 'products',
     });
     const fills = await all({
       accountIndentifier: this.identifier,
       apiClient: this.coinbaseClient,
+      nickname: this.nickname,
       Model: Fill,
       fetchAction: 'fills',
       iterationParams: {
@@ -78,6 +83,7 @@ class CoinbaseAccount extends CentralizedAccount {
     const transfers = await all({
       accountIndentifier: this.identifier,
       apiClient: this.coinbaseClient,
+      nickname: this.nickname,
       Model: Transfer,
       fetchAction: 'transfers',
     });
