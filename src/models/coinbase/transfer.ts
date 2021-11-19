@@ -87,6 +87,10 @@ class Transfer {
     return 0;
   }
 
+  get subtotal() {
+    return parseFloat(this.attributes.details.subtotal || '0');
+  }
+
   get accountId() {
     return this.attributes.account_id;
   }
@@ -149,7 +153,19 @@ class Transfer {
           platform: SupportedPlatform.Coinbase,
         }),
         to: new VoidAddress(), // Not really void, it goes to an unknown chain
-        amount: this.amount,
+        amount: this.subtotal,
+        transactionHash: this.attributes.details.crypto_transaction_hash,
+      }),
+      new AtomicTransaction({
+        createdAt: this.createdAt,
+        action: 'PAY_FEE',
+        currency,
+        from: new PlatformAddress({
+          nickname: this.accountNickname,
+          platform: SupportedPlatform.Coinbase,
+        }),
+        to: new VoidAddress(), // Coinbase Inc
+        amount: this.fee,
         transactionHash: this.attributes.details.crypto_transaction_hash,
       }),
     ];

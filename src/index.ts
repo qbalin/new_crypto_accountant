@@ -1,4 +1,3 @@
-import CoinbaseAccount from './accounts/coinbase_account';
 import Config from './config';
 /*
 # Goal
