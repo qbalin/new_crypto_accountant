@@ -76,6 +76,17 @@ export default {
       Loader.save({ group, collection: allRecords });
       return allRecords;
     },
+    diskForTimedRecords: async ({
+      accountIndentifier, action,
+    } :
+      {
+        accountIndentifier: string,
+        action: string,
+       }) => {
+      const group = `${accountIndentifier}-${action}`;
+      return (Loader.load({ group }) as { created_at: string }[])
+        .sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at));
+    },
 
   },
 };
