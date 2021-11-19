@@ -20,12 +20,12 @@ export default {
       const records = (Loader.load({ group }) as { timeStamp: string }[])
         .sort((a, b) => +a.timeStamp - +b.timeStamp);
 
-      const lastTimeStamp = records[records.length - 1]?.timeStamp || new Date(0);
-      const laterRecords = (await apiClient.call({ requestPath: `?module=account&action=${action}&address=${walletAddress}`, since: new Date(+lastTimeStamp + 1) }));
+      const lastTimeStamp = +(records[records.length - 1]?.timeStamp || '0') * 1000;
+      const laterRecords = (await apiClient.call({ requestPath: `?module=account&action=${action}&address=${walletAddress}`, since: new Date(lastTimeStamp + 1) }));
 
       const allRecords = [...records, ...laterRecords];
       Loader.save({ group, collection: allRecords });
-      return records;
+      return allRecords;
     },
   },
   COINBASE: {

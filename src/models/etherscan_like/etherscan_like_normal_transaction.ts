@@ -99,6 +99,9 @@ class EtherscanLikeNormalTransaction {
   }
 
   toAtomicTransactions() {
+    if (!this.success) {
+      return [];
+    }
     return [
       new AtomicTransaction({
         createdAt: this.timeStamp,
