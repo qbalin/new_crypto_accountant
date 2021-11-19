@@ -95,6 +95,10 @@ class Transfer {
     return this.attributes.account_id;
   }
 
+  get isBankTransfer() {
+    return !!this.attributes.details.coinbase_payout_at;
+  }
+
   toJson() {
     return this.attributes;
   }
@@ -121,7 +125,7 @@ class Transfer {
       throw new Error(`Found deposit entry with a fee. Unsupported for now. Entry: ${JSON.stringify(this.toJson())}`);
     }
     let from;
-    if (this.attributes.details.coinbase_payout_at) {
+    if (this.isBankTransfer) {
       from = new BankAccountAddress();
     } else {
       from = new VoidAddress(); // Not really void, it comes from an unknown chain
@@ -143,6 +147,12 @@ class Transfer {
   }
 
   private toWithdrawAtomicTransaction(currency: string) {
+    let to;
+    if (this.isBankTransfer) {
+      to = new BankAccountAddress();
+    } else {
+      to = new VoidAddress(); // Not really void, it goes to an unknown chain
+    }
     return [
       new AtomicTransaction({
         createdAt: this.createdAt,
@@ -152,7 +162,7 @@ class Transfer {
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
-        to: new VoidAddress(), // Not really void, it goes to an unknown chain
+        to,
         amount: this.subtotal || this.amount,
         transactionHash: this.attributes.details.crypto_transaction_hash,
       }),
