@@ -6,6 +6,7 @@ import Account from '../models/coinbase/account';
 import Fill from '../models/coinbase/fill';
 import Transfer from '../models/coinbase/transfer';
 import Product from '../models/coinbase/product';
+import Conversion from '../models/coinbase/conversion';
 
 const all = async <T>({
   accountIndentifier, apiClient, Model, iterationParams, fetchAction, nickname,
@@ -25,7 +26,7 @@ const all = async <T>({
   }) : Promise<T[]> => {
   let records;
   if (['fills', 'transfers'].includes(fetchAction)) {
-    records = await FetchingStrategies.COINBASE.diskNetworkForTimedRecords({
+    records = await FetchingStrategies.COINBASE.diskForTimedRecords({
       accountIndentifier,
       action: fetchAction,
       apiClient,
@@ -67,6 +68,15 @@ class CoinbaseAccount extends CentralizedAccount {
       memo[account.id] = account.currency;
       return memo;
     }, {});
+    const usdcAccountId = accounts.find((a) => a.currency === 'USDC')?.id;
+    const usdcLedger = await this.coinbaseClient.call({ requestPath: `/accounts/${usdcAccountId}/ledger` });
+    const conversionsJson = usdcLedger.filter((entry: { type: string }) => entry.type === 'conversion');
+    const conversions: Conversion[] = conversionsJson
+      .map((attributes: Record<string, any>) => new Conversion({
+        attributes,
+        accountNickname: this.nickname,
+      }));
+
     const products = await all({
       accountIndentifier: this.identifier,
       apiClient: this.coinbaseClient,

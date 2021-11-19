@@ -73,7 +73,7 @@ class Transfer {
   }
 
   get amount() {
-    return parseInt(this.attributes.amount, 10);
+    return parseFloat(this.attributes.amount);
   }
 
   get type() {
@@ -153,7 +153,7 @@ class Transfer {
           platform: SupportedPlatform.Coinbase,
         }),
         to: new VoidAddress(), // Not really void, it goes to an unknown chain
-        amount: this.subtotal,
+        amount: this.subtotal || this.amount,
         transactionHash: this.attributes.details.crypto_transaction_hash,
       }),
       new AtomicTransaction({
