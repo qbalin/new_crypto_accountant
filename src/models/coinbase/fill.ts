@@ -1,5 +1,7 @@
+import PlatformAddress from '../../addresses/platform_address';
 import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
+import VoidAddress from '../../addresses/void_address';
 
 /* eslint-disable camelcase */
 interface Attributes {
@@ -34,6 +36,7 @@ class Fill {
     if ((attributesPassed.size + attributesRequired.size) / 2
       !== new Set([...Array.from(attributesPassed), ...Array.from(attributesRequired)]).size
     ) {
+      console.log(attributes);
       throw new Error(`expected to find exactly ${Array.from(attributesRequired)} in ${Object.keys(attributes)}`);
     }
 
@@ -45,11 +48,11 @@ class Fill {
     this.attributes = attributes as Attributes;
   }
 
-  get created_at() {
+  get createdAt() {
     return new Date(this.attributes.created_at);
   }
 
-  get trade_id() {
+  get tradeId() {
     return this.attributes.trade_id;
   }
 
@@ -81,7 +84,7 @@ class Fill {
     if (!this.settled) {
       return [];
     }
-    if (!this.trade_id || !this.baseCurrency || !this.quoteCurrency) {
+    if (!this.tradeId || !this.baseCurrency || !this.quoteCurrency) {
       throw new Error(`Cannot find trade id, base currency or quote currency: ${JSON.stringify(this.toJson)}`);
     }
     if (this.side !== 'buy' && this.side !== 'sell') {
@@ -93,34 +96,40 @@ class Fill {
   private toBuyAtomicTransactions() {
     return [
       new AtomicTransaction({
-        createdAt: this.created_at,
+        createdAt: this.createdAt,
         action: '-----',
         currency: this.baseCurrency,
-        from: 'Coinbase Inc',
-        to: this.accountNickname,
+        from: new VoidAddress(), // Coinbase Inc.
+        to: new PlatformAddress({
+          nickname: this.accountNickname,
+          platform: SupportedPlatform.Coinbase,
+        }),
         amount: this.size,
         transactionHash: 'hash',
-        platform: SupportedPlatform.Coinbase,
       }),
       new AtomicTransaction({
-        createdAt: this.created_at,
+        createdAt: this.createdAt,
         action: '-----',
         currency: this.quoteCurrency,
-        from: this.accountNickname,
-        to: 'Coinbase Inc',
+        from: new PlatformAddress({
+          nickname: this.accountNickname,
+          platform: SupportedPlatform.Coinbase,
+        }),
+        to: new VoidAddress(), // Coinbase Inc.
         amount: this.size * this.price,
         transactionHash: 'hash',
-        platform: SupportedPlatform.Coinbase,
       }),
       new AtomicTransaction({
-        createdAt: this.created_at,
+        createdAt: this.createdAt,
         action: 'PAY_FEE',
         currency: this.quoteCurrency,
-        from: this.accountNickname,
-        to: 'Coinbase Inc',
+        from: new PlatformAddress({
+          platform: SupportedPlatform.Coinbase,
+          nickname: this.accountNickname,
+        }),
+        to: new VoidAddress(), // Coinbase Inc.
         amount: this.fee,
         transactionHash: 'hash',
-        platform: SupportedPlatform.Coinbase,
       }),
     ];
   }
@@ -128,34 +137,40 @@ class Fill {
   private toSellAtomicTransactions() {
     return [
       new AtomicTransaction({
-        createdAt: this.created_at,
+        createdAt: this.createdAt,
         action: '-----',
         currency: this.baseCurrency,
-        from: this.accountNickname,
-        to: 'Coinbase Inc',
+        from: new PlatformAddress({
+          nickname: this.accountNickname,
+          platform: SupportedPlatform.Coinbase,
+        }),
+        to: new VoidAddress(), // Coinbase Inc.
         amount: this.size,
         transactionHash: 'hash',
-        platform: SupportedPlatform.Coinbase,
       }),
       new AtomicTransaction({
-        createdAt: this.created_at,
+        createdAt: this.createdAt,
         action: '-----',
         currency: this.quoteCurrency,
-        from: 'Coinbase Inc',
-        to: this.accountNickname,
+        from: new VoidAddress(), // Coinbase Inc.
+        to: new PlatformAddress({
+          nickname: this.accountNickname,
+          platform: SupportedPlatform.Coinbase,
+        }),
         amount: this.size * this.price,
         transactionHash: 'hash',
-        platform: SupportedPlatform.Coinbase,
       }),
       new AtomicTransaction({
-        createdAt: this.created_at,
+        createdAt: this.createdAt,
         action: 'PAY_FEE',
         currency: this.quoteCurrency,
-        from: this.accountNickname,
-        to: 'Coinbase Inc',
+        from: new PlatformAddress({
+          nickname: this.accountNickname,
+          platform: SupportedPlatform.Coinbase,
+        }),
+        to: new VoidAddress(), // Coinbase Inc.
         amount: this.fee,
         transactionHash: 'hash',
-        platform: SupportedPlatform.Coinbase,
       }),
     ];
   }

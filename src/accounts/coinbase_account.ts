@@ -62,6 +62,11 @@ class CoinbaseAccount extends CentralizedAccount {
       Model: Account,
       fetchAction: 'accounts',
     });
+    const accountIdToCurrencyMap = accounts.reduce<Record<string, string>>((memo, account) => {
+      // eslint-disable-next-line no-param-reassign
+      memo[account.id] = account.currency;
+      return memo;
+    }, {});
     const products = await all({
       accountIndentifier: this.identifier,
       apiClient: this.coinbaseClient,
@@ -92,6 +97,7 @@ class CoinbaseAccount extends CentralizedAccount {
     console.log(products.map((p) => p.id));
     console.log(fills);
     console.log(transfers);
+    transfers.map((t) => t.toAtomicTransactions(accountIdToCurrencyMap));
   }
 }
 

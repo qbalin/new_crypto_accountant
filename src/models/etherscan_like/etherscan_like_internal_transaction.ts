@@ -1,4 +1,5 @@
 /* eslint-disable no-use-before-define */
+import EthereumLikeAddress from '../../addresses/ethereum_like_address';
 import { SupportedBlockchain } from '../../config_types';
 import chainToCoinMap from '../../currencies';
 import AtomicTransaction from '../atomic_transaction';
@@ -88,11 +89,16 @@ class EtherscanLikeInternalTransaction {
         createdAt: this.timeStamp,
         action: '---------',
         currency: chainToCoinMap[this.chain],
-        from: this.from,
-        to: this.to,
+        from: new EthereumLikeAddress({
+          address: this.from,
+          chain: this.chain,
+        }),
+        to: new EthereumLikeAddress({
+          address: this.to,
+          chain: this.chain,
+        }),
         amount: this.amount,
         transactionHash: this.hash,
-        chain: this.chain,
       }),
     ];
   }

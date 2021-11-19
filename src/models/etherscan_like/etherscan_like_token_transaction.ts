@@ -1,6 +1,7 @@
 /* eslint-disable no-use-before-define */
 import { SupportedBlockchain } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
+import EthereumLikeAddress from '../../addresses/ethereum_like_address';
 
 class EtherscanLikeTokenTransaction {
   private readonly attributes: Attributes
@@ -105,11 +106,16 @@ class EtherscanLikeTokenTransaction {
         createdAt: this.timeStamp,
         action: '-----',
         currency: this.tokenSymbol,
-        from: this.from,
-        to: this.to,
+        from: new EthereumLikeAddress({
+          address: this.from,
+          chain: this.chain,
+        }),
+        to: new EthereumLikeAddress({
+          address: this.to,
+          chain: this.chain,
+        }),
         amount: this.amount,
         transactionHash: this.hash,
-        chain: this.chain,
       }),
     ];
   }

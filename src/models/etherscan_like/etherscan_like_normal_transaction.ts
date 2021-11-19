@@ -2,6 +2,8 @@
 import AtomicTransaction from '../atomic_transaction';
 import { SupportedBlockchain } from '../../config_types';
 import chainToCoinMap from '../../currencies';
+import EthereumLikeAddress from '../../addresses/ethereum_like_address';
+import VoidAddress from '../../addresses/void_address';
 
 class EtherscanLikeNormalTransaction {
   private readonly attributes: Attributes
@@ -102,21 +104,28 @@ class EtherscanLikeNormalTransaction {
         createdAt: this.timeStamp,
         action: '-----',
         currency: chainToCoinMap[this.chain],
-        from: this.from,
-        to: this.to,
+        from: new EthereumLikeAddress({
+          address: this.from,
+          chain: this.chain,
+        }),
+        to: new EthereumLikeAddress({
+          address: this.to,
+          chain: this.chain,
+        }),
         amount: this.amount,
         transactionHash: this.hash,
-        chain: this.chain,
       }),
       new AtomicTransaction({
         createdAt: this.timeStamp,
         action: 'PAY_FEE',
         currency: chainToCoinMap[this.chain],
-        from: this.from,
-        to: 'Miner',
+        from: new EthereumLikeAddress({
+          address: this.from,
+          chain: this.chain,
+        }),
+        to: new VoidAddress(), // Miner
         amount: this.gasSpentInEth,
         transactionHash: this.hash,
-        chain: this.chain,
       }),
     ];
   }
