@@ -11,6 +11,10 @@ class PlatformAddress extends Address {
     this.platform = platform;
     this.nickname = nickname;
   }
+
+  toString() {
+    return `${this.platform}-${this.nickname}`;
+  }
 }
 
 export default PlatformAddress;

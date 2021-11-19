@@ -21,6 +21,10 @@ class EthereumLikeAddress extends Address {
     this.address = lowerCasedAddress;
     this.chain = chain;
   }
+
+  toString() {
+    return `${this.chain}-${this.address}`;
+  }
 }
 
 export default EthereumLikeAddress;
