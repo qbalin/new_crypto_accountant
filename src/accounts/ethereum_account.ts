@@ -48,7 +48,7 @@ class EthereumAccount extends DecentralizedAccount {
     });
   }
 
-  async fetch() : Promise<void> {
+  async retrieveData() {
     const normalTransactions = await all({
       Model: EtherscanLikeNormalTransaction,
       accountIndentifier: this.identifier,
@@ -70,6 +70,9 @@ class EthereumAccount extends DecentralizedAccount {
       apiClient: this.etherscanClient,
       fetchAction: 'tokentx',
     });
+
+    return [...normalTransactions, ...internalTransactions, ...tokenTransactions]
+      .flatMap((t) => t.toAtomicTransactions());
   }
 
   static parseTransactions({ transactions }: {transactions: EtherscanLikeNormalTransaction[] }) {

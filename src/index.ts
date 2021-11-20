@@ -32,5 +32,5 @@ Do achieve this, we will need to:
 const accounts = Config.parse('./config.json');
 
 accounts.forEach(async (account) => {
-  await account.fetch();
+  await account.retrieveData();
 });

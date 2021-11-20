@@ -26,7 +26,7 @@ const all = async <T>({
   }) : Promise<T[]> => {
   let records;
   if (['fills', 'transfers'].includes(fetchAction)) {
-    records = await FetchingStrategies.COINBASE.diskForTimedRecords({
+    records = await FetchingStrategies.COINBASE.diskNetworkForTimedRecords({
       accountIndentifier,
       action: fetchAction,
       apiClient,
@@ -55,7 +55,7 @@ class CoinbaseAccount extends CentralizedAccount {
     });
   }
 
-  async fetch() {
+  async retrieveData() {
     const accounts = await all({
       accountIndentifier: this.identifier,
       apiClient: this.coinbaseClient,
@@ -103,11 +103,8 @@ class CoinbaseAccount extends CentralizedAccount {
       fetchAction: 'transfers',
     });
 
-    console.log(accounts);
-    console.log(products.map((p) => p.id));
-    console.log(fills);
-    console.log(transfers);
-    transfers.map((t) => t.toAtomicTransactions(accountIdToCurrencyMap));
+    return [...fills, ...transfers, ...conversions]
+      .flatMap((t) => t.toAtomicTransactions(accountIdToCurrencyMap));
   }
 }
 
