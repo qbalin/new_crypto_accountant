@@ -99,11 +99,11 @@ class EtherscanLikeNormalTransaction {
   }
 
   toAtomicTransactions() {
-    if (!this.success) {
-      return [];
-    }
-    return [
-      new AtomicTransaction({
+    // In case of a failure, the intended transactions does not
+    // go through, but the gas fees are still paid!
+    const intendedTransaction = [];
+    if (this.success) {
+      intendedTransaction.push(new AtomicTransaction({
         createdAt: this.timeStamp,
         action: '-----',
         currency: chainToCoinMap[this.chain],
@@ -117,7 +117,10 @@ class EtherscanLikeNormalTransaction {
         }),
         amount: this.amount,
         transactionHash: this.hash,
-      }),
+      }));
+    }
+    return [
+      ...intendedTransaction,
       new AtomicTransaction({
         createdAt: this.timeStamp,
         action: 'PAY_FEE',

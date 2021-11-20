@@ -49,21 +49,21 @@ class EthereumAccount extends DecentralizedAccount {
   }
 
   async fetch() : Promise<void> {
-    await all({
+    const normalTransactions = await all({
       Model: EtherscanLikeNormalTransaction,
       accountIndentifier: this.identifier,
       walletAddress: this.walletAddress,
       apiClient: this.etherscanClient,
       fetchAction: 'txlist',
     });
-    await all({
+    const internalTransactions = await all({
       Model: EtherscanLikeInternalTransaction,
       accountIndentifier: this.identifier,
       walletAddress: this.walletAddress,
       apiClient: this.etherscanClient,
       fetchAction: 'txlistinternal',
     });
-    await all({
+    const tokenTransactions = await all({
       Model: EtherscanLikeTokenTransaction,
       accountIndentifier: this.identifier,
       walletAddress: this.walletAddress,
