@@ -30,7 +30,4 @@ Do achieve this, we will need to:
 2. Process the data to output Atomic Ledger Entries
 */
 const accounts = Config.parse('./config.json');
-
-accounts.forEach(async (account) => {
-  await account.retrieveData();
-});
+accounts.retrieveData();

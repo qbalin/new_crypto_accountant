@@ -59,7 +59,7 @@ describe('Config.parse', () => {
 
     it('return accounts', () => {
       const accounts = Config.parse(configFilePath);
-      const ethereumAccounts: Account[] = accounts
+      const ethereumAccounts: Account[] = accounts.all
         .filter((account) => account instanceof EthereumAccount);
       expect(ethereumAccounts).toHaveLength(1);
       const ethereumAccount = ethereumAccounts[0] as EthereumAccount;
@@ -67,7 +67,7 @@ describe('Config.parse', () => {
       expect(ethereumAccount.walletAddress).toEqual('0xadd4355');
       expect(ethereumAccount.blockchainName).toEqual(SupportedBlockchain.Ethereum);
 
-      const coinbaseAccounts: Account[] = accounts
+      const coinbaseAccounts: Account[] = accounts.all
         .filter((account) => account instanceof CoinbaseAccount);
       expect(coinbaseAccounts).toHaveLength(1);
       const coinbaseAccount = coinbaseAccounts[0] as CoinbaseAccount;

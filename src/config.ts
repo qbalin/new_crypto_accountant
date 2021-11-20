@@ -2,7 +2,6 @@
 import fs from 'fs';
 import EthereumAccount from './accounts/ethereum_account';
 import PolygonAccount from './accounts/polygon_account';
-import Account from './accounts/account';
 import {
   SupportedPlatform,
   SupportedBlockchain,
@@ -11,6 +10,7 @@ import {
   AccountsConfiguration,
 } from './config_types';
 import CoinbaseAccount from './accounts/coinbase_account';
+import Accounts from './accounts/accounts';
 
 const SUPPORTED_PLATFORMS = Object.values(SupportedPlatform);
 const SUPPORTED_BLOCKCHAINS = Object.values(SupportedBlockchain);
@@ -73,7 +73,7 @@ class Config {
     }
   }
 
-  static parse(configFilePath: string) : Account[] {
+  static parse(configFilePath: string) : Accounts {
     if (!fs.existsSync(configFilePath)) {
       console.info(`Config file not found at ${configFilePath}. Creating one.`);
       const content = {
@@ -122,7 +122,8 @@ class Config {
         default: throw new Error(`Blockchain name unexpected (${accountConfig.blockchainName}) for account config ${JSON.stringify(accountConfig)}`);
       }
     });
-    return [...centralizedAccounts, ...decentralizedAccounts].filter(isPresent);
+    const accounts = [...centralizedAccounts, ...decentralizedAccounts].filter(isPresent);
+    return new Accounts({ accounts });
   }
 }
 
