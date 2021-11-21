@@ -1,4 +1,5 @@
 import Config from './config';
+import AtomicTransaction from './models/atomic_transaction';
 /*
 # Goal
 
@@ -29,5 +30,23 @@ Do achieve this, we will need to:
 1. Pull the data archive from all accounts and output it in a normalized way
 2. Process the data to output Atomic Ledger Entries
 */
-const accounts = Config.parse('./config.json');
-accounts.retrieveData();
+(async () => {
+  const accounts = Config.parse('./config.json');
+  const atomicTransactions = await accounts.retrieveData();
+  const res = atomicTransactions.reduce<AtomicTransaction[]>((memo, transaction) => {
+    if (transaction.from.toString() !== 'Void') {
+      if (!memo[`${transaction.from.toString()}-${transaction.currency}`]) {
+        memo[`${transaction.from.toString()}-${transaction.currency}`] = 0;
+      }
+      memo[`${transaction.from.toString()}-${transaction.currency}`] -= transaction.amount;
+    }
+    if (transaction.to.toString() !== 'Void') {
+      if (!memo[`${transaction.to.toString()}-${transaction.currency}`]) {
+        memo[`${transaction.to.toString()}-${transaction.currency}`] = 0;
+      }
+      memo[`${transaction.to.toString()}-${transaction.currency}`] += transaction.amount;
+    }
+    return memo;
+  }, {});
+  console.log(res);
+})();

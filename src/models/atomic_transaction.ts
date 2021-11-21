@@ -34,6 +34,18 @@ class AtomicTransaction {
     this.to = to;
     this.from = from;
   }
+
+  toJson() {
+    return {
+      createdAt: this.createdAt,
+      action: this.action,
+      currency: this.currency,
+      transactionHash: this.transactionHash,
+      amount: this.amount,
+      to: this.to.toString(),
+      from: this.from.toString(),
+    };
+  }
 }
 
 export default AtomicTransaction;
