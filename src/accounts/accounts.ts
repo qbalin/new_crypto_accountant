@@ -9,11 +9,12 @@ class Accounts {
   }
 
   async retrieveData() {
-    const atomicTransactions: AtomicTransaction[] = [];
-    this.all.forEach(async (account) => {
-      atomicTransactions.push(...await account.retrieveData());
+    let promise: Promise<AtomicTransaction[]> = Promise.resolve([]);
+    this.all.forEach((account) => {
+      promise = promise
+        .then(async (transactions) => (await account.retrieveData()).concat(transactions));
     });
-    return atomicTransactions;
+    return promise;
   }
 }
 
