@@ -26,7 +26,7 @@ const all = async <T>({
   }) : Promise<T[]> => {
   let records;
   if (['fills', 'transfers'].includes(fetchAction)) {
-    records = await FetchingStrategies.COINBASE.diskNetworkForTimedRecords({
+    records = await FetchingStrategies.COINBASE.diskForTimedRecords({
       accountIndentifier,
       action: fetchAction,
       apiClient,

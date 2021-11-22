@@ -98,7 +98,7 @@ class EtherscanLikeInternalTransaction {
           chain: this.chain,
         }),
         amount: this.amount,
-        transactionHash: this.hash,
+        bundleId: this.hash,
       }),
     ];
   }

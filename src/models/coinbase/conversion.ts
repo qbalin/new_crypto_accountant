@@ -31,12 +31,20 @@ class Conversion {
     this.attributes = attributes as Attributes;
   }
 
+  get id() {
+    return this.attributes.id;
+  }
+
   get amount() {
     return parseFloat(this.attributes.amount);
   }
 
   get createdAt() {
     return new Date(this.attributes.created_at);
+  }
+
+  get bundleId() {
+    return `${SupportedPlatform.Coinbase}-conversion_id-${this.id}`;
   }
 
   toJson() {
@@ -55,6 +63,7 @@ class Conversion {
           platform: SupportedPlatform.Coinbase,
         }),
         amount: this.amount,
+        bundleId: this.bundleId,
       }),
       new AtomicTransaction({
         createdAt: this.createdAt,
@@ -66,6 +75,7 @@ class Conversion {
         }),
         to: new VoidAddress(), // Coinbase Inc
         amount: this.amount,
+        bundleId: this.bundleId,
       }),
     ];
   }

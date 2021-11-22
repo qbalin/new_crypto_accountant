@@ -10,17 +10,21 @@ class TransactionBundler {
   makeBundles() {
     const atomicTransactionsGroupedByBundleId = this.atomicTransactions
       .reduce((groups: Record<string, AtomicTransaction[]>, transaction) => {
-        if (!transaction.transactionHash) {
+        if (!transaction.bundleId) {
           throw new Error(`Cannot bundle transaction without a bundleId ${JSON.stringify(transaction.toJson())}`);
         }
-        if (!groups[transaction.transactionHash]) {
+        if (!groups[transaction.bundleId]) {
           // eslint-disable-next-line no-param-reassign
-          groups[transaction.transactionHash] = [];
+          groups[transaction.bundleId] = [];
         }
-        groups[transaction.transactionHash].push(transaction);
+        groups[transaction.bundleId].push(transaction);
         return groups;
       }, {});
+
+
+    const orphans = Object.entries(atomicTransactionsGroupedByBundleId).filter(([k, v]) => { console.log('vvv', v, v.length === 1); return v.length === 1; });
     console.log(atomicTransactionsGroupedByBundleId);
+    console.log('orphans', , orphans.map(([k, o]) => o[0].toJson()));
   }
 }
 

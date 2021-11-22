@@ -76,6 +76,10 @@ class Fill {
     return this.attributes.side;
   }
 
+  get bundleId() {
+    return `${SupportedPlatform.Coinbase}-trade_id-${this.tradeId}`;
+  }
+
   toJson() {
     return this.attributes;
   }
@@ -105,7 +109,7 @@ class Fill {
           platform: SupportedPlatform.Coinbase,
         }),
         amount: this.size,
-        transactionHash: 'hash',
+        bundleId: this.bundleId,
       }),
       new AtomicTransaction({
         createdAt: this.createdAt,
@@ -117,7 +121,7 @@ class Fill {
         }),
         to: new VoidAddress(), // Coinbase Inc.
         amount: this.size * this.price,
-        transactionHash: 'hash',
+        bundleId: this.bundleId,
       }),
       new AtomicTransaction({
         createdAt: this.createdAt,
@@ -129,7 +133,7 @@ class Fill {
         }),
         to: new VoidAddress(), // Coinbase Inc.
         amount: this.fee,
-        transactionHash: 'hash',
+        bundleId: this.bundleId,
       }),
     ];
   }
@@ -146,7 +150,7 @@ class Fill {
         }),
         to: new VoidAddress(), // Coinbase Inc.
         amount: this.size,
-        transactionHash: 'hash',
+        bundleId: this.bundleId,
       }),
       new AtomicTransaction({
         createdAt: this.createdAt,
@@ -158,7 +162,7 @@ class Fill {
           platform: SupportedPlatform.Coinbase,
         }),
         amount: this.size * this.price,
-        transactionHash: 'hash',
+        bundleId: this.bundleId,
       }),
       new AtomicTransaction({
         createdAt: this.createdAt,
@@ -170,7 +174,7 @@ class Fill {
         }),
         to: new VoidAddress(), // Coinbase Inc.
         amount: this.fee,
-        transactionHash: 'hash',
+        bundleId: this.bundleId,
       }),
     ];
   }

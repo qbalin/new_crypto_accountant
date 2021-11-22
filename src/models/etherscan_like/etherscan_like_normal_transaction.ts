@@ -116,7 +116,7 @@ class EtherscanLikeNormalTransaction {
           chain: this.chain,
         }),
         amount: this.amount,
-        transactionHash: this.hash,
+        bundleId: this.hash,
       }));
     }
     return [
@@ -131,7 +131,7 @@ class EtherscanLikeNormalTransaction {
         }),
         to: new VoidAddress(), // Miner
         amount: this.gasSpentInEth,
-        transactionHash: this.hash,
+        bundleId: this.hash,
       }),
     ];
   }

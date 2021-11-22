@@ -99,6 +99,14 @@ class Transfer {
     return !!this.attributes.details.coinbase_payout_at;
   }
 
+  get cryptoTransactionHash() {
+    return this.attributes.details.crypto_transaction_hash?.toLowerCase();
+  }
+
+  get bundleId() {
+    return this.cryptoTransactionHash || `${SupportedPlatform.Coinbase}-transfer_id-${this.id}`;
+  }
+
   toJson() {
     return this.attributes;
   }
@@ -141,7 +149,7 @@ class Transfer {
           platform: SupportedPlatform.Coinbase,
         }),
         amount: this.amount,
-        transactionHash: this.attributes.details.crypto_transaction_hash,
+        bundleId: this.bundleId,
       }),
     ];
   }
@@ -164,7 +172,7 @@ class Transfer {
         }),
         to,
         amount: this.subtotal || this.amount,
-        transactionHash: this.attributes.details.crypto_transaction_hash,
+        bundleId: this.bundleId,
       }),
       new AtomicTransaction({
         createdAt: this.createdAt,
@@ -176,7 +184,7 @@ class Transfer {
         }),
         to: new VoidAddress(), // Coinbase Inc
         amount: this.fee,
-        transactionHash: this.attributes.details.crypto_transaction_hash,
+        bundleId: this.bundleId,
       }),
     ];
   }

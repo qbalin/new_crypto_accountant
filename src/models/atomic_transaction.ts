@@ -11,25 +11,25 @@ class AtomicTransaction {
 
   readonly to: Address;
 
-  readonly transactionHash?: string;
+  readonly bundleId: string;
 
   readonly amount: number;
 
   constructor({
-    createdAt, action, currency, from, to, transactionHash, amount,
+    createdAt, action, currency, from, to, bundleId, amount,
   }: {
     createdAt: Date,
     action: string,
     currency: string,
     from: Address,
     to: Address,
-    transactionHash?: string,
+    bundleId: string,
     amount: number,
   }) {
     this.createdAt = createdAt;
     this.action = action;
     this.currency = currency;
-    this.transactionHash = transactionHash;
+    this.bundleId = bundleId;
     this.amount = amount;
     this.to = to;
     this.from = from;
@@ -40,7 +40,7 @@ class AtomicTransaction {
       createdAt: this.createdAt,
       action: this.action,
       currency: this.currency,
-      transactionHash: this.transactionHash,
+      bundleId: this.bundleId,
       amount: this.amount,
       to: this.to.toString(),
       from: this.from.toString(),

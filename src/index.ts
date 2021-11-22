@@ -1,5 +1,6 @@
 import Config from './config';
 import AtomicTransaction from './models/atomic_transaction';
+import TransactionBundler from './aggregators/transaction_bundler';
 /*
 # Goal
 
@@ -33,6 +34,8 @@ Do achieve this, we will need to:
 (async () => {
   const accounts = Config.parse('./config.json');
   const atomicTransactions = await accounts.retrieveData();
+  const bundler = new TransactionBundler({ atomicTransactions });
+  bundler.makeBundles();
   const res = atomicTransactions.reduce<AtomicTransaction[]>((memo, transaction) => {
     if (transaction.from.toString() !== 'Void') {
       if (!memo[`${transaction.from.toString()}-${transaction.currency}`]) {
