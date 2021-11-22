@@ -2,6 +2,8 @@ import PlatformAddress from '../../addresses/platform_address';
 import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
 import VoidAddress from '../../addresses/void_address';
+import TransactionBundle, { BundleStatus } from '../transaction_bundle';
+import { ToAtomicTransactionable, ToJsonable, TransactionBundlable } from '../model_types';
 
 /* eslint-disable camelcase */
 interface Attributes {
@@ -20,7 +22,7 @@ interface Attributes {
   readonly usd_volume: string,
 }
 
-class Fill {
+class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable {
   private readonly attributes: Attributes;
 
   private readonly quoteCurrency: string;
@@ -28,6 +30,8 @@ class Fill {
   private readonly baseCurrency: string;
 
   private readonly accountNickname: string;
+
+  private atomicTransactions: AtomicTransaction[] | null;
 
   constructor({ attributes, accountNickname } :
     { attributes: Record<string, any>, accountNickname: string }) {
@@ -44,6 +48,7 @@ class Fill {
     this.baseCurrency = baseCurrency;
     this.quoteCurrency = quoteCurrency;
 
+    this.atomicTransactions = null;
     this.accountNickname = accountNickname;
     this.attributes = attributes as Attributes;
   }
@@ -84,9 +89,16 @@ class Fill {
     return this.attributes;
   }
 
+  transactionBundle() {
+    return new TransactionBundle({ atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.complete });
+  }
+
   toAtomicTransactions() {
     if (!this.settled) {
       return [];
+    }
+    if (this.atomicTransactions) {
+      return this.atomicTransactions;
     }
     if (!this.tradeId || !this.baseCurrency || !this.quoteCurrency) {
       throw new Error(`Cannot find trade id, base currency or quote currency: ${JSON.stringify(this.toJson)}`);
@@ -94,7 +106,8 @@ class Fill {
     if (this.side !== 'buy' && this.side !== 'sell') {
       throw new Error(`Fill side unrecognized, should be one of ['buy', 'sell'] but was ${this.side} for fill ${JSON.stringify(this.toJson)}`);
     }
-    return this.side === 'buy' ? this.toBuyAtomicTransactions() : this.toSellAtomicTransactions();
+    this.atomicTransactions = this.side === 'buy' ? this.toBuyAtomicTransactions() : this.toSellAtomicTransactions();
+    return this.atomicTransactions;
   }
 
   private toBuyAtomicTransactions() {

@@ -3,13 +3,18 @@ import EthereumLikeAddress from '../../addresses/ethereum_like_address';
 import { SupportedBlockchain } from '../../config_types';
 import chainToCoinMap from '../../currencies';
 import AtomicTransaction from '../atomic_transaction';
+import { ToJsonable, ToAtomicTransactionable, TransactionBundlable } from '../model_types';
+import TransactionBundle, { BundleStatus } from '../transaction_bundle';
 
-class EtherscanLikeInternalTransaction {
+class EtherscanLikeInternalTransaction implements
+  ToJsonable, ToAtomicTransactionable, TransactionBundlable {
   private readonly attributes: Attributes
 
   readonly chain: SupportedBlockchain;
 
   static readonly attributesList = ['blockNumber', 'timeStamp', 'hash', 'from', 'to', 'value', 'contractAddress', 'input', 'type', 'gas', 'gasUsed', 'traceId', 'isError', 'errCode'] as const;
+
+  private atomicTransactions: AtomicTransaction[] | null;
 
   constructor(
     { attributes, chain } : { attributes: Record<string, any>, chain: SupportedBlockchain },
@@ -19,6 +24,8 @@ class EtherscanLikeInternalTransaction {
         throw new Error(`expected to find ${attribute} in ${Object.keys(attributes)}`);
       }
     });
+
+    this.atomicTransactions = null;
     this.attributes = attributes as Attributes;
     this.chain = chain;
   }
@@ -83,8 +90,16 @@ class EtherscanLikeInternalTransaction {
     return this.attributes;
   }
 
+  transactionBundle() {
+    return new TransactionBundle({ atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.incomplete });
+  }
+
   toAtomicTransactions() {
-    return [
+    if (this.atomicTransactions) {
+      return this.atomicTransactions;
+    }
+
+    this.atomicTransactions = [
       new AtomicTransaction({
         createdAt: this.timeStamp,
         action: '---------',
@@ -101,6 +116,7 @@ class EtherscanLikeInternalTransaction {
         bundleId: this.hash,
       }),
     ];
+    return this.atomicTransactions;
   }
 }
 

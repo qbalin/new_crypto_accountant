@@ -2,13 +2,18 @@
 import { SupportedBlockchain } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
 import EthereumLikeAddress from '../../addresses/ethereum_like_address';
+import TransactionBundle, { BundleStatus } from '../transaction_bundle';
+import { ToJsonable, ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 
-class EtherscanLikeTokenTransaction {
+class EtherscanLikeTokenTransaction implements
+  ToJsonable, ToAtomicTransactionable, TransactionBundlable {
   private readonly attributes: Attributes
 
   readonly chain: SupportedBlockchain;
 
   static readonly attributesList = ['blockNumber', 'timeStamp', 'hash', 'nonce', 'blockHash', 'from', 'contractAddress', 'to', 'value', 'tokenName', 'tokenSymbol', 'tokenDecimal', 'transactionIndex', 'gas', 'gasPrice', 'gasUsed', 'cumulativeGasUsed', 'input', 'confirmations'] as const;
+
+  private atomicTransactions: AtomicTransaction[] | null;
 
   constructor(
     { attributes, chain } : { attributes: Record<string, any>, chain: SupportedBlockchain },
@@ -18,6 +23,8 @@ class EtherscanLikeTokenTransaction {
         throw new Error(`expected to find ${attribute} in ${Object.keys(attributes)}`);
       }
     });
+
+    this.atomicTransactions = null;
     this.attributes = attributes as Attributes;
     this.chain = chain;
   }
@@ -95,8 +102,16 @@ class EtherscanLikeTokenTransaction {
     return this.attributes;
   }
 
+  transactionBundle() {
+    return new TransactionBundle({ atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.incomplete });
+  }
+
   toAtomicTransactions() {
-    return [
+    if (this.atomicTransactions) {
+      return this.atomicTransactions;
+    }
+
+    this.atomicTransactions = [
       // Never take into account the fees from an erc20 token transaction:
       // A normal transaction will bear the fees, that's where we get them from.
       // A normal transaction can contain several erc20 token transactions, we don't
@@ -118,6 +133,7 @@ class EtherscanLikeTokenTransaction {
         bundleId: this.hash,
       }),
     ];
+    return this.atomicTransactions;
   }
 }
 

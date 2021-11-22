@@ -1,30 +1,18 @@
 import AtomicTransaction from '../models/atomic_transaction';
+import { ToAtomicTransactionable, ToJsonable, TransactionBundlable } from '../models/model_types';
+import { BundleStatus } from '../models/transaction_bundle';
 
 class TransactionBundler {
-  readonly atomicTransactions: AtomicTransaction[];
+  readonly data: (ToJsonable & ToAtomicTransactionable & TransactionBundlable)[];
 
-  constructor({ atomicTransactions } : { atomicTransactions: AtomicTransaction[]}) {
-    this.atomicTransactions = atomicTransactions;
+  constructor({ data } : { data: (ToJsonable & ToAtomicTransactionable & TransactionBundlable)[]}) {
+    this.data = data;
   }
 
   makeBundles() {
-    const atomicTransactionsGroupedByBundleId = this.atomicTransactions
-      .reduce((groups: Record<string, AtomicTransaction[]>, transaction) => {
-        if (!transaction.bundleId) {
-          throw new Error(`Cannot bundle transaction without a bundleId ${JSON.stringify(transaction.toJson())}`);
-        }
-        if (!groups[transaction.bundleId]) {
-          // eslint-disable-next-line no-param-reassign
-          groups[transaction.bundleId] = [];
-        }
-        groups[transaction.bundleId].push(transaction);
-        return groups;
-      }, {});
-
-
-    const orphans = Object.entries(atomicTransactionsGroupedByBundleId).filter(([k, v]) => { console.log('vvv', v, v.length === 1); return v.length === 1; });
-    console.log(atomicTransactionsGroupedByBundleId);
-    console.log('orphans', , orphans.map(([k, o]) => o[0].toJson()));
+    const bundles = this.data.map((d) => d.transactionBundle());
+    const orphans = bundles.filter((b) => b.status === BundleStatus.incomplete);
+    console.log(orphans.map((o) => o.atomicTransactions.flatMap((at) => at.toJson())));
   }
 }
 

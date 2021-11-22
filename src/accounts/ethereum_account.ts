@@ -71,8 +71,7 @@ class EthereumAccount extends DecentralizedAccount {
       fetchAction: 'tokentx',
     });
 
-    return [...normalTransactions, ...internalTransactions, ...tokenTransactions]
-      .flatMap((t) => t.toAtomicTransactions());
+    return [...normalTransactions, ...internalTransactions, ...tokenTransactions];
   }
 
   static parseTransactions({ transactions }: {transactions: EtherscanLikeNormalTransaction[] }) {

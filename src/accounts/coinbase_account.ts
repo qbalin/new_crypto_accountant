@@ -9,7 +9,13 @@ import Product from '../models/coinbase/product';
 import Conversion from '../models/coinbase/conversion';
 
 const all = async <T>({
-  accountIndentifier, apiClient, Model, iterationParams, fetchAction, nickname,
+  accountIndentifier,
+  apiClient,
+  Model,
+  iterationParams,
+  fetchAction,
+  nickname,
+  accountIdToCurrencyMap = {},
 }:
   {
     accountIndentifier: string,
@@ -18,11 +24,13 @@ const all = async <T>({
       new ({ attributes } : {
         attributes: Record<string, any>,
         accountNickname: string,
+        accountIdToCurrencyMap: Record<string, string>
       }): T
     },
     iterationParams?: { key: string, values: string[] },
     fetchAction: string,
     nickname: string,
+    accountIdToCurrencyMap?: Record<string, string>
   }) : Promise<T[]> => {
   let records;
   if (['fills', 'transfers'].includes(fetchAction)) {
@@ -40,7 +48,11 @@ const all = async <T>({
     });
   }
 
-  return records.map((attributes) => new Model({ attributes, accountNickname: nickname }));
+  return records.map((attributes) => new Model({
+    attributes,
+    accountNickname: nickname,
+    accountIdToCurrencyMap,
+  }));
 };
 
 class CoinbaseAccount extends CentralizedAccount {
@@ -101,10 +113,10 @@ class CoinbaseAccount extends CentralizedAccount {
       nickname: this.nickname,
       Model: Transfer,
       fetchAction: 'transfers',
+      accountIdToCurrencyMap,
     });
 
-    return [...fills, ...transfers, ...conversions]
-      .flatMap((t) => t.toAtomicTransactions(accountIdToCurrencyMap));
+    return [...fills, ...transfers, ...conversions];
   }
 }
 

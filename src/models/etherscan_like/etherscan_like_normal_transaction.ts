@@ -4,13 +4,18 @@ import { SupportedBlockchain } from '../../config_types';
 import chainToCoinMap from '../../currencies';
 import EthereumLikeAddress from '../../addresses/ethereum_like_address';
 import VoidAddress from '../../addresses/void_address';
+import TransactionBundle, { BundleStatus } from '../transaction_bundle';
+import { ToAtomicTransactionable, ToJsonable, TransactionBundlable } from '../model_types';
 
-class EtherscanLikeNormalTransaction {
+class EtherscanLikeNormalTransaction implements
+  ToJsonable, ToAtomicTransactionable, TransactionBundlable {
   private readonly attributes: Attributes
 
   readonly chain: SupportedBlockchain;
 
   static readonly attributesList = ['blockNumber', 'timeStamp', 'hash', 'nonce', 'blockHash', 'transactionIndex', 'from', 'to', 'value', 'gas', 'gasPrice', 'isError', 'txreceipt_status', 'input', 'contractAddress', 'cumulativeGasUsed', 'gasUsed', 'confirmations'] as const;
+
+  private atomicTransactions: AtomicTransaction[] | null;
 
   constructor(
     { attributes, chain } : { attributes: Record<string, any>, chain: SupportedBlockchain },
@@ -20,6 +25,8 @@ class EtherscanLikeNormalTransaction {
         throw new Error(`expected to find ${attribute} in ${Object.keys(attributes)}`);
       }
     });
+
+    this.atomicTransactions = null;
     this.attributes = attributes as Attributes;
     this.chain = chain;
   }
@@ -98,7 +105,15 @@ class EtherscanLikeNormalTransaction {
     return this.attributes;
   }
 
+  transactionBundle() {
+    return new TransactionBundle({ atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.incomplete });
+  }
+
   toAtomicTransactions() {
+    if (this.atomicTransactions) {
+      return this.atomicTransactions;
+    }
+
     // In case of a failure, the intended transactions does not
     // go through, but the gas fees are still paid!
     const intendedTransaction = [];
@@ -119,7 +134,7 @@ class EtherscanLikeNormalTransaction {
         bundleId: this.hash,
       }));
     }
-    return [
+    this.atomicTransactions = [
       ...intendedTransaction,
       new AtomicTransaction({
         createdAt: this.timeStamp,
@@ -134,6 +149,7 @@ class EtherscanLikeNormalTransaction {
         bundleId: this.hash,
       }),
     ];
+    return this.atomicTransactions;
   }
 }
 

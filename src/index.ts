@@ -33,23 +33,24 @@ Do achieve this, we will need to:
 */
 (async () => {
   const accounts = Config.parse('./config.json');
-  const atomicTransactions = await accounts.retrieveData();
-  const bundler = new TransactionBundler({ atomicTransactions });
+  const data = await accounts.retrieveData();
+  const bundler = new TransactionBundler({ data });
   bundler.makeBundles();
-  const res = atomicTransactions.reduce<AtomicTransaction[]>((memo, transaction) => {
-    if (transaction.from.toString() !== 'Void') {
-      if (!memo[`${transaction.from.toString()}-${transaction.currency}`]) {
-        memo[`${transaction.from.toString()}-${transaction.currency}`] = 0;
-      }
-      memo[`${transaction.from.toString()}-${transaction.currency}`] -= transaction.amount;
-    }
-    if (transaction.to.toString() !== 'Void') {
-      if (!memo[`${transaction.to.toString()}-${transaction.currency}`]) {
-        memo[`${transaction.to.toString()}-${transaction.currency}`] = 0;
-      }
-      memo[`${transaction.to.toString()}-${transaction.currency}`] += transaction.amount;
-    }
-    return memo;
-  }, {});
-  console.log(res);
+  // bundler.makeBundles();
+  // const res = atomicTransactions.reduce<AtomicTransaction[]>((memo, transaction) => {
+  //   if (transaction.from.toString() !== 'Void') {
+  //     if (!memo[`${transaction.from.toString()}-${transaction.currency}`]) {
+  //       memo[`${transaction.from.toString()}-${transaction.currency}`] = 0;
+  //     }
+  //     memo[`${transaction.from.toString()}-${transaction.currency}`] -= transaction.amount;
+  //   }
+  //   if (transaction.to.toString() !== 'Void') {
+  //     if (!memo[`${transaction.to.toString()}-${transaction.currency}`]) {
+  //       memo[`${transaction.to.toString()}-${transaction.currency}`] = 0;
+  //     }
+  //     memo[`${transaction.to.toString()}-${transaction.currency}`] += transaction.amount;
+  //   }
+  //   return memo;
+  // }, {});
+  // console.log(res);
 })();

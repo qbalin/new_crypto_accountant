@@ -5,6 +5,8 @@ import PlatformAddress from '../../addresses/platform_address';
 import VoidAddress from '../../addresses/void_address';
 import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
+import { ToJsonable, ToAtomicTransactionable, TransactionBundlable } from '../model_types';
+import TransactionBundle, { BundleStatus } from '../transaction_bundle';
 
 interface Details {
   readonly fee?: string,
@@ -37,13 +39,21 @@ interface Attributes {
   readonly idem: null
 }
 
-class Transfer {
+class Transfer implements ToJsonable, ToAtomicTransactionable, TransactionBundlable {
   private readonly attributes: Attributes;
 
   private readonly accountNickname: string;
 
-  constructor({ attributes, accountNickname } :
-    { attributes: Record<string, any>, accountNickname: string }) {
+  private atomicTransactions: AtomicTransaction[] | null;
+
+  private readonly accountIdToCurrencyMap: Record<string, string>;
+
+  constructor({ attributes, accountNickname, accountIdToCurrencyMap } :
+    {
+      attributes: Record<string, any>,
+      accountNickname: string,
+      accountIdToCurrencyMap: Record<string, string>
+    }) {
     const attributesPassed = new Set(Object.keys(attributes));
     const attributesRequired = new Set(['id', 'type', 'created_at', 'completed_at', 'canceled_at', 'processed_at', 'account_id', 'user_id', 'user_nonce', 'amount', 'details', 'idem']);
     if ((attributesPassed.size + attributesRequired.size) / 2
@@ -52,6 +62,8 @@ class Transfer {
       throw new Error(`expected to find exactly ${Array.from(attributesRequired)} in ${Object.keys(attributes)}`);
     }
 
+    this.accountIdToCurrencyMap = accountIdToCurrencyMap;
+    this.atomicTransactions = null;
     this.accountNickname = accountNickname;
     this.attributes = attributes as Attributes;
   }
@@ -111,7 +123,21 @@ class Transfer {
     return this.attributes;
   }
 
-  toAtomicTransactions(accountIdToCurrencyMap: Record<string, string>) {
+  transactionBundle() {
+    let status;
+    if (this.isBankTransfer) {
+      status = BundleStatus.complete;
+    } else {
+      status = BundleStatus.incomplete;
+    }
+    return new TransactionBundle({ atomicTransactions: this.toAtomicTransactions(), action: '', status });
+  }
+
+  toAtomicTransactions() {
+    if (this.atomicTransactions) {
+      return this.atomicTransactions;
+    }
+
     if (!!this.completedAt === !!this.canceledAt) {
       throw new Error(`Transfer should be either completed or canceled: ${JSON.stringify(this.toJson())}`);
     }
@@ -121,11 +147,12 @@ class Transfer {
     if (!['deposit', 'withdraw'].includes(this.type)) {
       throw new Error(`Unknown type ${this.type} for transfer ${JSON.stringify(this.toJson())}`);
     }
-    const currency = accountIdToCurrencyMap[this.accountId];
+    const currency = this.accountIdToCurrencyMap[this.accountId];
     if (!currency) {
       throw new Error(`Could not find account with id ${this.accountId} for transfer ${JSON.stringify(this.toJson())}`);
     }
-    return this.type === 'deposit' ? this.toDepositAtomicTransactions(currency) : this.toWithdrawAtomicTransaction(currency);
+    this.atomicTransactions = this.type === 'deposit' ? this.toDepositAtomicTransactions(currency) : this.toWithdrawAtomicTransaction(currency);
+    return this.atomicTransactions;
   }
 
   private toDepositAtomicTransactions(currency: string) {

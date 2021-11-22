@@ -2,6 +2,8 @@ import PlatformAddress from '../../addresses/platform_address';
 import VoidAddress from '../../addresses/void_address';
 import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
+import { ToAtomicTransactionable, ToJsonable, TransactionBundlable } from '../model_types';
+import TransactionBundle, { BundleStatus } from '../transaction_bundle';
 
 /* eslint-disable camelcase */
 interface Attributes {
@@ -12,10 +14,12 @@ interface Attributes {
   readonly details: { conversion_id: string },
 }
 
-class Conversion {
+class Conversion implements ToJsonable, ToAtomicTransactionable, TransactionBundlable {
   private readonly attributes: Attributes;
 
   private readonly accountNickname: string;
+
+  private atomicTransactions: AtomicTransaction[] | null
 
   constructor({ attributes, accountNickname } :
     { attributes: Record<string, any>, accountNickname: string }) {
@@ -27,6 +31,7 @@ class Conversion {
       throw new Error(`expected to find exactly ${Array.from(attributesRequired)} in ${Object.keys(attributes)}`);
     }
 
+    this.atomicTransactions = null;
     this.accountNickname = accountNickname;
     this.attributes = attributes as Attributes;
   }
@@ -51,7 +56,15 @@ class Conversion {
     return this.attributes;
   }
 
+  transactionBundle() {
+    return new TransactionBundle({ atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.complete });
+  }
+
   toAtomicTransactions() {
+    if (this.atomicTransactions) {
+      return this.atomicTransactions;
+    }
+
     return [
       new AtomicTransaction({
         createdAt: this.createdAt,
