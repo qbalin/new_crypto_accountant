@@ -130,7 +130,9 @@ class Transfer implements ToJsonable, ToAtomicTransactionable, TransactionBundla
     } else {
       status = BundleStatus.incomplete;
     }
-    return new TransactionBundle({ atomicTransactions: this.toAtomicTransactions(), action: '', status });
+    return new TransactionBundle({
+      atomicTransactions: this.toAtomicTransactions(), action: '', status, id: this.bundleId,
+    });
   }
 
   toAtomicTransactions() {
@@ -163,7 +165,7 @@ class Transfer implements ToJsonable, ToAtomicTransactionable, TransactionBundla
     if (this.isBankTransfer) {
       from = new BankAccountAddress();
     } else {
-      from = new VoidAddress(); // Not really void, it comes from an unknown chain
+      from = new VoidAddress({ note: this.cryptoTransactionHash || 'Unknown address' }); // Not really void, it comes from an unknown chain
     }
     return [
       new AtomicTransaction({
@@ -186,7 +188,7 @@ class Transfer implements ToJsonable, ToAtomicTransactionable, TransactionBundla
     if (this.isBankTransfer) {
       to = new BankAccountAddress();
     } else {
-      to = new VoidAddress(); // Not really void, it goes to an unknown chain
+      to = new VoidAddress({ note: this.cryptoTransactionHash || 'Unknown address' }); // Not really void, it goes to an unknown chain
     }
     return [
       new AtomicTransaction({
@@ -209,7 +211,7 @@ class Transfer implements ToJsonable, ToAtomicTransactionable, TransactionBundla
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
-        to: new VoidAddress(), // Coinbase Inc
+        to: new VoidAddress({ note: 'Coinbase Inc.' }),
         amount: this.fee,
         bundleId: this.bundleId,
       }),

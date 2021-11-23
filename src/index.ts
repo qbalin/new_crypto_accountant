@@ -1,5 +1,4 @@
 import Config from './config';
-import AtomicTransaction from './models/atomic_transaction';
 import TransactionBundler from './aggregators/transaction_bundler';
 /*
 # Goal

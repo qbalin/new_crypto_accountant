@@ -91,7 +91,9 @@ class EtherscanLikeInternalTransaction implements
   }
 
   transactionBundle() {
-    return new TransactionBundle({ atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.incomplete });
+    return new TransactionBundle({
+      atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.incomplete, id: this.hash,
+    });
   }
 
   toAtomicTransactions() {

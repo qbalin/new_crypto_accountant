@@ -90,7 +90,9 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
   }
 
   transactionBundle() {
-    return new TransactionBundle({ atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.complete });
+    return new TransactionBundle({
+      atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.complete, id: this.bundleId,
+    });
   }
 
   toAtomicTransactions() {
@@ -116,7 +118,7 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
         createdAt: this.createdAt,
         action: '-----',
         currency: this.baseCurrency,
-        from: new VoidAddress(), // Coinbase Inc.
+        from: new VoidAddress({ note: 'Coinbase Inc.' }),
         to: new PlatformAddress({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
@@ -132,7 +134,7 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
-        to: new VoidAddress(), // Coinbase Inc.
+        to: new VoidAddress({ note: 'Coinbase Inc.' }),
         amount: this.size * this.price,
         bundleId: this.bundleId,
       }),
@@ -144,7 +146,7 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
           platform: SupportedPlatform.Coinbase,
           nickname: this.accountNickname,
         }),
-        to: new VoidAddress(), // Coinbase Inc.
+        to: new VoidAddress({ note: 'Coinbase Inc.' }),
         amount: this.fee,
         bundleId: this.bundleId,
       }),
@@ -161,7 +163,7 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
-        to: new VoidAddress(), // Coinbase Inc.
+        to: new VoidAddress({ note: 'Coinbase Inc.' }),
         amount: this.size,
         bundleId: this.bundleId,
       }),
@@ -169,7 +171,7 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
         createdAt: this.createdAt,
         action: '-----',
         currency: this.quoteCurrency,
-        from: new VoidAddress(), // Coinbase Inc.
+        from: new VoidAddress({ note: 'Coinbase Inc.' }),
         to: new PlatformAddress({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
@@ -185,7 +187,7 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
-        to: new VoidAddress(), // Coinbase Inc.
+        to: new VoidAddress({ note: 'Coinbase Inc.' }),
         amount: this.fee,
         bundleId: this.bundleId,
       }),

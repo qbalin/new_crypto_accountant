@@ -106,7 +106,9 @@ class EtherscanLikeNormalTransaction implements
   }
 
   transactionBundle() {
-    return new TransactionBundle({ atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.incomplete });
+    return new TransactionBundle({
+      atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.incomplete, id: this.hash,
+    });
   }
 
   toAtomicTransactions() {
@@ -144,7 +146,7 @@ class EtherscanLikeNormalTransaction implements
           address: this.from,
           chain: this.chain,
         }),
-        to: new VoidAddress(), // Miner
+        to: new VoidAddress({ note: 'Miner' }), // Miner
         amount: this.gasSpentInEth,
         bundleId: this.hash,
       }),

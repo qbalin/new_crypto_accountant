@@ -35,6 +35,17 @@ class AtomicTransaction {
     this.from = from;
   }
 
+  equal(other: AtomicTransaction) {
+    return this.createdAt === other.createdAt
+    && this.action === other.action
+    && this.currency === other.currency
+    && this.bundleId === other.bundleId
+    && this.amount === other.amount
+    // toString can be removed once addesses are singleton instances
+    && this.to.toString() === other.to.toString()
+    && this.from.toString() === other.from.toString();
+  }
+
   toJson() {
     return {
       createdAt: this.createdAt,

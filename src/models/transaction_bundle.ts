@@ -12,11 +12,24 @@ class TransactionBundle {
 
   readonly status: string;
 
-  constructor({ atomicTransactions, action, status } :
-    { atomicTransactions: AtomicTransaction[], action: string, status: BundleStatus }) {
+  readonly id: string;
+
+  constructor({
+    atomicTransactions, action, status, id,
+  } :
+    { atomicTransactions: AtomicTransaction[], action: string, status: BundleStatus, id: string }) {
     this.status = status;
     this.atomicTransactions = atomicTransactions;
     this.action = action;
+    this.id = id;
+  }
+
+  equal(other: TransactionBundle) {
+    if (this.atomicTransactions.length !== other.atomicTransactions.length) {
+      return false;
+    }
+    return this.atomicTransactions
+      .every((transaction) => other.atomicTransactions.some((t) => transaction.equal(t)));
   }
 }
 
