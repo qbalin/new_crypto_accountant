@@ -36,7 +36,7 @@ class AtomicTransaction {
   }
 
   equal(other: AtomicTransaction) {
-    return this.createdAt === other.createdAt
+    return +this.createdAt === +other.createdAt
     && this.action === other.action
     && this.currency === other.currency
     && this.bundleId === other.bundleId

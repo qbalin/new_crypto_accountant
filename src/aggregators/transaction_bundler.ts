@@ -60,7 +60,7 @@ class TransactionBundler {
             for (let i = index + 1; i < bundlesToInspect.length; i += 1) {
               if (bundle.equal(bundlesToInspect[i])) {
                 accu.delete(bundle);
-                console.log('DROPPING', JSON.stringify(bundle));
+                console.log('DROPPING', JSON.stringify(bundle, null, 2));
                 break;
               }
             }
