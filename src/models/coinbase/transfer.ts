@@ -116,7 +116,7 @@ class Transfer implements ToJsonable, ToAtomicTransactionable, TransactionBundla
   }
 
   get bundleId() {
-    return this.cryptoTransactionHash || `${SupportedPlatform.Coinbase}-transfer_id-${this.id}`;
+    return `${SupportedPlatform.Coinbase}-transfer_id-${this.id}`;
   }
 
   toJson() {

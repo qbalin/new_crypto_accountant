@@ -8,7 +8,7 @@ export enum BundleStatus {
 class TransactionBundle {
   readonly atomicTransactions: AtomicTransaction[];
 
-  private readonly action: string;
+  readonly action: string;
 
   readonly status: string;
 
@@ -22,6 +22,15 @@ class TransactionBundle {
     this.atomicTransactions = atomicTransactions;
     this.action = action;
     this.id = id;
+  }
+
+  complete() {
+    return new TransactionBundle({
+      atomicTransactions: this.atomicTransactions,
+      status: BundleStatus.complete,
+      action: this.action,
+      id: this.id,
+    });
   }
 
   equal(other: TransactionBundle) {

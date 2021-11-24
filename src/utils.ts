@@ -47,7 +47,16 @@ const fetchJson = ({
   req.end();
 });
 
+const groupBy = <T, U extends Record<keyof T, any>>
+  (collection: U[], groupingKey: keyof T) => collection
+    .reduce((memo, value) => {
+      // eslint-disable-next-line no-param-reassign
+      memo[value[groupingKey]] ||= [];
+      memo[value[groupingKey]].push(value);
+      return memo;
+    }, {} as Record<U[keyof T], U[]>);
+
 export {
-  // eslint-disable-next-line import/prefer-default-export
   fetchJson,
+  groupBy,
 };
