@@ -27,6 +27,7 @@ class TransactionBundler {
     const { bundlesWithSharedId, bundlesWithUniqueId } = TransactionBundler
       .separateBundlesWithUniqueIdAndThoseWithSharedId(deduplicatedIncompleteBundles);
 
+    // Those that have a shared id can be merged into one single bundle
     const cleanedBundles = TransactionBundler.mergeSiblings(bundlesWithSharedId);
 
     const { consolidatedBundles, orphanBundles } = TransactionBundler
