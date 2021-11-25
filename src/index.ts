@@ -1,5 +1,6 @@
 import Config from './config';
 import TransactionBundler from './aggregators/transaction_bundler';
+import Client from './api_clients/algo_explorer';
 /*
 # Goal
 
@@ -35,21 +36,6 @@ Do achieve this, we will need to:
   const data = await accounts.retrieveData();
   const bundler = new TransactionBundler({ data });
   bundler.makeBundles();
-  // bundler.makeBundles();
-  // const res = atomicTransactions.reduce<AtomicTransaction[]>((memo, transaction) => {
-  //   if (transaction.from.toString() !== 'Void') {
-  //     if (!memo[`${transaction.from.toString()}-${transaction.currency}`]) {
-  //       memo[`${transaction.from.toString()}-${transaction.currency}`] = 0;
-  //     }
-  //     memo[`${transaction.from.toString()}-${transaction.currency}`] -= transaction.amount;
-  //   }
-  //   if (transaction.to.toString() !== 'Void') {
-  //     if (!memo[`${transaction.to.toString()}-${transaction.currency}`]) {
-  //       memo[`${transaction.to.toString()}-${transaction.currency}`] = 0;
-  //     }
-  //     memo[`${transaction.to.toString()}-${transaction.currency}`] += transaction.amount;
-  //   }
-  //   return memo;
-  // }, {});
-  // console.log(res);
+
+  // Client.getTransactions({ walletAddress: 'G3UXQFV65557O6DCBMB6HNZRPOARLKKMOQ6Q66IPKZBMQBQVQDIDCLPIGM' });
 })();

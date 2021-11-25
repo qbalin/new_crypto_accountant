@@ -123,11 +123,11 @@ class EtherscanLikeTokenTransaction implements
         createdAt: this.timeStamp,
         action: '-----',
         currency: this.tokenSymbol,
-        from: new EthereumLikeAddress({
+        from: EthereumLikeAddress.getInstance({
           address: this.from,
           chain: this.chain,
         }),
-        to: new EthereumLikeAddress({
+        to: EthereumLikeAddress.getInstance({
           address: this.to,
           chain: this.chain,
         }),

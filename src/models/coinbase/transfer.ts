@@ -173,7 +173,7 @@ class Transfer implements ToJsonable, ToAtomicTransactionable, TransactionBundla
         action: '-----',
         currency,
         from,
-        to: new PlatformAddress({
+        to: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
@@ -195,7 +195,7 @@ class Transfer implements ToJsonable, ToAtomicTransactionable, TransactionBundla
         createdAt: this.createdAt,
         action: '-----',
         currency,
-        from: new PlatformAddress({
+        from: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
@@ -207,7 +207,7 @@ class Transfer implements ToJsonable, ToAtomicTransactionable, TransactionBundla
         createdAt: this.createdAt,
         action: 'PAY_FEE',
         currency,
-        from: new PlatformAddress({
+        from: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),

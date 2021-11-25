@@ -24,6 +24,21 @@ class TransactionBundle {
     this.id = id;
   }
 
+  get fromControlled() {
+    return this.atomicTransactions.some((transaction) => transaction.from.controlled);
+  }
+
+  get toControlled() {
+    return this.atomicTransactions.some((transaction) => transaction.to.controlled);
+  }
+
+  get mainAtomicTransaction() {
+    if (this.atomicTransactions.length === 1) {
+      return this.atomicTransactions[0];
+    }
+    return this.atomicTransactions.find((transaction) => transaction.action !== 'PAY_FEE') as AtomicTransaction;
+  }
+
   complete() {
     return new TransactionBundle({
       atomicTransactions: this.atomicTransactions,

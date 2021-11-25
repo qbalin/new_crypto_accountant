@@ -119,7 +119,7 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
         action: '-----',
         currency: this.baseCurrency,
         from: new VoidAddress({ note: 'Coinbase Inc.' }),
-        to: new PlatformAddress({
+        to: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
@@ -130,7 +130,7 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
         createdAt: this.createdAt,
         action: '-----',
         currency: this.quoteCurrency,
-        from: new PlatformAddress({
+        from: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
@@ -142,7 +142,7 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
         createdAt: this.createdAt,
         action: 'PAY_FEE',
         currency: this.quoteCurrency,
-        from: new PlatformAddress({
+        from: PlatformAddress.getInstance({
           platform: SupportedPlatform.Coinbase,
           nickname: this.accountNickname,
         }),
@@ -159,7 +159,7 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
         createdAt: this.createdAt,
         action: '-----',
         currency: this.baseCurrency,
-        from: new PlatformAddress({
+        from: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
@@ -172,7 +172,7 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
         action: '-----',
         currency: this.quoteCurrency,
         from: new VoidAddress({ note: 'Coinbase Inc.' }),
-        to: new PlatformAddress({
+        to: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
@@ -183,7 +183,7 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
         createdAt: this.createdAt,
         action: 'PAY_FEE',
         currency: this.quoteCurrency,
-        from: new PlatformAddress({
+        from: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),

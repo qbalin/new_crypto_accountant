@@ -2,9 +2,9 @@ import { SupportedBlockchain } from '../config_types';
 import Address from './address';
 
 // eslint-disable-next-line no-use-before-define
-const instances: Record<string, EthereumLikeAddress> = {};
+const instances: Record<string, DecentralizedAddress> = {};
 
-class EthereumLikeAddress extends Address {
+class DecentralizedAddress extends Address {
   readonly address: string;
 
   readonly chain: SupportedBlockchain;
@@ -27,15 +27,7 @@ class EthereumLikeAddress extends Address {
     { address: string, chain: SupportedBlockchain, controlled: boolean }) {
     super();
     const lowerCasedAddress = address.toLowerCase();
-    if (lowerCasedAddress.length !== 42) {
-      throw new Error(`Ethereum-like addresses must have 42 characters, got: "${address}"`);
-    }
-    if (!lowerCasedAddress.startsWith('0x')) {
-      throw new Error(`Ethereum-like addresses must start with "0x", got: "${address}"`);
-    }
-    if (/[^0-9a-f]/.test(lowerCasedAddress.slice(2))) {
-      throw new Error(`Ethereum-like addresses must be hexadecimal numbers, got: "${address}"`);
-    }
+
     this.address = lowerCasedAddress;
     this.chain = chain;
     this.controlled = controlled;
@@ -46,4 +38,4 @@ class EthereumLikeAddress extends Address {
   }
 }
 
-export default EthereumLikeAddress;
+export default DecentralizedAddress;

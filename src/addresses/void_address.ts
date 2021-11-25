@@ -3,6 +3,8 @@ import Address from './address';
 class VoidAddress extends Address {
   private readonly note: string;
 
+  readonly controlled = false;
+
   constructor({ note }: { note: string }) {
     super();
     this.note = note;

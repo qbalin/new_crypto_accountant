@@ -1,7 +1,7 @@
 import fs from 'fs';
 import Web3 from 'web3';
 import { URL } from 'url';
-import { fetchJson } from '../utils';
+import { fetchJson, HttpMethod } from '../utils';
 
 const pathToErc20TokenCache = (chainName: string) => `./downloads/${chainName}_erc20_tokens.json`;
 
@@ -41,7 +41,7 @@ abstract class Client {
 
   async call({
     requestPath, since = new Date('1970'), until = new Date(), method = 'GET',
-  }: { requestPath: string, since?: Date, until?: Date, method?: string }) {
+  }: { requestPath: string, since?: Date, until?: Date, method?: HttpMethod }) {
     let collection: {
         [key: string]: any,
         timeStamp: string
@@ -89,7 +89,7 @@ abstract class Client {
     });
   }
 
-  private async privateCall({ url, method }: { url: URL, method: string }) :
+  private async privateCall({ url, method }: { url: URL, method: HttpMethod }) :
   Promise<{ data: { result: { [key: string]: any, timeStamp: string }[] } }> {
     url.searchParams.set('apikey', this.apiKey);
     return fetchJson({ url: url.href, method });

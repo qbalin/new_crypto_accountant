@@ -67,13 +67,13 @@ class Conversion implements ToJsonable, ToAtomicTransactionable, TransactionBund
       return this.atomicTransactions;
     }
 
-    return [
+    this.atomicTransactions = [
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: 'conversion',
         currency: 'USDC',
         from: new VoidAddress({ note: 'Coinbase Inc.' }),
-        to: new PlatformAddress({
+        to: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
@@ -84,7 +84,7 @@ class Conversion implements ToJsonable, ToAtomicTransactionable, TransactionBund
         createdAt: this.createdAt,
         action: 'conversion',
         currency: 'USD',
-        from: new PlatformAddress({
+        from: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
@@ -93,6 +93,8 @@ class Conversion implements ToJsonable, ToAtomicTransactionable, TransactionBund
         bundleId: this.bundleId,
       }),
     ];
+
+    return this.atomicTransactions;
   }
 }
 

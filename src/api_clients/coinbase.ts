@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { fetchJson } from '../utils';
+import { fetchJson, HttpMethod } from '../utils';
 
 const signature = (
   secret: string,
@@ -44,7 +44,7 @@ class Client {
   private privateCall({
     url, method, body, timestamp,
   } : {
-      url: URL, method: string, body: Record<string, any>, timestamp: string,
+      url: URL, method: HttpMethod, body: Record<string, any>, timestamp: string,
   }) {
     console.log('CoinbaseClient call:', url.href);
 
@@ -79,7 +79,7 @@ class Client {
     requestPath: string,
     since?: Date,
     until?: Date,
-    method?: string,
+    method?: HttpMethod,
     body?: Record<string, any>,
   }) {
     let collection: Record<string, any> = [];

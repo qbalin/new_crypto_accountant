@@ -11,6 +11,7 @@ import {
 } from './config_types';
 import CoinbaseAccount from './accounts/coinbase_account';
 import Accounts from './accounts/accounts';
+import AlgorandAccount from './accounts/algorand_account';
 
 const SUPPORTED_PLATFORMS = Object.values(SupportedPlatform);
 const SUPPORTED_BLOCKCHAINS = Object.values(SupportedBlockchain);
@@ -119,6 +120,7 @@ class Config {
       switch (accountConfig.blockchainName) {
         case SupportedBlockchain.Ethereum: return new EthereumAccount(accountConfig);
         case SupportedBlockchain.Polygon: return new PolygonAccount(accountConfig);
+        case SupportedBlockchain.Algorand: return new AlgorandAccount(accountConfig);
         default: throw new Error(`Blockchain name unexpected (${accountConfig.blockchainName}) for account config ${JSON.stringify(accountConfig)}`);
       }
     });

@@ -1,21 +1,25 @@
 import Account from './account';
 import { SupportedPlatform } from '../config_types';
+import PlatformAddress from '../addresses/platform_address';
 
 abstract class CentralizedAccount extends Account {
-    readonly nickname: string;
+  readonly nickname: string;
 
-    readonly platform: SupportedPlatform;
+  readonly platform: SupportedPlatform;
 
-    constructor({ nickname, platform }:
-         {nickname: string, platform: SupportedPlatform}) {
-      super();
-      this.nickname = nickname;
-      this.platform = platform;
-    }
+  readonly address: PlatformAddress;
 
-    get identifier() {
-      return `${this.platform}-${this.nickname}`;
-    }
+  constructor({ nickname, platform }:
+    { nickname: string, platform: SupportedPlatform }) {
+    super();
+    this.nickname = nickname;
+    this.platform = platform;
+    this.address = PlatformAddress.getInstance({ nickname, platform, controlled: true });
+  }
+
+  get identifier() {
+    return `${this.platform}-${this.nickname}`;
+  }
 }
 
 export default CentralizedAccount;

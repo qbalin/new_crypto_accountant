@@ -6,13 +6,15 @@ interface FetchResponse {
     response: IncomingMessage
 }
 
+export type HttpMethod = 'GET' | 'POST' | 'DELETE' | 'PATCH' | 'PUT'
+
 const fetchJson = ({
   url,
-  method,
+  method = 'GET',
   headers = {},
 }: {
     url: string,
-    method: string,
+    method?: HttpMethod,
     headers?: Record<string, string>
 }) : Promise<FetchResponse> => new Promise((resolve, reject) => {
   const req = https.request(

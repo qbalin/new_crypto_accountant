@@ -124,11 +124,11 @@ class EtherscanLikeNormalTransaction implements
         createdAt: this.timeStamp,
         action: '-----',
         currency: chainToCoinMap[this.chain],
-        from: new EthereumLikeAddress({
+        from: EthereumLikeAddress.getInstance({
           address: this.from,
           chain: this.chain,
         }),
-        to: new EthereumLikeAddress({
+        to: EthereumLikeAddress.getInstance({
           address: this.to,
           chain: this.chain,
         }),
@@ -142,7 +142,7 @@ class EtherscanLikeNormalTransaction implements
         createdAt: this.timeStamp,
         action: 'PAY_FEE',
         currency: chainToCoinMap[this.chain],
-        from: new EthereumLikeAddress({
+        from: EthereumLikeAddress.getInstance({
           address: this.from,
           chain: this.chain,
         }),

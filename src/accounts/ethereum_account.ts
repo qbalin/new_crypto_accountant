@@ -5,6 +5,7 @@ import EtherscanLikeInternalTransaction from '../models/etherscan_like/etherscan
 import EtherscanLikeTokenTransaction from '../models/etherscan_like/etherscan_like_token_transaction';
 import EtherscanClient from '../api_clients/etherscan';
 import FetchingStrategies from '../models/fetching_strategies';
+import EthereumLikeAddress from '../addresses/ethereum_like_address';
 
 const all = async <T>({
   accountIndentifier, walletAddress, apiClient, Model, fetchAction,
@@ -40,7 +41,12 @@ class EthereumAccount extends DecentralizedAccount {
   readonly etherscanClient: EtherscanClient;
 
   constructor(config: DecentralizedAccountConfig) {
-    super(config);
+    const address = EthereumLikeAddress.getInstance({
+      address: config.walletAddress,
+      chain: config.blockchainName,
+      controlled: true,
+    });
+    super({ ...config, address });
     this.nickname = config.nickname;
     this.etherscanClient = new EtherscanClient({
       etherscanLikeApiKey: config.blockchainExplorerApiKey,
