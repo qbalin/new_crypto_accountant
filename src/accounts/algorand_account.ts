@@ -1,9 +1,9 @@
 import DecentralizedAccount from './decentralized_account';
 import { DecentralizedAccountConfig } from '../config_types';
-import EtherscanLikeNormalTransaction from '../models/etherscan_like/etherscan_like_normal_transaction';
 import AlgorandClient from '../api_clients/algo_explorer';
 import Transaction from '../models/algorand/transaction';
 import DecentralizedAddress from '../addresses/decentralized_address';
+import FetchingStrategies from '../models/fetching_strategies';
 
 class AlgorandAccount extends DecentralizedAccount {
   readonly nickname: string
@@ -19,6 +19,9 @@ class AlgorandAccount extends DecentralizedAccount {
   }
 
   async retrieveData() {
+    const fetchMethod = async ({ since }: {since: Date}) => AlgorandClient
+      .getTransactions({ walletAddress: this.walletAddress, since });
+    FetchingStrategies.ALGORAND.diskNetwork({ fetchMethod, accountIdentifier: this.identifier });
     const transactions = (await AlgorandClient
       .getTransactions({ walletAddress: this.walletAddress }))
       .map((attributes: Record<string, any>) => new Transaction({ attributes }));

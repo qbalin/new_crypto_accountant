@@ -1,6 +1,5 @@
 import Config from './config';
 import TransactionBundler from './aggregators/transaction_bundler';
-import Client from './api_clients/algo_explorer';
 /*
 # Goal
 
@@ -36,6 +35,4 @@ Do achieve this, we will need to:
   const data = await accounts.retrieveData();
   const bundler = new TransactionBundler({ data });
   bundler.makeBundles();
-
-  // Client.getTransactions({ walletAddress: 'G3UXQFV65557O6DCBMB6HNZRPOARLKKMOQ6Q66IPKZBMQBQVQDIDCLPIGM' });
 })();

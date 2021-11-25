@@ -9,7 +9,7 @@ import Product from '../models/coinbase/product';
 import Conversion from '../models/coinbase/conversion';
 
 const all = async <T>({
-  accountIndentifier,
+  accountIdentifier,
   apiClient,
   Model,
   iterationParams,
@@ -18,7 +18,7 @@ const all = async <T>({
   accountIdToCurrencyMap = {},
 }:
   {
-    accountIndentifier: string,
+    accountIdentifier: string,
     apiClient: CoinbaseClient,
     Model: {
       new ({ attributes } : {
@@ -35,14 +35,14 @@ const all = async <T>({
   let records;
   if (['fills', 'transfers'].includes(fetchAction)) {
     records = await FetchingStrategies.COINBASE.diskForTimedRecords({
-      accountIndentifier,
+      accountIdentifier,
       action: fetchAction,
       apiClient,
       iterationParams,
     });
   } else {
     records = await FetchingStrategies.COINBASE.diskNetworkForTimelessRecords({
-      accountIndentifier,
+      accountIdentifier,
       action: fetchAction,
       apiClient,
     });
@@ -69,7 +69,7 @@ class CoinbaseAccount extends CentralizedAccount {
 
   async retrieveData() {
     const accounts = await all({
-      accountIndentifier: this.identifier,
+      accountIdentifier: this.identifier,
       apiClient: this.coinbaseClient,
       nickname: this.nickname,
       Model: Account,
@@ -90,14 +90,14 @@ class CoinbaseAccount extends CentralizedAccount {
       }));
 
     const products = await all({
-      accountIndentifier: this.identifier,
+      accountIdentifier: this.identifier,
       apiClient: this.coinbaseClient,
       nickname: this.nickname,
       Model: Product,
       fetchAction: 'products',
     });
     const fills = await all({
-      accountIndentifier: this.identifier,
+      accountIdentifier: this.identifier,
       apiClient: this.coinbaseClient,
       nickname: this.nickname,
       Model: Fill,
@@ -108,7 +108,7 @@ class CoinbaseAccount extends CentralizedAccount {
       },
     });
     const transfers = await all({
-      accountIndentifier: this.identifier,
+      accountIdentifier: this.identifier,
       apiClient: this.coinbaseClient,
       nickname: this.nickname,
       Model: Transfer,

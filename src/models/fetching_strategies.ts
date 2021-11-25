@@ -6,17 +6,17 @@ import CoinbaseClient from '../api_clients/coinbase';
 export default {
   ETHERSCAN_LIKE: {
     diskNetwork: async ({
-      accountIndentifier,
+      accountIdentifier,
       apiClient,
       walletAddress,
       action,
     }: {
-      accountIndentifier: string,
+      accountIdentifier: string,
       apiClient: EtherscanBaseClient,
       walletAddress: string,
       action: string,
     }) => {
-      const group = `${accountIndentifier}-${action}`;
+      const group = `${accountIdentifier}-${action}`;
       const records = (Loader.load({ group }) as { timeStamp: string }[])
         .sort((a, b) => +a.timeStamp - +b.timeStamp);
 
@@ -30,15 +30,15 @@ export default {
   },
   COINBASE: {
     diskNetworkForTimelessRecords: async ({
-      accountIndentifier, action, apiClient, forceRefetch = false,
+      accountIdentifier, action, apiClient, forceRefetch = false,
     } :
       {
-        accountIndentifier: string,
+        accountIdentifier: string,
         action: string,
         apiClient: CoinbaseClient,
         forceRefetch?: boolean
        }) => {
-      const group = `${accountIndentifier}-${action}`;
+      const group = `${accountIdentifier}-${action}`;
       let records = Loader.load({ group });
 
       if (records.length === 0 || forceRefetch) {
@@ -50,15 +50,15 @@ export default {
       return records;
     },
     diskNetworkForTimedRecords: async ({
-      accountIndentifier, action, iterationParams, apiClient,
+      accountIdentifier, action, iterationParams, apiClient,
     } :
       {
-        accountIndentifier: string,
+        accountIdentifier: string,
         action: string,
         iterationParams?: { key: string, values: string[]},
         apiClient: CoinbaseClient,
        }) => {
-      const group = `${accountIndentifier}-${action}`;
+      const group = `${accountIdentifier}-${action}`;
       const records = (Loader.load({ group }) as { created_at: string }[])
         .sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at));
       const lastTimeStamp = new Date(records[records.length - 1]?.created_at || 0);
@@ -77,15 +77,37 @@ export default {
       return allRecords;
     },
     diskForTimedRecords: async ({
-      accountIndentifier, action,
+      accountIdentifier, action,
     } :
       {
-        accountIndentifier: string,
+        accountIdentifier: string,
         action: string,
        }) => {
-      const group = `${accountIndentifier}-${action}`;
+      const group = `${accountIdentifier}-${action}`;
       return (Loader.load({ group }) as { created_at: string }[])
         .sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at));
+    },
+
+  },
+  ALGORAND: {
+    diskNetwork: async (
+      {
+        accountIdentifier,
+        fetchMethod,
+      } :
+      {
+        accountIdentifier: string,
+        fetchMethod: ({ since }: { since: Date }) => Promise<Record<string, any>[]>,
+      },
+    ) => {
+      const group = `${accountIdentifier}-transactions`;
+      const records = (Loader.load({ group }) as { 'round-time': number }[])
+        .sort((a, b) => +new Date(a['round-time'] * 1000) - +new Date(b['round-time'] * 1000));
+      const lastTimeStamp = new Date(records[records.length - 1]?.['round-time'] * 1000 || 0);
+      const laterRecords = await fetchMethod({ since: new Date(+lastTimeStamp + 1) });
+      const allRecords = [...records, ...laterRecords];
+      Loader.save({ group, collection: allRecords });
+      return allRecords;
     },
 
   },
