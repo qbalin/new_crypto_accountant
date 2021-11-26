@@ -1,28 +1,44 @@
 import DecentralizedAddress from '../../addresses/decentralized_address';
+import VoidAddress from '../../addresses/void_address';
 import { SupportedBlockchain } from '../../config_types';
 import chainToCoinMap from '../../currencies';
 import AtomicTransaction from '../atomic_transaction';
 import TransactionBundle, { BundleStatus } from '../transaction_bundle';
+import Asset from './asset';
 
-/* eslint-disable no-use-before-define */
+type Attributes = {
+  id: string,
+  fee: number,
+  'first-valid': number,
+  'last-valid': number,
+  sender: string,
+  'round-time': number,
+  'tx-type': 'pay' | 'keyreg' | 'acfg' | 'axfer' | 'afrz',
+  'payment-transaction'?: {
+    amount: number,
+    receiver: string,
+  },
+  'asset-transfer-transaction'?: {
+    amount: number,
+    'asset-id': number,
+    receiver: string
+  }
+}
+
 class Transaction {
   private readonly attributes: Attributes
 
-  static readonly attributesList = ['close-rewards', 'closing-amount', 'confirmed-round', 'fee', 'first-valid', 'genesis-hash', 'genesis-id', 'id', 'intra-round-offset', 'last-valid', 'payment-transaction', 'receiver-rewards', 'round-time', 'sender', 'sender-rewards', 'signature', 'tx-type'] as const;
-
   private atomicTransactions: AtomicTransaction[] | null;
 
-  constructor(
-    { attributes } : { attributes: Record<string, any> },
-  ) {
-    Transaction.attributesList.forEach((attribute) => {
-      if (!Object.keys(attributes).includes(attribute)) {
-        throw new Error(`expected to find ${attribute} in ${Object.keys(attributes)}`);
-      }
-    });
+  private readonly assetIndexToAssetMap: Record<string, Asset>;
 
+  constructor(
+    { attributes, assetIndexToAssetMap } :
+    { attributes: Record<string, any>, assetIndexToAssetMap: Record<string, Asset> },
+  ) {
     this.atomicTransactions = null;
     this.attributes = attributes as Attributes;
+    this.assetIndexToAssetMap = assetIndexToAssetMap;
   }
 
   get createdAt() {
@@ -34,15 +50,49 @@ class Transaction {
   }
 
   get toAddress() {
-    return this.attributes['payment-transaction'].receiver.toLowerCase();
+    const receiver = this.attributes['payment-transaction']?.receiver || this.attributes['asset-transfer-transaction']?.receiver;
+    if (!receiver) {
+      throw new Error(`Receiver not found for ${JSON.stringify(this)}`);
+    }
+    return receiver.toLowerCase();
+  }
+
+  get fee() {
+    return this.attributes.fee * 1e-6;
   }
 
   get amount() {
-    return parseInt(this.attributes['payment-transaction'].amount, 10) * 1e-6;
+    if (this.attributes['payment-transaction']) {
+      return this.attributes['payment-transaction'].amount * 1e-6;
+    }
+    if (this.attributes['asset-transfer-transaction']) {
+      const assetId = this.attributes['asset-transfer-transaction']['asset-id'];
+      const asset = this.assetIndexToAssetMap[assetId];
+      if (!asset) {
+        throw new Error(`Asset not found for ${JSON.stringify(this)}`);
+      }
+      return asset.toDecimal(this.attributes['asset-transfer-transaction']);
+    }
+    throw new Error(`Amount not found for ${JSON.stringify(this)}`);
+  }
+
+  get currency() {
+    if (this.attributes['payment-transaction']) {
+      return chainToCoinMap[SupportedBlockchain.Algorand];
+    }
+    if (this.attributes['asset-transfer-transaction']) {
+      const assetId = this.attributes['asset-transfer-transaction']['asset-id'];
+      const asset = this.assetIndexToAssetMap[assetId];
+      if (!asset) {
+        throw new Error(`Asset not found for ${JSON.stringify(this)}`);
+      }
+      return asset.name;
+    }
+    throw new Error(`Currency not found for ${JSON.stringify(this)}`);
   }
 
   get transactionHash() {
-    return this.attributes.id.toLowerCase();
+    return this.attributes.id;
   }
 
   get bundleId() {
@@ -50,8 +100,13 @@ class Transaction {
   }
 
   transactionBundle() {
+    // "Opt-in" transactions are done from a wallet to the same wallet:
+    // https://developer.algorand.org/docs/get-details/transactions/#opt-in-to-an-asset
+    const status = this.fromAddress === this.toAddress
+      ? BundleStatus.complete
+      : BundleStatus.incomplete;
     return new TransactionBundle({
-      atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.incomplete, id: this.bundleId,
+      atomicTransactions: this.toAtomicTransactions(), action: '', status, id: this.bundleId,
     });
   }
 
@@ -59,31 +114,44 @@ class Transaction {
     if (this.atomicTransactions) {
       return this.atomicTransactions;
     }
+    const transactions = [];
+    if (['pay', 'axfer'].includes(this.attributes['tx-type'])) {
+      transactions.push(
+        new AtomicTransaction({
+          createdAt: this.createdAt,
+          action: '---------',
+          currency: this.currency,
+          from: DecentralizedAddress.getInstance({
+            address: this.fromAddress,
+            chain: SupportedBlockchain.Algorand,
+          }),
+          to: DecentralizedAddress.getInstance({
+            address: this.toAddress,
+            chain: SupportedBlockchain.Algorand,
+          }),
+          amount: this.amount,
+          bundleId: this.bundleId,
+        }),
+      );
+    }
 
     this.atomicTransactions = [
+      ...transactions,
       new AtomicTransaction({
         createdAt: this.createdAt,
-        action: '---------',
+        action: 'PAY_FEE',
         currency: chainToCoinMap[SupportedBlockchain.Algorand],
         from: DecentralizedAddress.getInstance({
           address: this.fromAddress,
           chain: SupportedBlockchain.Algorand,
         }),
-        to: DecentralizedAddress.getInstance({
-          address: this.toAddress,
-          chain: SupportedBlockchain.Algorand,
-        }),
-        amount: this.amount,
+        to: new VoidAddress({ note: 'Miner' }),
+        amount: this.fee,
         bundleId: this.bundleId,
       }),
     ];
     return this.atomicTransactions;
   }
 }
-
-export type Attributes = Record<
-  typeof Transaction.attributesList[number],
-  any
->
 
 export default Transaction;

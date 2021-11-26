@@ -1,7 +1,7 @@
-import { ToJsonable, ToAtomicTransactionable, TransactionBundlable } from '../models/model_types';
+import { ToAtomicTransactionable, TransactionBundlable } from '../models/model_types';
 
 abstract class Account {
-  abstract retrieveData() : Promise<(ToJsonable & ToAtomicTransactionable & TransactionBundlable)[]>
+  abstract retrieveData() : Promise<(ToAtomicTransactionable & TransactionBundlable)[]>
 }
 
 export default Account;

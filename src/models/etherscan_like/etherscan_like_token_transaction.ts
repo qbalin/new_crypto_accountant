@@ -3,10 +3,10 @@ import { SupportedBlockchain } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
 import EthereumLikeAddress from '../../addresses/ethereum_like_address';
 import TransactionBundle, { BundleStatus } from '../transaction_bundle';
-import { ToJsonable, ToAtomicTransactionable, TransactionBundlable } from '../model_types';
+import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 
 class EtherscanLikeTokenTransaction implements
-  ToJsonable, ToAtomicTransactionable, TransactionBundlable {
+  ToAtomicTransactionable, TransactionBundlable {
   private readonly attributes: Attributes
 
   readonly chain: SupportedBlockchain;
@@ -96,10 +96,6 @@ class EtherscanLikeTokenTransaction implements
 
   get confirmations() {
     return parseInt(this.attributes.confirmations, 10);
-  }
-
-  toJson() {
-    return this.attributes;
   }
 
   transactionBundle() {

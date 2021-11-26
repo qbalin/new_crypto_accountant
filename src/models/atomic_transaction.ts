@@ -45,18 +45,6 @@ class AtomicTransaction {
     && this.to.toString() === other.to.toString()
     && this.from.toString() === other.from.toString();
   }
-
-  toJson() {
-    return {
-      createdAt: this.createdAt,
-      action: this.action,
-      currency: this.currency,
-      bundleId: this.bundleId,
-      amount: this.amount,
-      to: this.to.toString(),
-      from: this.from.toString(),
-    };
-  }
 }
 
 export default AtomicTransaction;

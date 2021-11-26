@@ -31,10 +31,6 @@ class Account {
   get currency() {
     return this.attributes.currency;
   }
-
-  toJson() {
-    return this.attributes;
-  }
 }
 
 export default Account;

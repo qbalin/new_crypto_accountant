@@ -3,11 +3,11 @@ import EthereumLikeAddress from '../../addresses/ethereum_like_address';
 import { SupportedBlockchain } from '../../config_types';
 import chainToCoinMap from '../../currencies';
 import AtomicTransaction from '../atomic_transaction';
-import { ToJsonable, ToAtomicTransactionable, TransactionBundlable } from '../model_types';
+import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 import TransactionBundle, { BundleStatus } from '../transaction_bundle';
 
 class EtherscanLikeInternalTransaction implements
-  ToJsonable, ToAtomicTransactionable, TransactionBundlable {
+  ToAtomicTransactionable, TransactionBundlable {
   private readonly attributes: Attributes
 
   readonly chain: SupportedBlockchain;
@@ -84,10 +84,6 @@ class EtherscanLikeInternalTransaction implements
 
   get errCode() {
     return this.attributes.errCode;
-  }
-
-  toJson() {
-    return this.attributes;
   }
 
   transactionBundle() {

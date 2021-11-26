@@ -2,7 +2,7 @@ import PlatformAddress from '../../addresses/platform_address';
 import VoidAddress from '../../addresses/void_address';
 import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
-import { ToAtomicTransactionable, ToJsonable, TransactionBundlable } from '../model_types';
+import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 import TransactionBundle, { BundleStatus } from '../transaction_bundle';
 
 /* eslint-disable camelcase */
@@ -14,7 +14,7 @@ interface Attributes {
   readonly details: { conversion_id: string },
 }
 
-class Conversion implements ToJsonable, ToAtomicTransactionable, TransactionBundlable {
+class Conversion implements ToAtomicTransactionable, TransactionBundlable {
   private readonly attributes: Attributes;
 
   private readonly accountNickname: string;
@@ -50,10 +50,6 @@ class Conversion implements ToJsonable, ToAtomicTransactionable, TransactionBund
 
   get bundleId() {
     return `${SupportedPlatform.Coinbase}-conversion_id-${this.id}`;
-  }
-
-  toJson() {
-    return this.attributes;
   }
 
   transactionBundle() {

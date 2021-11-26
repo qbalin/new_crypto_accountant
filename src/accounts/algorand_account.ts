@@ -4,6 +4,8 @@ import AlgorandClient from '../api_clients/algo_explorer';
 import Transaction from '../models/algorand/transaction';
 import DecentralizedAddress from '../addresses/decentralized_address';
 import FetchingStrategies from '../models/fetching_strategies';
+import { uniq } from '../utils';
+import Asset from '../models/algorand/asset';
 
 class AlgorandAccount extends DecentralizedAccount {
   readonly nickname: string
@@ -21,10 +23,27 @@ class AlgorandAccount extends DecentralizedAccount {
   async retrieveData() {
     const fetchMethod = async ({ since }: {since: Date}) => AlgorandClient
       .getTransactions({ walletAddress: this.walletAddress, since });
-    FetchingStrategies.ALGORAND.diskNetwork({ fetchMethod, accountIdentifier: this.identifier });
-    const transactions = (await AlgorandClient
-      .getTransactions({ walletAddress: this.walletAddress }))
-      .map((attributes: Record<string, any>) => new Transaction({ attributes }));
+    const rawTransactions = await FetchingStrategies.ALGORAND
+      .diskNetwork({ fetchMethod, accountIdentifier: this.identifier });
+
+    const assetIds = uniq(rawTransactions
+      .filter((rt) => rt['asset-transfer-transaction'])
+      .map((rt) => rt['asset-transfer-transaction']['asset-id']));
+
+    const assets = (await AlgorandClient
+      .getAssets({ assetIds }))
+      .map((attributes: Record<string, any>) => new Asset({ attributes }));
+
+    const assetIndexToAssetMap = assets.reduce((memo, asset) => {
+      // eslint-disable-next-line no-param-reassign
+      memo[asset.index] = asset;
+      return memo;
+    }, {} as Record<string, Asset>);
+
+    const transactions = rawTransactions.map((attributes: Record<string, any>) => new Transaction({
+      attributes,
+      assetIndexToAssetMap,
+    }));
 
     return [...transactions];
   }

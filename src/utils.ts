@@ -58,7 +58,10 @@ const groupBy = <T, U extends Record<keyof T, any>>
       return memo;
     }, {} as Record<U[keyof T], U[]>);
 
+const uniq = <T>(collection: T[]) : T[] => Array.from(new Set(collection));
+
 export {
   fetchJson,
   groupBy,
+  uniq,
 };

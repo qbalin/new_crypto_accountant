@@ -5,7 +5,7 @@ import PlatformAddress from '../../addresses/platform_address';
 import VoidAddress from '../../addresses/void_address';
 import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
-import { ToJsonable, ToAtomicTransactionable, TransactionBundlable } from '../model_types';
+import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 import TransactionBundle, { BundleStatus } from '../transaction_bundle';
 
 interface Details {
@@ -39,7 +39,7 @@ interface Attributes {
   readonly idem: null
 }
 
-class Transfer implements ToJsonable, ToAtomicTransactionable, TransactionBundlable {
+class Transfer implements ToAtomicTransactionable, TransactionBundlable {
   private readonly attributes: Attributes;
 
   private readonly accountNickname: string;
@@ -119,10 +119,6 @@ class Transfer implements ToJsonable, ToAtomicTransactionable, TransactionBundla
     return `${SupportedPlatform.Coinbase}-transfer_id-${this.id}`;
   }
 
-  toJson() {
-    return this.attributes;
-  }
-
   transactionBundle() {
     let status;
     if (this.isBankTransfer) {
@@ -141,17 +137,17 @@ class Transfer implements ToJsonable, ToAtomicTransactionable, TransactionBundla
     }
 
     if (!!this.completedAt === !!this.canceledAt) {
-      throw new Error(`Transfer should be either completed or canceled: ${JSON.stringify(this.toJson())}`);
+      throw new Error(`Transfer should be either completed or canceled: ${JSON.stringify(this)}`);
     }
     if (!this.completedAt) {
       return [];
     }
     if (!['deposit', 'withdraw'].includes(this.type)) {
-      throw new Error(`Unknown type ${this.type} for transfer ${JSON.stringify(this.toJson())}`);
+      throw new Error(`Unknown type ${this.type} for transfer ${JSON.stringify(this)}`);
     }
     const currency = this.accountIdToCurrencyMap[this.accountId];
     if (!currency) {
-      throw new Error(`Could not find account with id ${this.accountId} for transfer ${JSON.stringify(this.toJson())}`);
+      throw new Error(`Could not find account with id ${this.accountId} for transfer ${JSON.stringify(this)}`);
     }
     this.atomicTransactions = this.type === 'deposit' ? this.toDepositAtomicTransactions(currency) : this.toWithdrawAtomicTransaction(currency);
     return this.atomicTransactions;
@@ -159,7 +155,7 @@ class Transfer implements ToJsonable, ToAtomicTransactionable, TransactionBundla
 
   private toDepositAtomicTransactions(currency: string) {
     if (this.fee) {
-      throw new Error(`Found deposit entry with a fee. Unsupported for now. Entry: ${JSON.stringify(this.toJson())}`);
+      throw new Error(`Found deposit entry with a fee. Unsupported for now. Entry: ${JSON.stringify(this)}`);
     }
     let from;
     if (this.isBankTransfer) {

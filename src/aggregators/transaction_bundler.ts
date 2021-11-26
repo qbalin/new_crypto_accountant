@@ -1,11 +1,11 @@
-import { ToAtomicTransactionable, ToJsonable, TransactionBundlable } from '../models/model_types';
+import { ToAtomicTransactionable, TransactionBundlable } from '../models/model_types';
 import TransactionBundle, { BundleStatus } from '../models/transaction_bundle';
 import { groupBy } from '../utils';
 
 class TransactionBundler {
-  readonly data: (ToJsonable & ToAtomicTransactionable & TransactionBundlable)[];
+  readonly data: (ToAtomicTransactionable & TransactionBundlable)[];
 
-  constructor({ data } : { data: (ToJsonable & ToAtomicTransactionable & TransactionBundlable)[]}) {
+  constructor({ data } : { data: (ToAtomicTransactionable & TransactionBundlable)[]}) {
     this.data = data;
   }
 

@@ -40,10 +40,6 @@ class Product {
   get id() {
     return this.attributes.id;
   }
-
-  toJson() {
-    return this.attributes;
-  }
 }
 
 export default Product;

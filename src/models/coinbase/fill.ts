@@ -3,7 +3,7 @@ import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
 import VoidAddress from '../../addresses/void_address';
 import TransactionBundle, { BundleStatus } from '../transaction_bundle';
-import { ToAtomicTransactionable, ToJsonable, TransactionBundlable } from '../model_types';
+import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 
 /* eslint-disable camelcase */
 interface Attributes {
@@ -22,7 +22,7 @@ interface Attributes {
   readonly usd_volume: string,
 }
 
-class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable {
+class Fill implements ToAtomicTransactionable, TransactionBundlable {
   private readonly attributes: Attributes;
 
   private readonly quoteCurrency: string;
@@ -85,10 +85,6 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
     return `${SupportedPlatform.Coinbase}-trade_id-${this.tradeId}`;
   }
 
-  toJson() {
-    return this.attributes;
-  }
-
   transactionBundle() {
     return new TransactionBundle({
       atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.complete, id: this.bundleId,
@@ -103,10 +99,10 @@ class Fill implements ToJsonable, ToAtomicTransactionable, TransactionBundlable 
       return this.atomicTransactions;
     }
     if (!this.tradeId || !this.baseCurrency || !this.quoteCurrency) {
-      throw new Error(`Cannot find trade id, base currency or quote currency: ${JSON.stringify(this.toJson)}`);
+      throw new Error(`Cannot find trade id, base currency or quote currency: ${JSON.stringify(this)}`);
     }
     if (this.side !== 'buy' && this.side !== 'sell') {
-      throw new Error(`Fill side unrecognized, should be one of ['buy', 'sell'] but was ${this.side} for fill ${JSON.stringify(this.toJson)}`);
+      throw new Error(`Fill side unrecognized, should be one of ['buy', 'sell'] but was ${this.side} for fill ${JSON.stringify(this)}`);
     }
     this.atomicTransactions = this.side === 'buy' ? this.toBuyAtomicTransactions() : this.toSellAtomicTransactions();
     return this.atomicTransactions;
