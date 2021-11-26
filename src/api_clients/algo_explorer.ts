@@ -7,6 +7,7 @@ class Client {
     const url = new URL(this.baseUrl);
     url.pathname += '/transactions';
     url.searchParams.set('address', walletAddress.toUpperCase());
+    url.searchParams.set('after-time', since.toISOString());
 
     let nextCursor;
     const transactions = [];
