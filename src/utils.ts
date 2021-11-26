@@ -60,8 +60,20 @@ const groupBy = <T, U extends Record<keyof T, any>>
 
 const uniq = <T>(collection: T[]) : T[] => Array.from(new Set(collection));
 
+const time = (description: string, fn: (...args: any[]) => any) => {
+  const start = +new Date();
+  fn();
+  const end = +new Date();
+  console.log(`${description ? `${description}: ` : ''}${end - start}ms`);
+};
+
+time.startTime = +new Date();
+time.start = (() => { time.startTime = +new Date(); });
+time.end = (() => { console.log(`${+new Date() - time.startTime}ms`); });
+
 export {
   fetchJson,
   groupBy,
   uniq,
+  time,
 };
