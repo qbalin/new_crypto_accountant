@@ -90,7 +90,7 @@ export default {
 
   },
   ALGORAND: {
-    diskNetwork: async (
+    diskNetworkForTransactions: async (
       {
         accountIdentifier,
         fetchMethod,
@@ -106,6 +106,44 @@ export default {
       const lastTimeStamp = new Date(records[records.length - 1]?.['round-time'] * 1000 || 0);
       const laterRecords = await fetchMethod({ since: new Date(+lastTimeStamp + 1) });
       const allRecords = [...records, ...laterRecords];
+      Loader.save({ group, collection: allRecords });
+      return allRecords;
+    },
+    diskNetworkForAssets: async (
+      {
+        accountIdentifier,
+        fetchMethod,
+        assetIdsToFetch,
+      } :
+      {
+        accountIdentifier: string,
+        fetchMethod: (arg: number[]) => Promise<Record<string, any>[]>,
+        assetIdsToFetch: number[]
+      },
+    ) => {
+      const group = `${accountIdentifier}-assets`;
+      const records = Loader.load({ group });
+
+      const assetIdsOnDisk = records.reduce((memo, record) => {
+        // eslint-disable-next-line no-param-reassign
+        memo[record.index] = true;
+        return memo;
+      }, {});
+
+      console.log('assetIdsToFetch', assetIdsToFetch);
+
+      const assetIdsRequestedButNotOnDisk = assetIdsToFetch.reduce((memo, id) => {
+        if (!assetIdsOnDisk[id]) {
+          memo.push(id);
+        }
+        return memo;
+      }, [] as number[]);
+
+      console.log('assetIdsRequestedButNotOnDisk', assetIdsRequestedButNotOnDisk);
+
+      const newRecords = await fetchMethod(assetIdsRequestedButNotOnDisk);
+
+      const allRecords = [...records, ...newRecords];
       Loader.save({ group, collection: allRecords });
       return allRecords;
     },

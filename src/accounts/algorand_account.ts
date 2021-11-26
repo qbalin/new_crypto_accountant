@@ -21,18 +21,24 @@ class AlgorandAccount extends DecentralizedAccount {
   }
 
   async retrieveData() {
-    const fetchMethod = async ({ since }: {since: Date}) => AlgorandClient
+    const fetchTransactions = async ({ since }: {since: Date}) => AlgorandClient
       .getTransactions({ walletAddress: this.walletAddress, since });
     const rawTransactions = await FetchingStrategies.ALGORAND
-      .diskNetwork({ fetchMethod, accountIdentifier: this.identifier });
+      .diskNetworkForTransactions({
+        fetchMethod: fetchTransactions,
+        accountIdentifier: this.identifier,
+      });
 
     const assetIds = uniq(rawTransactions
       .filter((rt) => rt['asset-transfer-transaction'])
       .map((rt) => rt['asset-transfer-transaction']['asset-id']));
 
-    const assets = (await AlgorandClient
-      .getAssets({ assetIds }))
-      .map((attributes: Record<string, any>) => new Asset({ attributes }));
+    const fetchAssets = (ids: number[]) => AlgorandClient.getAssets({ assetIds: ids });
+    const assets = (await FetchingStrategies.ALGORAND.diskNetworkForAssets({
+      accountIdentifier: this.identifier,
+      fetchMethod: fetchAssets,
+      assetIdsToFetch: assetIds,
+    })).map((attributes: Record<string, any>) => new Asset({ attributes }));
 
     const assetIndexToAssetMap = assets.reduce((memo, asset) => {
       // eslint-disable-next-line no-param-reassign
