@@ -12,6 +12,7 @@ import {
 import CoinbaseAccount from './accounts/coinbase_account';
 import Accounts from './accounts/accounts';
 import AlgorandAccount from './accounts/algorand_account';
+import BitcoinAccount from './accounts/bitcoin_account';
 
 const SUPPORTED_PLATFORMS = Object.values(SupportedPlatform);
 const SUPPORTED_BLOCKCHAINS = Object.values(SupportedBlockchain);
@@ -36,7 +37,7 @@ class Config {
       .map((account) => ({
         ...account,
         blockchainName: account.blockchainName.toLowerCase() as SupportedBlockchain,
-        walletAddress: account.walletAddress.toLowerCase(),
+        walletAddress: account.walletAddress,
       }));
 
     this.centralizedAccountsConfig.forEach((account) => {
@@ -121,6 +122,7 @@ class Config {
         case SupportedBlockchain.Ethereum: return new EthereumAccount(accountConfig);
         case SupportedBlockchain.Polygon: return new PolygonAccount(accountConfig);
         case SupportedBlockchain.Algorand: return new AlgorandAccount(accountConfig);
+        case SupportedBlockchain.Bitcoin: return new BitcoinAccount(accountConfig);
         default: throw new Error(`Blockchain name unexpected (${accountConfig.blockchainName}) for account config ${JSON.stringify(accountConfig)}`);
       }
     });

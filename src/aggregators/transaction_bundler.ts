@@ -179,7 +179,7 @@ class TransactionBundler {
         const identicalBundles = bundleArray.filter((b) => b.equal(bundle));
         if (identicalBundles.length > 0) {
           if (identicalBundles.length > 1) {
-            throw new Error(`There should only ever be to identical bundles max. This instance was found ${identicalBundles.length + 1} times: ${JSON.stringify(bundle)}`);
+            throw new Error(`There should only ever be two identical bundles max. This instance was found ${identicalBundles.length + 1} times: ${JSON.stringify(bundle, null, 2)}`);
           }
           memo.completeDeduplicatedBundles.push(new TransactionBundle({
             status: BundleStatus.complete,

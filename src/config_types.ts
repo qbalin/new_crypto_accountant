@@ -5,6 +5,7 @@ export enum SupportedPlatform {
 }
 export enum SupportedBlockchain {
   Algorand = 'algorand',
+  Bitcoin = 'bitcoin',
   Ethereum = 'ethereum',
   Polygon = 'polygon',
 }

@@ -11,9 +11,13 @@ class DecentralizedAddress extends Address {
 
   readonly controlled: boolean;
 
-  static getInstance({ address, chain, controlled = false }:
-    { address: string, chain: SupportedBlockchain, controlled?: boolean }) {
-    const newInstance = new this({ address, chain, controlled });
+  static getInstance({
+    address, chain, controlled = false, noLowerCase = false,
+  }:
+    { address: string, chain: SupportedBlockchain, controlled?: boolean, noLowerCase?: boolean }) {
+    const newInstance = new this({
+      address, chain, controlled, noLowerCase,
+    });
     const identifier = newInstance.toString();
 
     if (instances[identifier]) {
@@ -23,12 +27,13 @@ class DecentralizedAddress extends Address {
     return newInstance;
   }
 
-  private constructor({ address, chain, controlled }:
-    { address: string, chain: SupportedBlockchain, controlled: boolean }) {
+  private constructor({
+    address, chain, controlled, noLowerCase,
+  }:
+    { address: string, chain: SupportedBlockchain, controlled: boolean, noLowerCase: boolean }) {
     super();
-    const lowerCasedAddress = address.toLowerCase();
 
-    this.address = lowerCasedAddress;
+    this.address = noLowerCase ? address : address.toLowerCase();
     this.chain = chain;
     this.controlled = controlled;
   }

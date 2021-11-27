@@ -147,6 +147,30 @@ export default {
       Loader.save({ group, collection: allRecords });
       return allRecords;
     },
+  },
+  BITCOIN: {
+    diskNetworkForTransactions: async (
+      {
+        accountIdentifier,
+        fetchMethod,
+      } :
+      {
+        accountIdentifier: string,
+        fetchMethod: ({ since } : { since: Date}) => Promise<Record<string, any>[]>,
+      },
+    ) => {
+      const group = `${accountIdentifier}-transactions`;
+      const records = (Loader.load({ group }) as { status: { block_time: number }}[])
+        .sort((a, b) => +new Date(a.status.block_time * 1000)
+        - +new Date(b.status.block_time * 1000));
+      const lastTimeStamp = new Date((records[records.length - 1]?.status.block_time || 0) * 1000);
+
+      const laterRecords = await fetchMethod({ since: new Date(+lastTimeStamp + 1) });
+
+      const allRecords = [...records, ...laterRecords];
+      Loader.save({ group, collection: allRecords });
+      return allRecords;
+    },
 
   },
 };
