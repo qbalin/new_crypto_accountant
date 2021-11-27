@@ -60,23 +60,6 @@ class Transaction {
     return new Date(this.attributes.status.block_time * 1000);
   }
 
-  get fromAddress() {
-    return this.attributes.vin.length > 0 ? this.controlledAddress : new VoidAddress({ note: 'Other BTC address' });
-  }
-
-  get toAddress() {
-    return this.attributes.vout.length > 0 ? this.controlledAddress : new VoidAddress({ note: 'Other BTC address' });
-  }
-
-  get fee() {
-    return this.attributes.fee * 1e-6;
-  }
-
-  get amount() {
-    return (this.attributes.vout.reduce((memo, outObj) => memo + outObj.value, 0)
-    - this.attributes.vin.reduce((memo, inObj) => memo + inObj.prevout.value, 0)) * 1e-8;
-  }
-
   get bundleId() {
     return `${SupportedBlockchain.Bitcoin}-transaction-${this.attributes.txid}`;
   }

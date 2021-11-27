@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+// @ts-ignore
 import { addressesFromExtPubKey } from '@swan-bitcoin/xpub-lib';
 import { fetchJson } from '../utils';
 
