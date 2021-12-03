@@ -1,11 +1,11 @@
 import DecentralizedAccount from './decentralized_account';
 import { DecentralizedAccountConfig } from '../config_types';
 import AlgorandClient from '../api_clients/algo_explorer';
-import Transaction from '../models/algorand/transaction';
+import Transaction from '../models/algorand_algo_explorer/transaction';
 import DecentralizedAddress from '../addresses/decentralized_address';
 import FetchingStrategies from '../models/fetching_strategies';
 import { uniq } from '../utils';
-import Asset from '../models/algorand/asset';
+import Asset from '../models/algorand_algo_explorer/asset';
 
 class AlgorandAccount extends DecentralizedAccount {
   readonly nickname: string
