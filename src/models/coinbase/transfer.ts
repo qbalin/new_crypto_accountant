@@ -4,7 +4,7 @@ import BankAccountAddress from '../../addresses/bank_account_address';
 import PlatformAddress from '../../addresses/platform_address';
 import VoidAddress from '../../addresses/void_address';
 import { SupportedPlatform } from '../../config_types';
-import AtomicTransaction from '../atomic_transaction';
+import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
 import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 import TransactionBundle, { BundleStatus } from '../transaction_bundle';
 
@@ -201,7 +201,7 @@ class Transfer implements ToAtomicTransactionable, TransactionBundlable {
       }),
       new AtomicTransaction({
         createdAt: this.createdAt,
-        action: 'PAY_FEE',
+        action: PAY_FEE,
         currency,
         from: PlatformAddress.getInstance({
           nickname: this.accountNickname,

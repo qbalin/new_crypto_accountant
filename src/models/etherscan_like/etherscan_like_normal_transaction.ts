@@ -1,5 +1,5 @@
 /* eslint-disable no-use-before-define */
-import AtomicTransaction from '../atomic_transaction';
+import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
 import { SupportedBlockchain } from '../../config_types';
 import chainToCoinMap from '../../currencies';
 import EthereumLikeAddress from '../../addresses/ethereum_like_address';
@@ -136,7 +136,7 @@ class EtherscanLikeNormalTransaction implements
       ...intendedTransaction,
       new AtomicTransaction({
         createdAt: this.timeStamp,
-        action: 'PAY_FEE',
+        action: PAY_FEE,
         currency: chainToCoinMap[this.chain],
         from: EthereumLikeAddress.getInstance({
           address: this.from,

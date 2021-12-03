@@ -3,7 +3,7 @@ import DecentralizedAddress from '../../addresses/decentralized_address';
 import VoidAddress from '../../addresses/void_address';
 import { SupportedBlockchain } from '../../config_types';
 import chainToCoinMap from '../../currencies';
-import AtomicTransaction from '../atomic_transaction';
+import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
 import TransactionBundle, { BundleStatus } from '../transaction_bundle';
 
 type Vout = {
@@ -86,7 +86,7 @@ class Transaction {
     if (this.attributes.vin.length) {
       this.atomicTransactions.push(new AtomicTransaction({
         createdAt: this.createdAt,
-        action: 'PAY_FEE',
+        action: PAY_FEE,
         currency: chainToCoinMap[SupportedBlockchain.Bitcoin],
         from: this.controlledAddress,
         to: new VoidAddress({ note: 'Miner' }),

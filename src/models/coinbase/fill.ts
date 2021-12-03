@@ -1,6 +1,6 @@
 import PlatformAddress from '../../addresses/platform_address';
 import { SupportedPlatform } from '../../config_types';
-import AtomicTransaction from '../atomic_transaction';
+import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
 import VoidAddress from '../../addresses/void_address';
 import TransactionBundle, { BundleStatus } from '../transaction_bundle';
 import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
@@ -136,7 +136,7 @@ class Fill implements ToAtomicTransactionable, TransactionBundlable {
       }),
       new AtomicTransaction({
         createdAt: this.createdAt,
-        action: 'PAY_FEE',
+        action: PAY_FEE,
         currency: this.quoteCurrency,
         from: PlatformAddress.getInstance({
           platform: SupportedPlatform.Coinbase,
@@ -177,7 +177,7 @@ class Fill implements ToAtomicTransactionable, TransactionBundlable {
       }),
       new AtomicTransaction({
         createdAt: this.createdAt,
-        action: 'PAY_FEE',
+        action: PAY_FEE,
         currency: this.quoteCurrency,
         from: PlatformAddress.getInstance({
           nickname: this.accountNickname,

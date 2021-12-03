@@ -1,5 +1,7 @@
 import Address from '../addresses/address';
 
+export const PAY_FEE = 'PAY_FEE';
+
 class AtomicTransaction {
   readonly createdAt: Date;
 
@@ -44,6 +46,10 @@ class AtomicTransaction {
     // toString can be removed once addesses are singleton instances
     && this.to.toString() === other.to.toString()
     && this.from.toString() === other.from.toString();
+  }
+
+  get isFeePayment() {
+    return this.action === PAY_FEE;
   }
 }
 
