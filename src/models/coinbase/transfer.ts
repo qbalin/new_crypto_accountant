@@ -6,7 +6,7 @@ import VoidAddress from '../../addresses/void_address';
 import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
 import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
-import TransactionBundle, { BundleStatus } from '../transaction_bundle';
+import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 
 interface Details {
   readonly fee?: string,
@@ -127,7 +127,10 @@ class Transfer implements ToAtomicTransactionable, TransactionBundlable {
       status = BundleStatus.incomplete;
     }
     return new TransactionBundle({
-      atomicTransactions: this.toAtomicTransactions(), action: '', status, id: this.bundleId,
+      atomicTransactions: this.toAtomicTransactions(),
+      action: BundleAction.transfer,
+      status,
+      id: this.bundleId,
     });
   }
 

@@ -2,8 +2,8 @@ import DecentralizedAddress from '../../addresses/decentralized_address';
 import VoidAddress from '../../addresses/void_address';
 import { SupportedBlockchain } from '../../config_types';
 import chainToCoinMap from '../../currencies';
-import AtomicTransaction from '../atomic_transaction';
-import TransactionBundle, { BundleStatus } from '../transaction_bundle';
+import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
+import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 import Asset from './asset';
 
 type Attributes = {
@@ -106,7 +106,10 @@ class Transaction {
       ? BundleStatus.complete
       : BundleStatus.incomplete;
     return new TransactionBundle({
-      atomicTransactions: this.toAtomicTransactions(), action: '', status, id: this.bundleId,
+      atomicTransactions: this.toAtomicTransactions(),
+      action: BundleAction.transfer,
+      status,
+      id: this.bundleId,
     });
   }
 
@@ -139,7 +142,7 @@ class Transaction {
       ...transactions,
       new AtomicTransaction({
         createdAt: this.createdAt,
-        action: 'PAY_FEE',
+        action: PAY_FEE,
         currency: chainToCoinMap[SupportedBlockchain.Algorand],
         from: DecentralizedAddress.getInstance({
           address: this.fromAddress,

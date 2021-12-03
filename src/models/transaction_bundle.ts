@@ -5,19 +5,25 @@ export enum BundleStatus {
   incomplete = 'incomplete'
 }
 
+export enum BundleAction {
+  transfer = 'transfer',
+  trade = 'trade',
+  toBeDetermined = 'toBeDetermined'
+}
+
 class TransactionBundle {
   readonly atomicTransactions: AtomicTransaction[];
 
-  readonly action: string;
+  readonly action: BundleAction;
 
-  readonly status: string;
+  readonly status: BundleStatus;
 
   readonly id: string;
 
   constructor({
     atomicTransactions, action, status, id,
   } :
-    { atomicTransactions: AtomicTransaction[], action: string, status: BundleStatus, id: string }) {
+    { atomicTransactions: AtomicTransaction[], action: BundleAction, status: BundleStatus, id: string }) {
     this.status = status;
     this.atomicTransactions = atomicTransactions;
     this.action = action;

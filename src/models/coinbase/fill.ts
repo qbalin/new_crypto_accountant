@@ -2,7 +2,7 @@ import PlatformAddress from '../../addresses/platform_address';
 import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
 import VoidAddress from '../../addresses/void_address';
-import TransactionBundle, { BundleStatus } from '../transaction_bundle';
+import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 
 /* eslint-disable camelcase */
@@ -87,7 +87,10 @@ class Fill implements ToAtomicTransactionable, TransactionBundlable {
 
   transactionBundle() {
     return new TransactionBundle({
-      atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.complete, id: this.bundleId,
+      atomicTransactions: this.toAtomicTransactions(),
+      action: BundleAction.trade,
+      status: BundleStatus.complete,
+      id: this.bundleId,
     });
   }
 

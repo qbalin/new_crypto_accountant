@@ -4,7 +4,7 @@ import VoidAddress from '../../addresses/void_address';
 import { SupportedBlockchain } from '../../config_types';
 import chainToCoinMap from '../../currencies';
 import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
-import TransactionBundle, { BundleStatus } from '../transaction_bundle';
+import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 
 type Vout = {
   scriptpubkey: string,
@@ -66,7 +66,10 @@ class Transaction {
 
   transactionBundle() {
     return new TransactionBundle({
-      atomicTransactions: this.toAtomicTransactions(), action: '', status: BundleStatus.incomplete, id: this.bundleId,
+      atomicTransactions: this.toAtomicTransactions(),
+      action: BundleAction.transfer,
+      status: BundleStatus.incomplete,
+      id: this.bundleId,
     });
   }
 
