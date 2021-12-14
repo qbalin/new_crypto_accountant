@@ -84,7 +84,7 @@ class Heap<T> {
   }
 
   peek() {
-    return this.array[0].element;
+    return this.array[0]?.element || null;
   }
 
   get size() {
