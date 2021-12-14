@@ -1,5 +1,5 @@
 import { ToAtomicTransactionable, TransactionBundlable } from '../models/model_types';
-import TransactionBundle, { BundleStatus } from '../models/transaction_bundle';
+import TransactionBundle, { BundleAction, BundleStatus } from '../models/transaction_bundle';
 import { groupBy } from '../utils';
 
 class TransactionBundler {
@@ -106,7 +106,7 @@ class TransactionBundler {
           new TransactionBundle({
             atomicTransactions: [...fromBundle.atomicTransactions, ...toMatch.atomicTransactions],
             status: BundleStatus.complete,
-            action: '',
+            action: BundleAction.toBeDetermined,
             id: fromBundle.id + toMatch.id,
           }),
         );
@@ -184,7 +184,7 @@ class TransactionBundler {
           memo.completeDeduplicatedBundles.push(new TransactionBundle({
             status: BundleStatus.complete,
             atomicTransactions: bundle.atomicTransactions,
-            action: '',
+            action: bundle.action,
             id: bundle.id,
           }));
         } else {
