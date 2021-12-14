@@ -21,14 +21,25 @@ class TransactionBundle {
 
   readonly id: string;
 
+  private privateNonFeeTransactions: null | AtomicTransaction[];
+
+  private privateSynthetizable: null | boolean;
+
   constructor({
     atomicTransactions, action, status, id,
   } :
-    { atomicTransactions: AtomicTransaction[], action: BundleAction, status: BundleStatus, id: string }) {
+  {
+    atomicTransactions: AtomicTransaction[],
+    action: BundleAction,
+    status: BundleStatus,
+    id: string
+  }) {
     this.status = status;
     this.atomicTransactions = atomicTransactions;
     this.action = action;
     this.id = id;
+    this.privateNonFeeTransactions = null;
+    this.privateSynthetizable = null;
   }
 
   get fromControlled() {
@@ -39,11 +50,57 @@ class TransactionBundle {
     return this.atomicTransactions.some((transaction) => transaction.to.controlled);
   }
 
-  get mainAtomicTransaction() {
-    if (this.atomicTransactions.length === 1) {
-      return this.atomicTransactions[0];
+  get nonFeeTransactions() {
+    this.privateNonFeeTransactions ||= this.atomicTransactions.filter((t) => !t.isFeePayment);
+    return this.privateNonFeeTransactions;
+  }
+
+  get synthetizable() {
+    if (this.privateSynthetizable !== null) {
+      return this.privateSynthetizable;
     }
-    return this.atomicTransactions.find((transaction) => transaction.action !== 'PAY_FEE') as AtomicTransaction;
+    if (this.nonFeeTransactions.length === 0) {
+      this.privateSynthetizable = false;
+      return this.privateSynthetizable;
+    }
+    this.privateSynthetizable = Object
+      .values(this.nonFeeTransactions.reduce((memo, transaction) => {
+        memo.from.add(transaction.from);
+        memo.createdAt.add(transaction.createdAt.valueOf);
+        memo.to.add(transaction.to);
+        memo.currencies.add(transaction.currency);
+        return memo;
+      }, {
+        currencies: new Set(), createdAt: new Set(), to: new Set(), from: new Set(),
+      })).reduce((memo, set) => memo && set.size === 1, true as boolean);
+
+    return this.privateSynthetizable;
+  }
+
+  get syntheticTransaction() {
+    // This is the "main" transaction of an incomplete transfer bundle. Normally, this
+    // would be the other transaction that is not a fee in the bundle, but UTXO transactions
+    // are in fact represented by many transactions, which we intend to reduce to a single
+    // one here.
+    if (!this.synthetizable) {
+      throw new Error(`To be aggregated in a single synthetic transaction, all transactions to, from, currency and createdAt must match. Offending bundle: ${JSON.stringify(this, null, 2)}`);
+    }
+
+    const {
+      to, from, currency, createdAt, bundleId,
+    } = this.nonFeeTransactions[0];
+
+    return new AtomicTransaction({
+      to,
+      from,
+      createdAt,
+      currency,
+      action: '--------',
+      bundleId,
+      amount: this.nonFeeTransactions.reduce((memo, transaction) => transaction.amount + memo, 0),
+    });
+  }
+    }
   }
 
   complete() {

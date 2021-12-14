@@ -59,10 +59,17 @@ class TransactionBundler {
     // If a good candidate is found, bundle them together. Else, pushe the from in the list
     // of orphans. If some "to"'s are left in the set, push the to the list of orphans
 
+    const orphanBundles: TransactionBundle[] = [];
     const { fromControlled, toControlled } = bundles.reduce(
       (memo, bundle) => {
         if (bundle.fromControlled && bundle.toControlled) {
           throw new Error(`It is unexpected to have incomplete bundles with no siblings that contain atomic transactions with both the "from" and "to" address being controlled by the user. Got: ${JSON.stringify(bundle, null, 2)}.`);
+        }
+        if (!bundle.synthetizable) {
+          // If the bundle is made of transactions with heterogenous to, from, createdAt or currency
+          // they cannot be part of a transfer
+          orphanBundles.push(bundle);
+          return memo;
         }
         if (bundle.fromControlled) {
           memo.fromControlled.add(bundle);
@@ -79,21 +86,20 @@ class TransactionBundler {
     );
 
     const consolidatedBundles: TransactionBundle[] = [];
-    const orphanBundles: TransactionBundle[] = [];
 
     fromControlled.forEach((fromBundle) => {
       const toMatch = Array
         .from(toControlled)
-        .sort((a, b) => +a.mainAtomicTransaction.createdAt - +b.mainAtomicTransaction.createdAt)
+        .sort((a, b) => +a.syntheticTransaction.createdAt - +b.syntheticTransaction.createdAt)
         .find((toBundle) => {
-          const toAddress = toBundle.mainAtomicTransaction.to;
-          const fromAddress = fromBundle.mainAtomicTransaction.from;
-          const toCurrency = toBundle.mainAtomicTransaction.currency;
-          const fromCurrency = fromBundle.mainAtomicTransaction.currency;
-          const toAmount = toBundle.mainAtomicTransaction.amount;
-          const fromAmount = fromBundle.mainAtomicTransaction.amount;
-          const toCreatedAt = toBundle.mainAtomicTransaction.createdAt;
-          const fromCreatedAt = fromBundle.mainAtomicTransaction.createdAt;
+          const toAddress = toBundle.syntheticTransaction.to;
+          const fromAddress = fromBundle.syntheticTransaction.from;
+          const toCurrency = toBundle.syntheticTransaction.currency;
+          const fromCurrency = fromBundle.syntheticTransaction.currency;
+          const toAmount = toBundle.syntheticTransaction.amount;
+          const fromAmount = fromBundle.syntheticTransaction.amount;
+          const toCreatedAt = toBundle.syntheticTransaction.createdAt;
+          const fromCreatedAt = fromBundle.syntheticTransaction.createdAt;
 
           return toAddress !== fromAddress
             && toCurrency === fromCurrency
