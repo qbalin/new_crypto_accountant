@@ -30,6 +30,6 @@
   },
   "dependencies": {
     "@swan-bitcoin/xpub-lib": "^0.1.0",
-    "web3": "^1.6.0"
+    "web3": "^1.6.1"
   }
 }
