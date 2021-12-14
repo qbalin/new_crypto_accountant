@@ -3,6 +3,7 @@ import VoidAddress from '../../addresses/void_address';
 import { SupportedBlockchain } from '../../config_types';
 import chainToCoinMap from '../../currencies';
 import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
+import Currency from '../currency';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 import Asset from './asset';
 
@@ -123,7 +124,7 @@ class Transaction {
         new AtomicTransaction({
           createdAt: this.createdAt,
           action: '---------',
-          currency: this.currency,
+          currency: Currency.getInstance({ ticker: this.currency }),
           from: DecentralizedAddress.getInstance({
             address: this.fromAddress,
             chain: SupportedBlockchain.Algorand,
@@ -143,7 +144,7 @@ class Transaction {
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: PAY_FEE,
-        currency: chainToCoinMap[SupportedBlockchain.Algorand],
+        currency: Currency.getInstance({ ticker: chainToCoinMap[SupportedBlockchain.Algorand] }),
         from: DecentralizedAddress.getInstance({
           address: this.fromAddress,
           chain: SupportedBlockchain.Algorand,

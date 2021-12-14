@@ -4,6 +4,7 @@ import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
 import VoidAddress from '../../addresses/void_address';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
+import Currency from '../currency';
 
 /* eslint-disable camelcase */
 interface Attributes {
@@ -116,7 +117,7 @@ class Fill implements ToAtomicTransactionable, TransactionBundlable {
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: '-----',
-        currency: this.baseCurrency,
+        currency: Currency.getInstance({ ticker: this.baseCurrency }),
         from: VoidAddress.getInstance({ note: 'Coinbase Inc.' }),
         to: PlatformAddress.getInstance({
           nickname: this.accountNickname,
@@ -128,7 +129,7 @@ class Fill implements ToAtomicTransactionable, TransactionBundlable {
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: '-----',
-        currency: this.quoteCurrency,
+        currency: Currency.getInstance({ ticker: this.quoteCurrency }),
         from: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
@@ -140,7 +141,7 @@ class Fill implements ToAtomicTransactionable, TransactionBundlable {
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: PAY_FEE,
-        currency: this.quoteCurrency,
+        currency: Currency.getInstance({ ticker: this.quoteCurrency }),
         from: PlatformAddress.getInstance({
           platform: SupportedPlatform.Coinbase,
           nickname: this.accountNickname,
@@ -157,7 +158,7 @@ class Fill implements ToAtomicTransactionable, TransactionBundlable {
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: '-----',
-        currency: this.baseCurrency,
+        currency: Currency.getInstance({ ticker: this.baseCurrency }),
         from: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
@@ -169,7 +170,7 @@ class Fill implements ToAtomicTransactionable, TransactionBundlable {
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: '-----',
-        currency: this.quoteCurrency,
+        currency: Currency.getInstance({ ticker: this.quoteCurrency }),
         from: VoidAddress.getInstance({ note: 'Coinbase Inc.' }),
         to: PlatformAddress.getInstance({
           nickname: this.accountNickname,
@@ -181,7 +182,7 @@ class Fill implements ToAtomicTransactionable, TransactionBundlable {
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: PAY_FEE,
-        currency: this.quoteCurrency,
+        currency: Currency.getInstance({ ticker: this.quoteCurrency }),
         from: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,

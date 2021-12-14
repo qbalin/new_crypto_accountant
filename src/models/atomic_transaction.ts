@@ -1,4 +1,5 @@
 import Address from '../addresses/address';
+import Currency from './currency';
 
 export const PAY_FEE = 'PAY_FEE';
 
@@ -7,7 +8,7 @@ class AtomicTransaction {
 
   readonly action: string;
 
-  readonly currency: string;
+  readonly currency: Currency;
 
   readonly from: Address;
 
@@ -22,7 +23,7 @@ class AtomicTransaction {
   }: {
     createdAt: Date,
     action: string,
-    currency: string,
+    currency: Currency,
     from: Address,
     to: Address,
     bundleId: string,

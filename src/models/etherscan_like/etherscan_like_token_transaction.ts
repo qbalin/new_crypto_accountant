@@ -4,6 +4,7 @@ import AtomicTransaction from '../atomic_transaction';
 import EthereumLikeAddress from '../../addresses/ethereum_like_address';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
+import Currency from '../currency';
 
 class EtherscanLikeTokenTransaction implements
   ToAtomicTransactionable, TransactionBundlable {
@@ -121,7 +122,7 @@ class EtherscanLikeTokenTransaction implements
       new AtomicTransaction({
         createdAt: this.timeStamp,
         action: '-----',
-        currency: this.tokenSymbol,
+        currency: Currency.getInstance({ ticker: this.tokenSymbol }),
         from: EthereumLikeAddress.getInstance({
           address: this.from,
           chain: this.chain,

@@ -3,6 +3,7 @@ import EthereumLikeAddress from '../../addresses/ethereum_like_address';
 import { SupportedBlockchain } from '../../config_types';
 import chainToCoinMap from '../../currencies';
 import AtomicTransaction from '../atomic_transaction';
+import Currency from '../currency';
 import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 
@@ -104,7 +105,7 @@ class EtherscanLikeInternalTransaction implements
       new AtomicTransaction({
         createdAt: this.timeStamp,
         action: '---------',
-        currency: chainToCoinMap[this.chain],
+        currency: Currency.getInstance({ ticker: chainToCoinMap[this.chain] }),
         from: EthereumLikeAddress.getInstance({
           address: this.from,
           chain: this.chain,

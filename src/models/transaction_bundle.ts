@@ -1,4 +1,5 @@
 import AtomicTransaction from './atomic_transaction';
+import Currency from './currency';
 
 export enum BundleStatus {
   complete = 'complete',

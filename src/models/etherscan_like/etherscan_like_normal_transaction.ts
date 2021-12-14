@@ -6,6 +6,7 @@ import EthereumLikeAddress from '../../addresses/ethereum_like_address';
 import VoidAddress from '../../addresses/void_address';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
+import Currency from '../currency';
 
 class EtherscanLikeNormalTransaction implements
   ToAtomicTransactionable, TransactionBundlable {
@@ -122,7 +123,7 @@ class EtherscanLikeNormalTransaction implements
       intendedTransaction.push(new AtomicTransaction({
         createdAt: this.timeStamp,
         action: '-----',
-        currency: chainToCoinMap[this.chain],
+        currency: Currency.getInstance({ ticker: chainToCoinMap[this.chain] }),
         from: EthereumLikeAddress.getInstance({
           address: this.from,
           chain: this.chain,
@@ -140,7 +141,7 @@ class EtherscanLikeNormalTransaction implements
       new AtomicTransaction({
         createdAt: this.timeStamp,
         action: PAY_FEE,
-        currency: chainToCoinMap[this.chain],
+        currency: Currency.getInstance({ ticker: chainToCoinMap[this.chain] }),
         from: EthereumLikeAddress.getInstance({
           address: this.from,
           chain: this.chain,

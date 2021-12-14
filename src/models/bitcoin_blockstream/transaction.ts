@@ -4,6 +4,7 @@ import VoidAddress from '../../addresses/void_address';
 import { SupportedBlockchain } from '../../config_types';
 import chainToCoinMap from '../../currencies';
 import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
+import Currency from '../currency';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 
 type Vout = {
@@ -80,7 +81,7 @@ class Transaction {
     this.atomicTransactions = this.attributes.vin.map((inObj) => new AtomicTransaction({
       createdAt: this.createdAt,
       action: '----',
-      currency: chainToCoinMap[SupportedBlockchain.Bitcoin],
+      currency: Currency.getInstance({ ticker: chainToCoinMap[SupportedBlockchain.Bitcoin] }),
       from: this.controlledAddress,
       to: VoidAddress.getInstance({ note: 'Other BTC address' }),
       amount: inObj.prevout.value * 1e-8,
@@ -90,7 +91,7 @@ class Transaction {
       this.atomicTransactions.push(new AtomicTransaction({
         createdAt: this.createdAt,
         action: PAY_FEE,
-        currency: chainToCoinMap[SupportedBlockchain.Bitcoin],
+        currency: Currency.getInstance({ ticker: chainToCoinMap[SupportedBlockchain.Bitcoin] }),
         from: this.controlledAddress,
         to: VoidAddress.getInstance({ note: 'Miner' }),
         amount: this.attributes.fee * 1e-8,
@@ -100,7 +101,7 @@ class Transaction {
     this.atomicTransactions.push(...this.attributes.vout.map((outObj) => new AtomicTransaction({
       createdAt: this.createdAt,
       action: '-----',
-      currency: chainToCoinMap[SupportedBlockchain.Bitcoin],
+      currency: Currency.getInstance({ ticker: chainToCoinMap[SupportedBlockchain.Bitcoin] }),
       from: VoidAddress.getInstance({ note: 'Other BTC address' }),
       to: this.controlledAddress,
       amount: outObj.value * 1e-8,

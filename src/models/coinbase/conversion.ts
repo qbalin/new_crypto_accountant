@@ -2,6 +2,7 @@ import PlatformAddress from '../../addresses/platform_address';
 import VoidAddress from '../../addresses/void_address';
 import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
+import Currency from '../currency';
 import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 
@@ -70,7 +71,7 @@ class Conversion implements ToAtomicTransactionable, TransactionBundlable {
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: 'conversion',
-        currency: 'USDC',
+        currency: Currency.getInstance({ ticker: 'USDC' }),
         from: VoidAddress.getInstance({ note: 'Coinbase Inc.' }),
         to: PlatformAddress.getInstance({
           nickname: this.accountNickname,
@@ -82,7 +83,7 @@ class Conversion implements ToAtomicTransactionable, TransactionBundlable {
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: 'conversion',
-        currency: 'USD',
+        currency: Currency.getInstance({ ticker: 'USD' }),
         from: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,

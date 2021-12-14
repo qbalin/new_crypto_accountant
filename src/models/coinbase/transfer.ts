@@ -5,6 +5,7 @@ import PlatformAddress from '../../addresses/platform_address';
 import VoidAddress from '../../addresses/void_address';
 import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
+import Currency from '../currency';
 import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 
@@ -170,7 +171,7 @@ class Transfer implements ToAtomicTransactionable, TransactionBundlable {
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: '-----',
-        currency,
+        currency: Currency.getInstance({ ticker: currency }),
         from,
         to: PlatformAddress.getInstance({
           nickname: this.accountNickname,
@@ -193,7 +194,7 @@ class Transfer implements ToAtomicTransactionable, TransactionBundlable {
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: '-----',
-        currency,
+        currency: Currency.getInstance({ ticker: currency }),
         from: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
@@ -205,7 +206,7 @@ class Transfer implements ToAtomicTransactionable, TransactionBundlable {
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: PAY_FEE,
-        currency,
+        currency: Currency.getInstance({ ticker: currency }),
         from: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
