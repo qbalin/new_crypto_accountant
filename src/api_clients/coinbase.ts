@@ -1,5 +1,8 @@
 import crypto from 'crypto';
-import { fetchJson, HttpMethod } from '../utils';
+import { fetchJson as nonLimitedFetchJson, HttpMethod, rateLimit } from '../utils';
+
+// 3 calls per second conservatively: https://help.coinbase.com/en/pro/other-topics/api/faq-on-api
+const fetchJson = rateLimit({ fn: nonLimitedFetchJson, callsPerMinute: 180 });
 
 const signature = (
   secret: string,

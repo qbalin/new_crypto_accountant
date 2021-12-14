@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import { IncomingMessage } from 'http';
 import https from 'https';
 
@@ -162,10 +163,95 @@ class Heap<T> {
   }
 }
 
+class QueueNode<T> {
+  previous: QueueNode<T> | null;
+
+  next: QueueNode<T> | null;
+
+  readonly value: T;
+
+  constructor(value: T) {
+    this.value = value;
+    this.previous = null;
+    this.next = null;
+  }
+}
+
+class Queue<T> {
+  private head: QueueNode<T> | null;
+
+  private tail: QueueNode<T> | null;
+
+  constructor() {
+    this.head = null;
+    this.tail = null;
+  }
+
+  get isEmpty() {
+    return this.head === null;
+  }
+
+  enqueue(element: T) {
+    const newNode = new QueueNode(element);
+    newNode.next = this.tail;
+    if (!this.head || !this.tail) {
+      this.head = newNode;
+      this.tail = newNode;
+    } else {
+      this.tail.previous = newNode;
+      this.tail = newNode;
+    }
+  }
+
+  dequeue() {
+    if (!this.head || !this.tail) {
+      return null;
+    }
+    const node = this.head;
+    if (this.head === this.tail) {
+      this.head = null;
+      this.tail = null;
+      return node.value;
+    }
+    this.head = (node as QueueNode<T>).previous;
+    (this.head as QueueNode<T>).next = null;
+    return node.value;
+  }
+}
+
+const rateLimit = <Fn extends (...args: any) => any>({ callsPerMinute = 60, fn } :
+  { callsPerMinute: number, fn: Fn }) => {
+  const queue = new Queue<() => void>();
+  let idle = true;
+
+  const dequeueAfterTimeout = () => {
+    const functionQueued = queue.dequeue() as () => {};
+    setTimeout(() => {
+      functionQueued();
+      if (queue.isEmpty) {
+        idle = true;
+      } else {
+        dequeueAfterTimeout();
+      }
+    }, 60_000 / callsPerMinute);
+  };
+
+  return (...args: Parameters<typeof fn>) :
+    Promise<ReturnType<typeof fn>> => new Promise((resolve) => {
+    queue.enqueue(() => resolve(fn(...args)));
+
+    if (idle) {
+      idle = false;
+      dequeueAfterTimeout();
+    }
+  });
+};
+
 export {
   fetchJson,
   groupBy,
   uniq,
   time,
   Heap,
+  rateLimit,
 };
