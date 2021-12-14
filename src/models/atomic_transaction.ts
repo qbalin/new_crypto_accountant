@@ -1,5 +1,6 @@
 import Address from '../addresses/address';
 import Currency from './currency';
+import coingeckoClient from '../api_clients/coingecko';
 
 export const PAY_FEE = 'PAY_FEE';
 
@@ -51,6 +52,17 @@ class AtomicTransaction {
 
   get isFeePayment() {
     return this.action === PAY_FEE;
+  }
+
+  async getCost({ at = new Date() } : { at?: Date } = {}) {
+    if (this.currency.isFiat) {
+      return this.amount;
+    }
+    return (await this.getPrice({ at })) * this.amount;
+  }
+
+  private async getPrice({ at = new Date() } : { at?: Date } = {}) {
+    return coingeckoClient.getPrice({ ticker: this.currency.ticker, at });
   }
 }
 
