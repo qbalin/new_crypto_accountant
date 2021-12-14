@@ -148,7 +148,7 @@ class Transaction {
           address: this.fromAddress,
           chain: SupportedBlockchain.Algorand,
         }),
-        to: new VoidAddress({ note: 'Miner' }),
+        to: VoidAddress.getInstance({ note: 'Miner' }),
         amount: this.fee,
         bundleId: this.bundleId,
       }),

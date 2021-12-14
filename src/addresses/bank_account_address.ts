@@ -9,4 +9,6 @@ class BankAccountAddress extends Address {
   }
 }
 
-export default BankAccountAddress;
+const bankAccountAddress = new BankAccountAddress();
+
+export default bankAccountAddress;

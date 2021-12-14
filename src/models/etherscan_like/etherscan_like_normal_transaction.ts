@@ -145,7 +145,7 @@ class EtherscanLikeNormalTransaction implements
           address: this.from,
           chain: this.chain,
         }),
-        to: new VoidAddress({ note: 'Miner' }),
+        to: VoidAddress.getInstance({ note: 'Miner' }),
         amount: this.gasSpentInEth,
         bundleId: this.hash,
       }),

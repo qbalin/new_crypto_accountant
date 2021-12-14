@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 
-import BankAccountAddress from '../../addresses/bank_account_address';
+import bankAccountAddress from '../../addresses/bank_account_address';
 import PlatformAddress from '../../addresses/platform_address';
 import VoidAddress from '../../addresses/void_address';
 import { SupportedPlatform } from '../../config_types';
@@ -162,9 +162,9 @@ class Transfer implements ToAtomicTransactionable, TransactionBundlable {
     }
     let from;
     if (this.isBankTransfer) {
-      from = new BankAccountAddress();
+      from = bankAccountAddress;
     } else {
-      from = new VoidAddress({ note: this.cryptoTransactionHash || 'Unknown address' }); // Not really void, it comes from an unknown chain
+      from = VoidAddress.getInstance({ note: this.cryptoTransactionHash || 'Unknown address' }); // Not really void, it comes from an unknown chain
     }
     return [
       new AtomicTransaction({
@@ -185,9 +185,9 @@ class Transfer implements ToAtomicTransactionable, TransactionBundlable {
   private toWithdrawAtomicTransaction(currency: string) {
     let to;
     if (this.isBankTransfer) {
-      to = new BankAccountAddress();
+      to = bankAccountAddress;
     } else {
-      to = new VoidAddress({ note: this.cryptoTransactionHash || 'Unknown address' }); // Not really void, it goes to an unknown chain
+      to = VoidAddress.getInstance({ note: this.cryptoTransactionHash || 'Unknown address' }); // Not really void, it goes to an unknown chain
     }
     return [
       new AtomicTransaction({
@@ -210,7 +210,7 @@ class Transfer implements ToAtomicTransactionable, TransactionBundlable {
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
-        to: new VoidAddress({ note: 'Coinbase Inc.' }),
+        to: VoidAddress.getInstance({ note: 'Coinbase Inc.' }),
         amount: this.fee,
         bundleId: this.bundleId,
       }),

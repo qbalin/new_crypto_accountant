@@ -71,7 +71,7 @@ class Conversion implements ToAtomicTransactionable, TransactionBundlable {
         createdAt: this.createdAt,
         action: 'conversion',
         currency: 'USDC',
-        from: new VoidAddress({ note: 'Coinbase Inc.' }),
+        from: VoidAddress.getInstance({ note: 'Coinbase Inc.' }),
         to: PlatformAddress.getInstance({
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
@@ -87,7 +87,7 @@ class Conversion implements ToAtomicTransactionable, TransactionBundlable {
           nickname: this.accountNickname,
           platform: SupportedPlatform.Coinbase,
         }),
-        to: new VoidAddress({ note: 'Coinbase Inc.' }),
+        to: VoidAddress.getInstance({ note: 'Coinbase Inc.' }),
         amount: this.amount,
         bundleId: this.bundleId,
       }),

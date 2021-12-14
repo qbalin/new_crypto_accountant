@@ -82,7 +82,7 @@ class Transaction {
       action: '----',
       currency: chainToCoinMap[SupportedBlockchain.Bitcoin],
       from: this.controlledAddress,
-      to: new VoidAddress({ note: 'Other BTC address' }),
+      to: VoidAddress.getInstance({ note: 'Other BTC address' }),
       amount: inObj.prevout.value * 1e-8,
       bundleId: this.bundleId,
     }));
@@ -92,7 +92,7 @@ class Transaction {
         action: PAY_FEE,
         currency: chainToCoinMap[SupportedBlockchain.Bitcoin],
         from: this.controlledAddress,
-        to: new VoidAddress({ note: 'Miner' }),
+        to: VoidAddress.getInstance({ note: 'Miner' }),
         amount: this.attributes.fee * 1e-8,
         bundleId: this.bundleId,
       }));
@@ -101,7 +101,7 @@ class Transaction {
       createdAt: this.createdAt,
       action: '-----',
       currency: chainToCoinMap[SupportedBlockchain.Bitcoin],
-      from: new VoidAddress({ note: 'Other BTC address' }),
+      from: VoidAddress.getInstance({ note: 'Other BTC address' }),
       to: this.controlledAddress,
       amount: outObj.value * 1e-8,
       bundleId: this.bundleId,
