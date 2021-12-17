@@ -1,6 +1,7 @@
 import { CentralizedAccountConfig } from '../config_types';
 import CentralizedAccount from './centralized_account';
 import FetchingStrategies from '../models/fetching_strategies';
+import CelsiusRecord from '../models/celsius/record';
 
 class CelsiusAccount extends CentralizedAccount {
   // private readonly coinbaseClient: CoinbaseClient;
@@ -14,11 +15,10 @@ class CelsiusAccount extends CentralizedAccount {
     // });
   }
 
-  // eslint-disable-next-line class-methods-use-this
   async retrieveData() {
     const records = await FetchingStrategies.CELSIUS.disk();
-    console.log('Celsius', JSON.stringify(records, null, 2));
-    return [];
+    return records
+      .map((attributes) => new CelsiusRecord({ attributes, accountNickname: this.nickname }));
   }
 }
 

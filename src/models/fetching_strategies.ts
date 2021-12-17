@@ -190,7 +190,6 @@ export default {
         .sort((a, b) => a.createdAt - b.createdAt);
       const lastTimeStamp = new Date((records[records.length - 1]?.createdAt
         || beginningOfYear().valueOf()));
-      console.log(lastTimeStamp);
 
       const laterRecords = await fetchMethod({ since: new Date(+lastTimeStamp + 1) });
 
