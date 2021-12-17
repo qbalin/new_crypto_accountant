@@ -84,6 +84,7 @@ class KucoinClient {
     url.searchParams.set('startAt', startAt.valueOf().toString());
 
     let response = (await fetchSixPerSecond({ url: url.href, headers: this.headers(url) })).data;
+    console.log(url.href);
     results.push(...response.data.items);
 
     while (since < startAt) {
@@ -94,6 +95,7 @@ class KucoinClient {
       url.searchParams.set('currentPage', '1');
       // eslint-disable-next-line no-await-in-loop
       response = (await fetchSixPerSecond({ url: url.href, headers: this.headers(url) })).data;
+      console.log(url.href);
       results.push(...response.data.items);
 
       while (response.data.currentPage < response.data.totalPage) {

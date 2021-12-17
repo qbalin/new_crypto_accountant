@@ -247,6 +247,11 @@ const rateLimit = <Fn extends (...args: any) => any>({ callsPerMinute = 60, fn }
   });
 };
 
+const beginningOfYear = () => {
+  const currentYear = (new Date()).getFullYear().toString();
+  return new Date(currentYear);
+};
+
 export {
   fetchJson,
   groupBy,
@@ -254,4 +259,5 @@ export {
   time,
   Heap,
   rateLimit,
+  beginningOfYear,
 };

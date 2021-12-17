@@ -13,6 +13,7 @@ import CoinbaseAccount from './accounts/coinbase_account';
 import Accounts from './accounts/accounts';
 import AlgorandAccount from './accounts/algorand_account';
 import BitcoinAccount from './accounts/bitcoin_account';
+import KucoinAccount from './accounts/kucoin_account';
 
 const SUPPORTED_PLATFORMS = Object.values(SupportedPlatform);
 const SUPPORTED_BLOCKCHAINS = Object.values(SupportedBlockchain);
@@ -114,6 +115,7 @@ class Config {
     const centralizedAccounts = config.centralizedAccountsConfig.map((accountConfig) => {
       switch (accountConfig.platformName) {
         case SupportedPlatform.Coinbase: return new CoinbaseAccount(accountConfig);
+        case SupportedPlatform.KuCoin: return new KucoinAccount(accountConfig);
         default: throw new Error(`Platform name unexpected (${accountConfig.platformName}) for account config ${JSON.stringify(accountConfig)}`);
       }
     });

@@ -2,6 +2,7 @@
 import Loader from './loader';
 import EtherscanBaseClient from '../api_clients/etherscan_like';
 import CoinbaseClient from '../api_clients/coinbase';
+import { beginningOfYear } from '../utils';
 
 export default {
   ETHERSCAN_LIKE: {
@@ -171,6 +172,30 @@ export default {
       Loader.save({ group, collection: allRecords });
       return allRecords;
     },
+  },
+  KUCOIN: {
+    diskNetworkForTransactions: async (
+      {
+        accountIdentifier,
+        fetchMethod,
+      } :
+      {
+        accountIdentifier: string,
+        fetchMethod: ({ since } : { since: Date}) => Promise<Record<string, any>[]>,
+      },
+    ) => {
+      const group = `${accountIdentifier}-ledgers`;
+      const records = (Loader.load({ group }) as { createdAt: number }[])
+        .sort((a, b) => a.createdAt - b.createdAt);
+      const lastTimeStamp = new Date((records[records.length - 1]?.createdAt
+        || beginningOfYear().valueOf()));
+      console.log(lastTimeStamp);
 
+      const laterRecords = await fetchMethod({ since: new Date(+lastTimeStamp + 1) });
+
+      const allRecords = [...records, ...laterRecords];
+      Loader.save({ group, collection: allRecords });
+      return allRecords;
+    },
   },
 };
