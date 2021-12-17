@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+import fs from 'fs';
 import Loader from './loader';
 import EtherscanBaseClient from '../api_clients/etherscan_like';
 import CoinbaseClient from '../api_clients/coinbase';
@@ -196,6 +197,33 @@ export default {
       const allRecords = [...records, ...laterRecords];
       Loader.save({ group, collection: allRecords });
       return allRecords;
+    },
+  },
+  CELSIUS: {
+    disk: async () => {
+      const group = 'celsius-transactions-export.csv';
+      const recordRows = fs.readFileSync(`./downloads/${group}`, { encoding: 'utf8' }).split('\n');
+      const records = recordRows.reduce((memo, value, index) => {
+        if (index === 0) {
+          return memo;
+        }
+        const [id, datetime, transactionType, coinType, coinAmount, usdValue, originalInterestCoin, interestAmountInOriginalCoin, confirmed] = value.replace(/","/g, '\t').replace(/"/g, '').split('\t');
+        memo.push({
+          id,
+          datetime,
+          transactionType,
+          coinType,
+          coinAmount,
+          usdValue,
+          originalInterestCoin,
+          interestAmountInOriginalCoin,
+          confirmed,
+        });
+
+        return memo;
+      }, [] as Record<string, string>[]);
+
+      return records;
     },
   },
 };
