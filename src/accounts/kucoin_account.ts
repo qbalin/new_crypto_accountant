@@ -34,10 +34,7 @@ class KucoinAccount extends CentralizedAccount {
       .map((t) => t.transactionBundle())
       // Remove transparent actions, like transfering between internal accounts
       .filter((b) => b.action !== BundleAction.noOp)
-      // Remove bundles without transaction
-      .filter((b) => b.atomicTransactions.length !== 0)
-      // Remove bundles with transactions whose amounts are all 0
-      .filter((b) => !b.atomicTransactions.every((t) => t.amount === 0));
+      .filter((bundle) => !bundle.isEmpty);
 
     const [tradeBundles, nonTradeBundles] = partition(nonEmptyBundles, (bundle) => bundle.isTrade);
 

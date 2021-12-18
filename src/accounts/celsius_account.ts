@@ -18,7 +18,9 @@ class CelsiusAccount extends CentralizedAccount {
   async retrieveData() {
     const records = await FetchingStrategies.CELSIUS.disk();
     return records
-      .map((attributes) => new CelsiusRecord({ attributes, accountNickname: this.nickname }));
+      .map((attributes) => new CelsiusRecord({ attributes, accountNickname: this.nickname }))
+      .map((obj) => obj.transactionBundle())
+      .filter((bundle) => !bundle.isEmpty);
   }
 }
 

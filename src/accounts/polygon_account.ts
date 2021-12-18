@@ -81,8 +81,7 @@ class EthereumAccount extends DecentralizedAccount {
 
     const nonEmptyBundles = [...normalTransactions, ...internalTransactions, ...tokenTransactions]
       .map((t) => t.transactionBundle())
-      .filter((b) => b.atomicTransactions.length !== 0)
-      .filter((b) => !b.atomicTransactions.every((t) => t.amount === 0));
+      .filter((bundle) => !bundle.isEmpty);
 
     const bundlesGroupedById = groupBy(nonEmptyBundles, (bundle) => bundle.id);
     return Object.entries(bundlesGroupedById).map(([id, bundlesGrouped]) => new TransactionBundle({

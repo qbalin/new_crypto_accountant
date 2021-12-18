@@ -57,6 +57,11 @@ class TransactionBundle {
     return this.atomicTransactions.some((transaction) => transaction.to.controlled);
   }
 
+  get isEmpty() {
+    return this.atomicTransactions.length === 0
+    || this.atomicTransactions.every((t) => t.amount === 0);
+  }
+
   get nonFeeTransactions() {
     this.privateNonFeeTransactions ||= this.atomicTransactions.filter((t) => !t.isFeePayment);
     return this.privateNonFeeTransactions;
