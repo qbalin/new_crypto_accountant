@@ -51,7 +51,9 @@ class AlgorandAccount extends DecentralizedAccount {
       assetIndexToAssetMap,
     }));
 
-    return [...transactions];
+    return transactions
+      .map((t) => t.transactionBundle())
+      .filter((bundle) => !bundle.isEmpty);
   }
 }
 
