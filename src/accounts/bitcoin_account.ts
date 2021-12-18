@@ -35,7 +35,9 @@ class BitcoinAccount extends DecentralizedAccount {
       attributes,
       controlledAddress: this.address as DecentralizedAddress,
     }));
-    return transactions;
+    return transactions
+      .map((t) => t.transactionBundle())
+      .filter((bundle) => !bundle.isEmpty);
   }
 }
 
