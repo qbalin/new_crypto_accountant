@@ -13,6 +13,7 @@ export enum BundleAction {
   getFree = 'getFree',
   toBeDetermined = 'toBeDetermined',
   noOp = 'noOp',
+  pureFeePayment = 'pureFeePayment',
 }
 
 class TransactionBundle {
@@ -47,6 +48,14 @@ class TransactionBundle {
 
   get isTrade() {
     return this.action === BundleAction.trade;
+  }
+
+  get isComplete() {
+    return this.status === BundleStatus.complete;
+  }
+
+  get isPureFee() {
+    return this.atomicTransactions.length === 1 && this.atomicTransactions[0].isFeePayment;
   }
 
   get fromControlled() {

@@ -3,7 +3,6 @@ import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
 import VoidAddress from '../../addresses/void_address';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
-import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 import Currency from '../currency';
 
 /* eslint-disable camelcase */
@@ -23,7 +22,7 @@ interface Attributes {
   readonly usd_volume: string,
 }
 
-class Fill implements ToAtomicTransactionable, TransactionBundlable {
+class Fill {
   private readonly attributes: Attributes;
 
   private readonly quoteCurrency: string;
@@ -88,7 +87,7 @@ class Fill implements ToAtomicTransactionable, TransactionBundlable {
 
   transactionBundle() {
     return new TransactionBundle({
-      atomicTransactions: this.toAtomicTransactions(),
+      atomicTransactions: this.toAtomicTransactions().filter((t) => t.amount !== 0),
       action: BundleAction.trade,
       status: BundleStatus.complete,
       id: this.bundleId,

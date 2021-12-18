@@ -84,12 +84,26 @@ class EthereumAccount extends DecentralizedAccount {
       .filter((bundle) => !bundle.isEmpty);
 
     const bundlesGroupedById = groupBy(nonEmptyBundles, (bundle) => bundle.id);
-    return Object.entries(bundlesGroupedById).map(([id, bundlesGrouped]) => new TransactionBundle({
-      id,
-      action: BundleAction.toBeDetermined,
-      status: BundleStatus.incomplete,
-      atomicTransactions: bundlesGrouped.flatMap((bundle) => bundle.atomicTransactions),
-    }));
+    return Object.entries(bundlesGroupedById).map(([id, bundlesGrouped]) => {
+      if (bundlesGrouped.length === 1) {
+        const singleBundle = bundlesGrouped[0];
+        if (singleBundle.isPureFee) {
+          return new TransactionBundle({
+            id,
+            action: BundleAction.pureFeePayment,
+            status: BundleStatus.complete,
+            atomicTransactions: singleBundle.atomicTransactions,
+          });
+        }
+        return singleBundle;
+      }
+      return new TransactionBundle({
+        id,
+        action: BundleAction.toBeDetermined,
+        status: BundleStatus.incomplete,
+        atomicTransactions: bundlesGrouped.flatMap((bundle) => bundle.atomicTransactions),
+      });
+    });
   }
 
   static parseTransactions({ transactions }: {transactions: EtherscanLikeNormalTransaction[] }) {

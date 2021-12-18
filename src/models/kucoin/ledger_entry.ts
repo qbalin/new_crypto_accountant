@@ -3,7 +3,6 @@ import VoidAddress from '../../addresses/void_address';
 import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction, { PAY_FEE } from '../atomic_transaction';
 import Currency from '../currency';
-import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 
 /* eslint-disable camelcase */
@@ -20,7 +19,7 @@ interface Attributes {
   context: string | null,
 }
 
-class LedgerEntry implements ToAtomicTransactionable, TransactionBundlable {
+class LedgerEntry {
   private readonly attributes: Attributes;
 
   private readonly accountNickname: string;
@@ -127,7 +126,7 @@ class LedgerEntry implements ToAtomicTransactionable, TransactionBundlable {
     }
 
     return new TransactionBundle({
-      atomicTransactions: this.toAtomicTransactions(),
+      atomicTransactions: this.toAtomicTransactions().filter((t) => t.amount !== 0),
       action,
       status,
       id: this.bundleId,

@@ -1,8 +1,9 @@
 import fs from 'fs';
 import Web3 from 'web3';
 import { URL } from 'url';
-import { fetchJson, HttpMethod } from '../utils';
+import { fetchJson as nonLimitedFetchJson, HttpMethod, rateLimit } from '../utils';
 
+const fetchJson = rateLimit({ callsPerMinute: 60, fn: nonLimitedFetchJson });
 const pathToErc20TokenCache = (chainName: string) => `./downloads/${chainName}_erc20_tokens.json`;
 
 abstract class Client {

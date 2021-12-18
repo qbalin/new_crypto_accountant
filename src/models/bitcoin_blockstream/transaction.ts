@@ -67,7 +67,7 @@ class Transaction {
 
   transactionBundle() {
     return new TransactionBundle({
-      atomicTransactions: this.toAtomicTransactions(),
+      atomicTransactions: this.toAtomicTransactions().filter((t) => t.amount !== 0),
       action: BundleAction.transfer,
       status: BundleStatus.incomplete,
       id: this.bundleId,

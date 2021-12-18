@@ -45,10 +45,15 @@ class KucoinAccount extends CentralizedAccount {
         if (groupedBundles.length !== 2) {
           throw new Error(`A Kucoin trade should be made of a transaction going in, and one going out plus a possible fee. Got: ${JSON.stringify(groupedBundles, null, 2)}`);
         }
-        if (new Set(
-          groupedBundles.flatMap((b) => b.atomicTransactions.map((t) => t.createdAt)),
-        ).size !== 1) {
-          throw new Error(`All Kucoin trade transactions should bear the same timestamp. Got: ${JSON.stringify(groupedBundles, null, 2)}`);
+        const createdAts = groupedBundles
+          .flatMap((b) => b.atomicTransactions.map((t) => t.createdAt))
+          .map((createdAt) => +createdAt);
+        if (new Set(createdAts).size !== 1) {
+          const minCreatedAt = Math.min(...createdAts);
+          const maxCreatedAt = Math.max(...createdAts);
+          if (maxCreatedAt - minCreatedAt > 3000) {
+            throw new Error(`All Kucoin trade transactions should bear a close timestamp (within 3s of each other). Got: ${JSON.stringify(groupedBundles, null, 2)}`);
+          }
         }
         return new TransactionBundle({
           atomicTransactions: groupedBundles.flatMap((bundle) => bundle.atomicTransactions),

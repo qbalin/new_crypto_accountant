@@ -5,11 +5,9 @@ import chainToCoinMap from '../../currencies';
 import EthereumLikeAddress from '../../addresses/ethereum_like_address';
 import VoidAddress from '../../addresses/void_address';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
-import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 import Currency from '../currency';
 
-class EtherscanLikeNormalTransaction implements
-  ToAtomicTransactionable, TransactionBundlable {
+class EtherscanLikeNormalTransaction {
   private readonly attributes: Attributes
 
   readonly chain: SupportedBlockchain;
@@ -104,7 +102,7 @@ class EtherscanLikeNormalTransaction implements
 
   transactionBundle() {
     return new TransactionBundle({
-      atomicTransactions: this.toAtomicTransactions(),
+      atomicTransactions: this.toAtomicTransactions().filter((t) => t.amount !== 0),
       action: BundleAction.toBeDetermined,
       status: BundleStatus.incomplete,
       id: this.hash,

@@ -1,5 +1,6 @@
 import Config from './config';
-import TransactionBundler from './aggregators/transaction_bundler';
+import BundleConsolidator from './aggregators/bundle_consolidator';
+
 /*
 # Goal
 

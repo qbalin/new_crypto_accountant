@@ -107,7 +107,7 @@ class Transaction {
       ? BundleStatus.complete
       : BundleStatus.incomplete;
     return new TransactionBundle({
-      atomicTransactions: this.toAtomicTransactions(),
+      atomicTransactions: this.toAtomicTransactions().filter((t) => t.amount !== 0),
       action: BundleAction.transfer,
       status,
       id: this.bundleId,

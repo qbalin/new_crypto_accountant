@@ -1,4 +1,4 @@
-import { ToAtomicTransactionable, TransactionBundlable } from '../models/model_types';
+import TransactionBundle from '../models/transaction_bundle';
 import Account from './account';
 
 class Accounts {
@@ -8,10 +8,8 @@ class Accounts {
     this.all = accounts;
   }
 
-  async retrieveData() : Promise<(ToAtomicTransactionable & TransactionBundlable)[]> {
-    let promise: Promise<
-      (ToAtomicTransactionable & TransactionBundlable)[]
-    > = Promise.resolve([]);
+  async retrieveData() {
+    let promise: Promise<TransactionBundle[]> = Promise.resolve([]);
     this.all.forEach((account) => {
       promise = promise
         .then(async (transactions) => (await account.retrieveData()).concat(transactions));

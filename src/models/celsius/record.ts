@@ -3,7 +3,6 @@ import VoidAddress from '../../addresses/void_address';
 import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
 import Currency from '../currency';
-import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 
 /* eslint-disable camelcase */
@@ -19,7 +18,7 @@ interface Attributes {
   confirmed: string
 }
 
-class CelsiusRecord implements ToAtomicTransactionable, TransactionBundlable {
+class CelsiusRecord {
   private readonly attributes: Attributes;
 
   private readonly accountNickname: string;
@@ -84,7 +83,7 @@ class CelsiusRecord implements ToAtomicTransactionable, TransactionBundlable {
     }
 
     return new TransactionBundle({
-      atomicTransactions: this.toAtomicTransactions(),
+      atomicTransactions: this.toAtomicTransactions().filter((t) => t.amount !== 0),
       action,
       status,
       id: this.bundleId,

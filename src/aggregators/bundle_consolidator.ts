@@ -1,45 +1,56 @@
 import fs from 'fs';
-import { ToAtomicTransactionable, TransactionBundlable } from '../models/model_types';
 import TransactionBundle, { BundleAction, BundleStatus } from '../models/transaction_bundle';
 import { groupBy, partition } from '../utils';
 
-class TransactionBundler {
-  readonly data: (ToAtomicTransactionable & TransactionBundlable)[];
+class BundleConsolidator {
+  readonly bundles: TransactionBundle[];
 
-  constructor({ data } : { data: (ToAtomicTransactionable & TransactionBundlable)[]}) {
-    this.data = data;
+  constructor({ bundles } : { bundles: TransactionBundle[]}) {
+    this.bundles = bundles;
   }
 
-  makeBundles() {
-    const bundles = this.data
-      .map((d) => d.transactionBundle())
-      .filter((b) => b.atomicTransactions.length);
+  consolidateBundles() {
+    const bundles = this.bundles
+      .filter((b) => !b.isEmpty);
 
     // Some bundles are complete for sure: BUY and SELL trades
     // from exchanges are packaged in a single bundle
-    const { completeBundles, incompleteBundles } = TransactionBundler
+    const { completeBundles, incompleteBundles } = BundleConsolidator
       .separateCompleteAndIncompleteBundles(bundles);
 
     // Transfers between two owned decentralized account will produce
     // duplicate records that should not be double counted.
     // Dulicates are complete bundles, as they represent a transfer between two
     // controlled accounts
-    const { completeDeduplicatedBundles, incompleteDeduplicatedBundles } = TransactionBundler
+    const { completeDeduplicatedBundles, incompleteDeduplicatedBundles } = BundleConsolidator
       .removeDuplicates(incompleteBundles);
 
     // Now, some records share an id together, and some are unique by id
-    const { bundlesWithSharedId, bundlesWithUniqueId } = TransactionBundler
+    const { bundlesWithSharedId, bundlesWithUniqueId } = BundleConsolidator
       .separateBundlesWithUniqueIdAndThoseWithSharedId(incompleteDeduplicatedBundles);
 
     // Those that have a shared id can be merged into one single bundle
-    const completeMergedBundles = TransactionBundler.mergeSiblings(bundlesWithSharedId);
+    const completeMergedBundles = BundleConsolidator.mergeSiblings(bundlesWithSharedId);
 
-    const { consolidatedBundles, orphanBundles } = TransactionBundler
-      .mergeBundlesByAmountCurrencyAndTime(bundlesWithUniqueId);
+    // Bundles where some transactions are from controlled AND to controlled are probably
+    // swaps, or deposits / repays from DeFi platforms
+    const { toAndFromControlled, toXorFromControlled } = BundleConsolidator
+      .separateBundlesWithToAndFromControlledFromOther(bundlesWithUniqueId);
+
+    const { consolidatedBundles, orphanBundles } = BundleConsolidator
+      .mergeBundlesByAmountCurrencyAndTime(toXorFromControlled);
 
     console.log('orphanBundles', orphanBundles.length);
     console.log(JSON.stringify(orphanBundles, null, 2));
     console.log('orphanBundles', orphanBundles.length);
+
+    fs.writeFileSync('./orphans', JSON.stringify(orphanBundles, null, 2));
+    fs.writeFileSync('./swapsOrDepositsOrRepays', JSON.stringify(toAndFromControlled, null, 2));
+    fs.writeFileSync('./consolidatedBundles', JSON.stringify(consolidatedBundles, null, 2));
+    fs.writeFileSync('./completeMergedBundles', JSON.stringify(completeMergedBundles, null, 2));
+    fs.writeFileSync('./completeDeduplicatedBundles', JSON.stringify(completeDeduplicatedBundles, null, 2));
+    fs.writeFileSync('./bundlesWithUniqueId', JSON.stringify(bundlesWithUniqueId, null, 2));
+    fs.writeFileSync('./completeBundles', JSON.stringify(completeBundles, null, 2));
 
     return [
       ...completeBundles,
@@ -53,7 +64,7 @@ class TransactionBundler {
 
   static mergeBundlesByAmountCurrencyAndTime(bundles: TransactionBundle[]) {
     // Separate bundles where a "from" address is our from the one where the "to" address is our.
-    // No bundle should have transactions where both the "to" and the "from" are our.
+    // No bundle should have transactions where both the "to" and the "from" are our at that point.
     // Iterate the list of "from"s, and try to map it to the set of "to"s
     // A good "to" candidate should have the same currency, a timestamp that comes after "from"'s
     // and an identical or very close amount
@@ -126,6 +137,14 @@ class TransactionBundler {
     orphanBundles.push(...Array.from(toControlled));
 
     return { consolidatedBundles, orphanBundles };
+  }
+
+  static separateBundlesWithToAndFromControlledFromOther(bundles: TransactionBundle[]) {
+    const [toAndFromControlled, toXorFromControlled] = partition(
+      bundles,
+      (bundle) => bundle.toControlled && bundle.fromControlled,
+    );
+    return { toAndFromControlled, toXorFromControlled };
   }
 
   private static separateCompleteAndIncompleteBundles(bundles: TransactionBundle[]) {
@@ -212,4 +231,4 @@ class TransactionBundler {
   }
 }
 
-export default TransactionBundler;
+export default BundleConsolidator;

@@ -3,11 +3,9 @@ import { SupportedBlockchain } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
 import EthereumLikeAddress from '../../addresses/ethereum_like_address';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
-import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 import Currency from '../currency';
 
-class EtherscanLikeTokenTransaction implements
-  ToAtomicTransactionable, TransactionBundlable {
+class EtherscanLikeTokenTransaction {
   private readonly attributes: Attributes
 
   readonly chain: SupportedBlockchain;
@@ -101,7 +99,7 @@ class EtherscanLikeTokenTransaction implements
 
   transactionBundle() {
     return new TransactionBundle({
-      atomicTransactions: this.toAtomicTransactions(),
+      atomicTransactions: this.toAtomicTransactions().filter((t) => t.amount !== 0),
       action: BundleAction.toBeDetermined,
       status: BundleStatus.incomplete,
       id: this.hash,

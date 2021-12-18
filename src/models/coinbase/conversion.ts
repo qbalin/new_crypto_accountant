@@ -3,7 +3,6 @@ import VoidAddress from '../../addresses/void_address';
 import { SupportedPlatform } from '../../config_types';
 import AtomicTransaction from '../atomic_transaction';
 import Currency from '../currency';
-import { ToAtomicTransactionable, TransactionBundlable } from '../model_types';
 import TransactionBundle, { BundleAction, BundleStatus } from '../transaction_bundle';
 
 /* eslint-disable camelcase */
@@ -15,7 +14,7 @@ interface Attributes {
   readonly details: { conversion_id: string },
 }
 
-class Conversion implements ToAtomicTransactionable, TransactionBundlable {
+class Conversion {
   private readonly attributes: Attributes;
 
   private readonly accountNickname: string;
@@ -55,7 +54,7 @@ class Conversion implements ToAtomicTransactionable, TransactionBundlable {
 
   transactionBundle() {
     return new TransactionBundle({
-      atomicTransactions: this.toAtomicTransactions(),
+      atomicTransactions: this.toAtomicTransactions().filter((t) => t.amount !== 0),
       action: BundleAction.trade,
       status: BundleStatus.complete,
       id: this.bundleId,

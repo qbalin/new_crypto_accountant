@@ -209,7 +209,7 @@ export default {
         const [id, datetime, transactionType, coinType, coinAmount, usdValue, originalInterestCoin, interestAmountInOriginalCoin, confirmed] = value.replace(/","/g, '\t').replace(/"/g, '').split('\t');
         memo.push({
           id,
-          datetime,
+          datetime: `${datetime} UTC`,
           transactionType,
           coinType,
           coinAmount,
