@@ -6,6 +6,8 @@ import EtherscanLikeTokenTransaction from '../models/etherscan_like/etherscan_li
 import PolygonscanClient from '../api_clients/polygonscan';
 import FetchingStrategies from '../models/fetching_strategies';
 import EthereumLikeAddress from '../addresses/ethereum_like_address';
+import { groupBy } from '../utils';
+import TransactionBundle, { BundleAction, BundleStatus } from '../models/transaction_bundle';
 
 const all = async <T>({
   accountIdentifier, walletAddress, apiClient, Model, fetchAction,
@@ -77,7 +79,18 @@ class EthereumAccount extends DecentralizedAccount {
       fetchAction: 'tokentx',
     });
 
-    return [...normalTransactions, ...internalTransactions, ...tokenTransactions];
+    const nonEmptyBundles = [...normalTransactions, ...internalTransactions, ...tokenTransactions]
+      .map((t) => t.transactionBundle())
+      .filter((b) => b.atomicTransactions.length !== 0)
+      .filter((b) => !b.atomicTransactions.every((t) => t.amount === 0));
+
+    const bundlesGroupedById = groupBy(nonEmptyBundles, (bundle) => bundle.id);
+    return Object.entries(bundlesGroupedById).map(([id, bundlesGrouped]) => new TransactionBundle({
+      id,
+      action: BundleAction.toBeDetermined,
+      status: BundleStatus.incomplete,
+      atomicTransactions: bundlesGrouped.flatMap((bundle) => bundle.atomicTransactions),
+    }));
   }
 
   static parseTransactions({ transactions }: {transactions: EtherscanLikeNormalTransaction[] }) {
