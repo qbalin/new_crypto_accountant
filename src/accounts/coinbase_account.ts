@@ -116,7 +116,10 @@ class CoinbaseAccount extends CentralizedAccount {
       accountIdToCurrencyMap,
     });
 
-    return [...fills, ...transfers, ...conversions];
+    return [...fills, ...transfers, ...conversions]
+      .map((obj) => obj.transactionBundle())
+      .filter((b) => b.atomicTransactions.length !== 0)
+      .filter((b) => !b.atomicTransactions.every((t) => t.amount === 0));
   }
 }
 
