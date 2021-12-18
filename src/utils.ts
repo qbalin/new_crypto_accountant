@@ -50,14 +50,23 @@ const fetchJson = ({
   req.end();
 });
 
-const groupBy = <T, U extends Record<keyof T, any>>
-  (collection: U[], groupingKey: keyof T) => collection
-    .reduce((memo, value) => {
-      // eslint-disable-next-line no-param-reassign
-      memo[value[groupingKey]] ||= [];
-      memo[value[groupingKey]].push(value);
-      return memo;
-    }, {} as Record<U[keyof T], U[]>);
+const groupBy = <T>(collection: T[], predicate: (arg: T) => string | number) => collection
+  . reduce((memo, entry) => {
+    // eslint-disable-next-line no-param-reassign
+    memo[predicate(entry)] ||= [];
+    memo[predicate(entry)].push(entry);
+    return memo;
+  }, {} as Record<string, T[]>);
+
+const partition = <T>(collection: T[], predicate: (arg: T) => boolean) :
+  T[][] => collection.reduce((memo, entry) => {
+    if (predicate(entry)) {
+      memo[0].push(entry);
+    } else {
+      memo[1].push(entry);
+    }
+    return memo;
+  }, [[], []] as T[][]);
 
 const uniq = <T>(collection: T[]) : T[] => Array.from(new Set(collection));
 
@@ -260,4 +269,5 @@ export {
   Heap,
   rateLimit,
   beginningOfYear,
+  partition,
 };

@@ -11,7 +11,8 @@ export enum BundleAction {
   transfer = 'transfer',
   trade = 'trade',
   getFree = 'getFree',
-  toBeDetermined = 'toBeDetermined'
+  toBeDetermined = 'toBeDetermined',
+  noOp = 'noOp',
 }
 
 class TransactionBundle {
@@ -42,6 +43,10 @@ class TransactionBundle {
     this.id = id;
     this.privateNonFeeTransactions = null;
     this.privateSynthetizable = null;
+  }
+
+  get isTrade() {
+    return this.action === BundleAction.trade;
   }
 
   get fromControlled() {

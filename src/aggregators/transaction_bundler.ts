@@ -1,6 +1,7 @@
+import fs from 'fs';
 import { ToAtomicTransactionable, TransactionBundlable } from '../models/model_types';
 import TransactionBundle, { BundleAction, BundleStatus } from '../models/transaction_bundle';
-import { groupBy } from '../utils';
+import { groupBy, partition } from '../utils';
 
 class TransactionBundler {
   readonly data: (ToAtomicTransactionable & TransactionBundlable)[];
@@ -128,22 +129,13 @@ class TransactionBundler {
   }
 
   private static separateCompleteAndIncompleteBundles(bundles: TransactionBundle[]) {
-    return bundles.reduce((
-      memo: {[key in 'completeBundles' | 'incompleteBundles']: TransactionBundle[]},
-      bundle,
-    ) => {
-      if (bundle.status === BundleStatus.complete) {
-        memo.completeBundles.push(bundle);
-      } else {
-        memo.incompleteBundles.push(bundle);
-      }
-      return memo;
-    }, { completeBundles: [], incompleteBundles: [] });
+    const [completeBundles, incompleteBundles] = partition(bundles, (bundle) => bundle.isComplete);
+    return { completeBundles, incompleteBundles };
   }
 
   private static separateBundlesWithUniqueIdAndThoseWithSharedId(bundles: TransactionBundle[]) {
     // Group the bundles by id
-    const idToBundlesMap = groupBy(bundles, 'id');
+    const idToBundlesMap = groupBy(bundles, (bundle) => bundle.id);
 
     return Object
       .values(idToBundlesMap)
@@ -163,7 +155,7 @@ class TransactionBundler {
     // report will report that transaction twice, one from A's reports, and once from B's
     // A duplicated bundle is complete, as it is a transaction from a controlled account to another.
 
-    const bundleGroupsWithMaybeDuplicates = Object.values(groupBy(bundles, 'id'));
+    const bundleGroupsWithMaybeDuplicates = Object.values(groupBy(bundles, (bundle) => bundle.id));
 
     return bundleGroupsWithMaybeDuplicates.reduce((memo, bundlesWithMaybeDuplicates) => {
       // In a group of bundles, we want to distinguish the ones with or without duplicates and:
@@ -210,7 +202,7 @@ class TransactionBundler {
     // Siblings come from blockchain explorer reports
     // (txlist, txlistinternal, tokentx for etherscan-like explorers)
     // Merge them in one completed bundle
-    const bundlesGroupedById = Object.values(groupBy(bundles, 'id'));
+    const bundlesGroupedById = Object.values(groupBy(bundles, (bundle) => bundle.id));
     return bundlesGroupedById.map((groupOfBundles) => new TransactionBundle({
       atomicTransactions: groupOfBundles.flatMap((g) => g.atomicTransactions),
       action: groupOfBundles[0].action,

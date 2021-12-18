@@ -64,10 +64,10 @@ class LedgerEntry implements ToAtomicTransactionable, TransactionBundlable {
 
   get bundleId() {
     if (this.bizType === 'Exchange') {
-      if (!this.context?.orderId) {
-        throw new Error(`A ledger entry with bizType "Exchange" must have an orderId: ${JSON.stringify(this, null, 2)}`);
+      if (!this.context?.tradeId) {
+        throw new Error(`A ledger entry with bizType "Exchange" must have a tradeId: ${JSON.stringify(this, null, 2)}`);
       }
-      return `${SupportedPlatform.KuCoin}-order_id-${this.context.orderId}`;
+      return `${SupportedPlatform.KuCoin}-trade_id-${this.context.tradeId}`;
     }
     if (this.bizType === 'Convert to KCS') {
       if (!this.context?.smallCurrencyExchangeId) {
@@ -118,7 +118,7 @@ class LedgerEntry implements ToAtomicTransactionable, TransactionBundlable {
       case 'Redemption':
       case 'Staking':
       case 'Transfer':
-        action = BundleAction.toBeDetermined;
+        action = BundleAction.noOp;
         status = BundleStatus.complete;
         break;
       default:
@@ -180,8 +180,8 @@ class LedgerEntry implements ToAtomicTransactionable, TransactionBundlable {
 
   exchange() {
     const transactions = [];
-    if (!this.context.orderId) {
-      throw new Error(`Kucoin Ledger entry with bizType "Exchange" is missing an orderId: ${JSON.stringify(this, null, 2)}`);
+    if (!this.context.tradeId) {
+      throw new Error(`Kucoin Ledger entry with bizType "Exchange" is missing a tradeId: ${JSON.stringify(this, null, 2)}`);
     }
     if (this.fee > 0) {
       transactions.push(
