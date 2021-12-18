@@ -3,7 +3,7 @@ import Web3 from 'web3';
 import { URL } from 'url';
 import { fetchJson as nonLimitedFetchJson, HttpMethod, rateLimit } from '../utils';
 
-const fetchJson = rateLimit({ callsPerMinute: 60, fn: nonLimitedFetchJson });
+const fetchJson = rateLimit({ callsPerMinute: 300, fn: nonLimitedFetchJson });
 const pathToErc20TokenCache = (chainName: string) => `./downloads/${chainName}_erc20_tokens.json`;
 
 abstract class Client {
@@ -93,6 +93,7 @@ abstract class Client {
   private async privateCall({ url, method }: { url: URL, method: HttpMethod }) :
   Promise<{ data: { result: { [key: string]: any, timeStamp: string }[] } }> {
     url.searchParams.set('apikey', this.apiKey);
+    console.log('EtherScanLikeClient call:', url.href);
     return fetchJson({ url: url.href, method });
   }
 }

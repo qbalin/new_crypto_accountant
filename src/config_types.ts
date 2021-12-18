@@ -9,6 +9,7 @@ export enum SupportedBlockchain {
   Bitcoin = 'bitcoin',
   Ethereum = 'ethereum',
   Polygon = 'polygon',
+  BinanceSmartChain = 'binancesmartchain',
 }
 
 export interface CentralizedAccountConfig {

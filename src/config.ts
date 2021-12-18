@@ -15,6 +15,7 @@ import AlgorandAccount from './accounts/algorand_account';
 import BitcoinAccount from './accounts/bitcoin_account';
 import KucoinAccount from './accounts/kucoin_account';
 import CelsiusAccount from './accounts/celsius_account';
+import BinanceSmartChainAccount from './accounts/binance_smart_chain_account';
 
 const SUPPORTED_PLATFORMS = Object.values(SupportedPlatform);
 const SUPPORTED_BLOCKCHAINS = Object.values(SupportedBlockchain);
@@ -125,6 +126,8 @@ class Config {
       switch (accountConfig.blockchainName) {
         case SupportedBlockchain.Ethereum: return new EthereumAccount(accountConfig);
         case SupportedBlockchain.Polygon: return new PolygonAccount(accountConfig);
+        case SupportedBlockchain.BinanceSmartChain:
+          return new BinanceSmartChainAccount(accountConfig);
         case SupportedBlockchain.Algorand: return new AlgorandAccount(accountConfig);
         case SupportedBlockchain.Bitcoin: return new BitcoinAccount(accountConfig);
         default: throw new Error(`Blockchain name unexpected (${accountConfig.blockchainName}) for account config ${JSON.stringify(accountConfig)}`);
