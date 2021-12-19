@@ -4,7 +4,8 @@ enum ChainCoin {
   Ethereum = 'ETH',
   Polygon = 'MATIC',
   Algorand = 'ALGO',
-  Bitcoin = 'BTC'
+  Bitcoin = 'BTC',
+  BinanceSmartChain = 'BNB',
 }
 
 const chainToCoinMap = {
@@ -12,6 +13,7 @@ const chainToCoinMap = {
   [SupportedBlockchain.Ethereum]: ChainCoin.Ethereum,
   [SupportedBlockchain.Polygon]: ChainCoin.Polygon,
   [SupportedBlockchain.Bitcoin]: ChainCoin.Bitcoin,
+  [SupportedBlockchain.BinanceSmartChain]: ChainCoin.BinanceSmartChain,
 };
 
 export default chainToCoinMap;

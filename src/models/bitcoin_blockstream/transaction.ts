@@ -57,8 +57,8 @@ class Transaction {
     this.controlledAddress = controlledAddress;
   }
 
-  get createdAt() {
-    return new Date(this.attributes.status.block_time * 1000);
+  createdAt({ minus = 0 } : { minus?: number } = {}) {
+    return new Date(this.attributes.status.block_time * 1000 - minus);
   }
 
   get bundleId() {
@@ -78,18 +78,25 @@ class Transaction {
     if (this.atomicTransactions) {
       return this.atomicTransactions;
     }
-    this.atomicTransactions = this.attributes.vin.map((inObj) => new AtomicTransaction({
-      createdAt: this.createdAt,
+    // The created at is not the moment the outbound transaction was received by the blockchain,
+    // it's when the block was finally validated, which can strangely happen after the moment
+    // when the inbound transaction was received...
+    // Some explorers give the received_at time and the block time, but not blockstream. Other
+    // explorers are pretty bad though.
+    this.atomicTransactions = this.attributes.vin.map((inObj, index) => new AtomicTransaction({
+      createdAt: this.createdAt({ minus: 60 * 60 * 1000 }),
       action: '----',
       currency: Currency.getInstance({ ticker: chainToCoinMap[SupportedBlockchain.Bitcoin] }),
       from: this.controlledAddress,
       to: VoidAddress.getInstance({ note: 'Other BTC address' }),
-      amount: inObj.prevout.value * 1e-8,
+      // The fee is not discounted from the transaction amount, so we remove it from the first
+      // outbound transaction amount.
+      amount: (inObj.prevout.value - (index === 0 ? this.attributes.fee : 0)) * 1e-8,
       bundleId: this.bundleId,
     }));
     if (this.attributes.vin.length) {
       this.atomicTransactions.push(new AtomicTransaction({
-        createdAt: this.createdAt,
+        createdAt: this.createdAt({ minus: 60 * 60 * 1000 }),
         action: PAY_FEE,
         currency: Currency.getInstance({ ticker: chainToCoinMap[SupportedBlockchain.Bitcoin] }),
         from: this.controlledAddress,
@@ -99,7 +106,7 @@ class Transaction {
       }));
     }
     this.atomicTransactions.push(...this.attributes.vout.map((outObj) => new AtomicTransaction({
-      createdAt: this.createdAt,
+      createdAt: this.createdAt(),
       action: '-----',
       currency: Currency.getInstance({ ticker: chainToCoinMap[SupportedBlockchain.Bitcoin] }),
       from: VoidAddress.getInstance({ note: 'Other BTC address' }),
