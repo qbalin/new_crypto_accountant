@@ -9,7 +9,7 @@ class BundleConsolidator {
     this.bundles = bundles;
   }
 
-  consolidateBundles() {
+  consolidateBundles({ shitcoins } : { shitcoins: string[] }) {
     const bundles = this.bundles
       .filter((b) => !b.isEmpty);
 
@@ -40,11 +40,15 @@ class BundleConsolidator {
     const { consolidatedBundles, orphanBundles } = BundleConsolidator
       .mergeBundlesByAmountCurrencyAndTime(toXorFromControlled);
 
-    console.log('orphanBundles', orphanBundles.length);
-    console.log(JSON.stringify(orphanBundles, null, 2));
-    console.log('orphanBundles', orphanBundles.length);
+    const { shitcoinBundles, legitcoinBundles } = BundleConsolidator
+      .separateShitcoinsFromLegitCoins(orphanBundles, shitcoins);
 
-    fs.writeFileSync('./orphans', JSON.stringify(orphanBundles, null, 2));
+    console.log('orphanBundles', legitcoinBundles.length);
+    console.log(JSON.stringify(legitcoinBundles, null, 2));
+    console.log('orphanBundles', legitcoinBundles.length);
+
+    fs.writeFileSync('./orphans', JSON.stringify(legitcoinBundles, null, 2));
+    fs.writeFileSync('./shitcoinBundles', JSON.stringify(shitcoinBundles, null, 2));
     fs.writeFileSync('./swapsOrDepositsOrRepays', JSON.stringify(toAndFromControlled, null, 2));
     fs.writeFileSync('./consolidatedBundles', JSON.stringify(consolidatedBundles, null, 2));
     fs.writeFileSync('./completeMergedBundles', JSON.stringify(completeMergedBundles, null, 2));
@@ -60,6 +64,13 @@ class BundleConsolidator {
       ...consolidatedBundles,
       ...orphanBundles,
     ];
+  }
+
+  static separateShitcoinsFromLegitCoins(bundles: TransactionBundle[], shitcoins: string[]) {
+    const [shitcoinBundles, legitcoinBundles] = partition(bundles, (bundle) => shitcoins
+      .map((s) => s.toUpperCase())
+      .includes(bundle.atomicTransactions[0].currency.ticker));
+    return { shitcoinBundles, legitcoinBundles };
   }
 
   static mergeBundlesByAmountCurrencyAndTime(bundles: TransactionBundle[]) {
