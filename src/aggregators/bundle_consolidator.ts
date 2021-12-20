@@ -214,7 +214,7 @@ class BundleConsolidator {
           memo.completeDeduplicatedBundles.push(new TransactionBundle({
             status: BundleStatus.complete,
             atomicTransactions: bundle.atomicTransactions,
-            action: bundle.action,
+            action: BundleAction.transfer,
             id: bundle.id,
           }));
         } else {
