@@ -137,7 +137,7 @@ class BundleConsolidator {
           new TransactionBundle({
             atomicTransactions: [...fromBundle.atomicTransactions, ...toMatch.atomicTransactions],
             status: BundleStatus.complete,
-            action: BundleAction.toBeDetermined,
+            action: BundleAction.transfer,
             id: fromBundle.id + toMatch.id,
           }),
         );
