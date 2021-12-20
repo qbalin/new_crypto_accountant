@@ -111,6 +111,7 @@ class BundleConsolidator {
     const consolidatedBundles: TransactionBundle[] = [];
 
     fromControlled.forEach((fromBundle) => {
+      const oneHour = 3600 * 1000;
       const toMatch = Array
         .from(toControlled)
         .sort((a, b) => +a.syntheticTransaction.createdAt - +b.syntheticTransaction.createdAt)
@@ -127,7 +128,9 @@ class BundleConsolidator {
           return toAddress !== fromAddress
             && toCurrency === fromCurrency
             && Math.abs(toAmount - fromAmount) <= ((toAmount + fromAmount) / 2) * 1e-6
-            && toCreatedAt >= fromCreatedAt;
+            // It is bizarre, but sometimes the clocks are not well sync'd between platforms, and some
+            // record an inbound transaction before the outbound was recorded
+            && (toCreatedAt >= fromCreatedAt || Math.abs(+toCreatedAt - +fromCreatedAt) < oneHour);
         });
 
       if (toMatch) {
