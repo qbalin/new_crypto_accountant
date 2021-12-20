@@ -127,8 +127,8 @@ class BundleConsolidator {
           return toAddress !== fromAddress
             && toCurrency === fromCurrency
             && Math.abs(toAmount - fromAmount) <= ((toAmount + fromAmount) / 2) * 1e-6
-            // It is bizarre, but sometimes the clocks are not well sync'd between platforms, and some
-            // record an inbound transaction before the outbound was recorded
+            // It is bizarre, but sometimes the clocks are not well sync'd between platforms,
+            // and some record an inbound transaction before the outbound was recorded
             && (toCreatedAt >= fromCreatedAt || Math.abs(+toCreatedAt - +fromCreatedAt) < oneHour);
         });
 
