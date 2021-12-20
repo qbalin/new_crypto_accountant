@@ -13,10 +13,13 @@ class BundleConsolidator {
     const bundles = this.bundles
       .filter((b) => !b.isEmpty);
 
+    const { shitcoinBundles, legitcoinBundles } = BundleConsolidator
+      .separateShitcoinsFromLegitCoins(bundles, shitcoins);
+
     // Some bundles are complete for sure: BUY and SELL trades
     // from exchanges are packaged in a single bundle
     const { completeBundles, incompleteBundles } = BundleConsolidator
-      .separateCompleteAndIncompleteBundles(bundles);
+      .separateCompleteAndIncompleteBundles(legitcoinBundles);
 
     // Transfers between two owned decentralized account will produce
     // duplicate records that should not be double counted.
@@ -40,28 +43,24 @@ class BundleConsolidator {
     const { consolidatedBundles, orphanBundles } = BundleConsolidator
       .mergeBundlesByAmountCurrencyAndTime(toXorFromControlled);
 
-    const { shitcoinBundles, legitcoinBundles } = BundleConsolidator
-      .separateShitcoinsFromLegitCoins(orphanBundles, shitcoins);
+    console.log('orphanBundles', orphanBundles.length);
+    console.log(JSON.stringify(orphanBundles, null, 2));
+    console.log('orphanBundles', orphanBundles.length);
 
-    console.log('orphanBundles', legitcoinBundles.length);
-    console.log(JSON.stringify(legitcoinBundles, null, 2));
-    console.log('orphanBundles', legitcoinBundles.length);
-
-    fs.writeFileSync('./orphans', JSON.stringify(legitcoinBundles, null, 2));
+    fs.writeFileSync('./orphans', JSON.stringify(orphanBundles, null, 2));
     fs.writeFileSync('./shitcoinBundles', JSON.stringify(shitcoinBundles, null, 2));
     fs.writeFileSync('./swapsOrDepositsOrRepays', JSON.stringify(toAndFromControlled, null, 2));
     fs.writeFileSync('./consolidatedBundles', JSON.stringify(consolidatedBundles, null, 2));
     fs.writeFileSync('./completeMergedBundles', JSON.stringify(completeMergedBundles, null, 2));
     fs.writeFileSync('./completeDeduplicatedBundles', JSON.stringify(completeDeduplicatedBundles, null, 2));
-    fs.writeFileSync('./bundlesWithUniqueId', JSON.stringify(bundlesWithUniqueId, null, 2));
     fs.writeFileSync('./completeBundles', JSON.stringify(completeBundles, null, 2));
 
     return [
       ...completeBundles,
-      ...bundlesWithUniqueId,
       ...completeDeduplicatedBundles,
       ...completeMergedBundles,
       ...consolidatedBundles,
+      ...toAndFromControlled,
       ...orphanBundles,
     ];
   }
