@@ -9,6 +9,7 @@ export enum BundleStatus {
 
 export enum BundleAction {
   transfer = 'transfer',
+  transferToSelf = 'transferToSelf',
   trade = 'trade',
   getFree = 'getFree',
   toBeDetermined = 'toBeDetermined',

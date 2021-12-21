@@ -137,7 +137,7 @@ class BundleConsolidator {
           new TransactionBundle({
             atomicTransactions: [...fromBundle.atomicTransactions, ...toMatch.atomicTransactions],
             status: BundleStatus.complete,
-            action: BundleAction.transfer,
+            action: BundleAction.transferToSelf,
             id: fromBundle.id + toMatch.id,
           }),
         );
@@ -211,10 +211,13 @@ class BundleConsolidator {
           if (identicalBundles.length > 1) {
             throw new Error(`There should only ever be two identical bundles max. This instance was found ${identicalBundles.length + 1} times: ${JSON.stringify(bundle, null, 2)}`);
           }
+          if (!bundle.toControlled || !bundle.fromControlled) {
+            throw new Error(`Expected duplicate to be due to a transfer being recorded between two owned decentralized accounts. Got: ${JSON.stringify(bundle, null, 2)}`);
+          }
           memo.completeDeduplicatedBundles.push(new TransactionBundle({
             status: BundleStatus.complete,
             atomicTransactions: bundle.atomicTransactions,
-            action: BundleAction.transfer,
+            action: BundleAction.transferToSelf,
             id: bundle.id,
           }));
         } else {
