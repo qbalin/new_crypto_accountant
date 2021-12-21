@@ -133,12 +133,17 @@ class BundleConsolidator {
         });
 
       if (toMatch) {
+        const notes = [];
+        if (toMatch.syntheticTransaction.createdAt < fromBundle.syntheticTransaction.createdAt) {
+          notes.push('The transaction was allegedly received before it was sent!');
+        }
         consolidatedBundles.push(
           new TransactionBundle({
             atomicTransactions: [...fromBundle.atomicTransactions, ...toMatch.atomicTransactions],
             status: BundleStatus.complete,
             action: BundleAction.transferToSelf,
             id: fromBundle.id + toMatch.id,
+            notes,
           }),
         );
         toControlled.delete(toMatch);

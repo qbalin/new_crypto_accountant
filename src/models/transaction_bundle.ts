@@ -30,19 +30,23 @@ class TransactionBundle {
 
   private privateSynthetizable: null | boolean;
 
+  readonly notes: string[];
+
   constructor({
-    atomicTransactions, action, status, id,
+    atomicTransactions, action, status, id, notes = [],
   } :
   {
     atomicTransactions: AtomicTransaction[],
     action: BundleAction,
     status: BundleStatus,
-    id: string
+    id: string,
+    notes?: string[]
   }) {
     this.status = status;
     this.atomicTransactions = atomicTransactions;
     this.action = action;
     this.id = id;
+    this.notes = notes;
     this.privateNonFeeTransactions = null;
     this.privateSynthetizable = null;
   }
