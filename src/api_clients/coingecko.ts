@@ -37,30 +37,38 @@ class CoingeckoClient {
 
   cache: null | Record<string, any>;
 
+  private fetchingCoinList: boolean;
+
   constructor() {
     this.baseUrl = 'https://api.coingecko.com/api/v3';
     this.coinList = null;
     this.cache = null;
-    this.getCoinList();
+    this.fetchingCoinList = false;
   }
 
   async getCoinList() {
     if (this.coinList) {
       return this.coinList;
     }
+    this.fetchingCoinList = true;
+
     const url = new URL(this.baseUrl);
     url.pathname += '/coins/list';
     url.searchParams.set('include_platform', 'false');
 
-    console.log(url.href);
-
     const { data } = await rateLimitedFetchJson({ url: url.href, headers: { accept: 'application/json' } });
     this.coinList = new CoinList(data);
+
+    this.fetchingCoinList = false;
     return this.coinList;
   }
 
   async getPrice({ at, ticker } : { at: Date, ticker: string }) {
-    console.log('at, ticker', at, ticker);
+    while (this.fetchingCoinList) {
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
     const coinId = (await this.getCoinList()).getId(ticker);
     if (!coinId) {
       throw new Error(`Coin with ticker ${ticker} is not listed on Coingecko`);
@@ -74,7 +82,6 @@ class CoingeckoClient {
       this.cache = JSON.parse(fs.readFileSync(path, { encoding: 'utf8' })) as Record<string, any>;
     }
     if (this.cache[coinId]?.[(+at).toString()]) {
-      console.log('ici', coinId, at, this.cache[coinId][+at.toString()]);
       return this.cache[coinId][(+at).toString()];
     }
 
@@ -83,12 +90,9 @@ class CoingeckoClient {
     url.searchParams.set('localization', 'false');
     url.searchParams.set('date', convertDate(at));
 
-    console.log(url.href);
-
     const { data } = await rateLimitedFetchJson({ url: url.href, headers: { accept: 'application/json' } });
 
     this.cache[coinId] ||= {};
-    console.log(at, data.market_data.current_price.usd);
     this.cache[coinId][(+at).toString()] = data.market_data.current_price.usd;
     fs.writeFileSync(path, JSON.stringify(this.cache, null, 2));
     return data.market_data.current_price.usd;
