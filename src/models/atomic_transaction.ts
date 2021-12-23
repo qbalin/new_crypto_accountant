@@ -54,15 +54,11 @@ class AtomicTransaction {
     return this.action === PAY_FEE;
   }
 
-  async getCost({ at = new Date() } : { at?: Date } = {}) {
+  async getCost({ at = this.createdAt } : { at?: Date } = {}) {
     if (this.currency.isFiat) {
       return this.amount;
     }
-    return (await this.getPrice({ at })) * this.amount;
-  }
-
-  private async getPrice({ at = new Date() } : { at?: Date } = {}) {
-    return coingeckoClient.getPrice({ ticker: this.currency.ticker, at });
+    return (await this.currency.getPrice({ at })) * this.amount;
   }
 }
 

@@ -1,3 +1,5 @@
+import coingeckoClient from '../api_clients/coingecko';
+
 // eslint-disable-next-line no-use-before-define
 const instances: Record<string, Currency> = {};
 
@@ -18,6 +20,13 @@ class Currency {
 
   get isFiat() {
     return ['USD', 'EUR'].includes(this.ticker);
+  }
+
+  async getPrice({ at = new Date() } : { at?: Date } = {}) {
+    if (this.isFiat) {
+      return 1;
+    }
+    return coingeckoClient.getPrice({ ticker: this.ticker, at });
   }
 }
 
