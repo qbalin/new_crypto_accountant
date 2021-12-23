@@ -1,11 +1,16 @@
+import TransactionBundle from '../models/transaction_bundle';
 import CostBasisTracker from './cost_basis_tracker';
 
 class MasterCostBasisTracker {
   private trackers: Record<string, CostBasisTracker> = {}
 
-  accrue({ currency, entry } : { currency: string, entry: { amount: number, price: number }}) {
+  accrue({ currency, entry } :
+    {
+      currency: string,
+      entry: { amount: number, price: number, transactionBundle: TransactionBundle }
+    }) {
     this.trackers[currency] ||= new CostBasisTracker();
-    this.trackers[currency].accrue(entry);
+    return this.trackers[currency].accrue(entry);
   }
 
   consume({ currency, amount } : { currency: string, amount: number }) {

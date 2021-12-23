@@ -1,3 +1,5 @@
+/* eslint-disable max-classes-per-file */
+import Address from '../addresses/address';
 import masterCostBasisTracker from '../taxes/master_cost_basis_tracker';
 import AtomicTransaction from './atomic_transaction';
 import Currency from './currency';
@@ -15,6 +17,141 @@ export enum BundleAction {
   toBeDetermined = 'toBeDetermined',
   noOp = 'noOp',
   pureFeePayment = 'pureFeePayment',
+}
+
+// class CurrencyAmount {
+//   readonly currency: Currency;
+
+//   readonly amount: number;
+
+//   constructor({ amount, currency } : { amount: number, currency: Currency }) {
+//     this.amount = amount;
+//     this.currency = currency;
+//   }
+// }
+
+// class TrackingEntry {
+//   readonly createdAt: Date;
+
+//   readonly transactionBundle: TransactionBundle;
+
+//   constructor({ createdAt, transactionBundle } :
+//     { createdAt: Date, transactionBundle: TransactionBundle}) {
+//     this.createdAt = createdAt;
+//     this.transactionBundle = transactionBundle;
+//   }
+// }
+
+// class TrackingEntries {
+//   readonly type: string;
+
+//   constructor({ type } : { type: string }) {
+//     this.type = type;
+//   }
+// }
+
+// class TransactionSummary {
+//   private amountIn: CurrencyAmount | undefined;
+
+//   private amountOut: CurrencyAmount | undefined;
+
+//   private cost: CurrencyAmount | undefined;
+
+//   private fee: CurrencyAmount | undefined;
+
+//   private trackingEntries: TrackingEntries | undefined;
+
+//   private benefit: CurrencyAmount | undefined;
+
+//   type: string;
+
+//   constructor({
+//     amountIn, amountOut, cost, fee, trackingEntries, benefit, type,
+//   } : {
+//     amountIn?: CurrencyAmount,
+//     amountOut?: CurrencyAmount,
+//     cost?: CurrencyAmount,
+//     fee?: CurrencyAmount,
+//     trackingEntries?: TrackingEntries,
+//     benefit?: CurrencyAmount,
+//     type: string
+//   }) {
+//     this.amountIn = amountIn;
+//     this.amountOut = amountOut;
+//     this.cost = cost;
+//     this.fee = fee;
+//     this.trackingEntries = trackingEntries;
+//     this.benefit = benefit;
+//     this.type = type;
+//   }
+// }
+
+type TransferToSelfSummary = {
+  timestamp: Date,
+  currency: Currency,
+  amount: number,
+  from: Address,
+  to: Address,
+  feeAmount: number,
+  feeCurrency: Currency,
+  feeDestructionHistory: any[],
+  transactionIds: string[],
+}
+
+type BuySummary = {
+  timestamp: Date,
+  currency: Currency,
+  amount: number,
+  fiatAmount: number,
+  fiatCurrency: Currency,
+  transactionIds: string[],
+  to: Address,
+  feeAmount: number,
+  feeCurrency: Currency,
+  feeConsumptionHistory: any[],
+}
+
+type SellSummary = {
+  timestamp: Date,
+  currency: Currency,
+  amount: number,
+  fiatAmount: number,
+  fiatCurrency: Currency,
+  transactionIds: string[],
+  from: Address,
+  feeAmount: number,
+  feeCurrency: Currency,
+  feeConsumptionHistory: any[],
+  consumptions: any[],
+  benefit: number,
+}
+
+type SwapSummary = {
+  timestamp: Date,
+  currencyOut: Currency,
+  amountOut: number,
+  currencyIn: Currency,
+  amountIn: number,
+  transactionIds: string[],
+  from: Address,
+  to: Address,
+  feeAmount: number,
+  feeCurrency: Currency,
+  feeConsumptionHistory: any[],
+  consumptions: any[],
+  benefit: number,
+}
+
+type GetFreeSummary = {
+  timestamp: Date,
+  gain: {
+    currency: Currency,
+    amount: number
+  }[],
+  transactionIds: string[],
+  to: Address,
+  benefit: number,
+  feeDestructionHistory: any[],
 }
 
 class TransactionBundle {
@@ -74,6 +211,10 @@ class TransactionBundle {
   get isEmpty() {
     return this.atomicTransactions.length === 0
     || this.atomicTransactions.every((t) => t.amount === 0);
+  }
+
+  get timestamp() {
+    return new Date(Math.min(...this.atomicTransactions.map((at) => +at.createdAt)));
   }
 
   get nonFeeTransactions() {
@@ -153,6 +294,10 @@ class TransactionBundle {
       .map(([ticker, amount]) => ({ currency: Currency.getInstance({ ticker }), amount }));
   }
 
+  get transactionIds() {
+    return Array.from(new Set(this.atomicTransactions.map((a) => a.bundleId)));
+  }
+
   get feeTransaction() {
     const feeTransactions = this.atomicTransactions.filter((t) => t.isFeePayment);
     if (feeTransactions.some((t) => t.to.controlled)) {
@@ -173,47 +318,55 @@ class TransactionBundle {
       const inboundAmounts = this.amountsInPerCurrency;
       const fee = this.feeTransaction;
 
-      if (this.action === BundleAction.transfer) {
+      if (this.action === BundleAction.transferToSelf) {
         if (outboundAmounts.length > 1 || inboundAmounts.length > 1) {
           throw new Error(`Unexpected transfer with more than one inbound or outbound transactions. Offending bundle: ${JSON.stringify(this, null, 2)}. Inbound: ${JSON.stringify(inboundAmounts, null, 2)}. Outbound: ${JSON.stringify(outboundAmounts, null, 2)}`);
         }
         const outboundAmount = outboundAmounts[0];
         const inboundAmount = inboundAmounts[0];
-        if (outboundAmount && inboundAmount) {
-          if (inboundAmount.currency !== outboundAmount.currency) {
-            throw new Error(`A transfer should have an outbound and an inbound transaction for the same currency. Offending bundle: ${JSON.stringify(this, null, 2)}`);
-          }
-        } else if (outboundAmount) {
-          // If there's only an outbound transaction, this can be:
-          // - a gift
-          // - a pure loss (sent to wrong address)
-          // - a payment for services
-          // In any case, there is a consumption
-          masterCostBasisTracker.consume({
-            currency: outboundAmount.currency.ticker,
-            amount: outboundAmount.amount,
-          });
-        } else if (inboundAmount) {
-          // This is free money in, i.e. at a cost basis of 0
-          masterCostBasisTracker.accrue({
-            currency: inboundAmount.currency.ticker,
-            entry: {
-              amount: inboundAmount.amount,
-              price: 0,
-            },
-          });
-        } else {
-          throw new Error(`Transfer without any inbound not outbound transaction unexpected. Offending bundle: ${JSON.stringify(this, null, 2)}`);
+        if (!outboundAmount || !inboundAmount) {
+          throw new Error(`Transfer to self missing and inbound and / or outbound transaction. Offending bundle: ${JSON.stringify(this, null, 2)}`);
         }
+        if (inboundAmount.currency !== outboundAmount.currency) {
+          throw new Error(`A transfer to self should have an outbound and an inbound transaction for the same currency. Offending bundle: ${JSON.stringify(this, null, 2)}`);
+        }
+        if (
+          Math.abs(inboundAmount.amount - outboundAmount.amount)
+          / ((inboundAmount.amount + outboundAmount.amount) / 2) > 1e-6
+        ) {
+          throw new Error(`A transfer to self should bear the same inbound and outbound amount. Offending bundle: ${JSON.stringify(this, null, 2)}`);
+        }
+        const { currency } = inboundAmount;
+        const amount = (inboundAmount.amount + outboundAmount.amount) / 2;
 
         if (fee) {
         // Treat fee as disposal (less advantageous). Taxable!
         // masterCostBasisTracker.consume({ currency: fee.currency, amount: fee.amount })
 
           // Treat fee as disparition (increases cost basis, more advantageous). Non taxable:
-          masterCostBasisTracker.destroy({ currency: fee.currency.ticker, amount: fee.amount });
+          const destructions = masterCostBasisTracker
+            .destroy({ currency: fee.currency.ticker, amount: fee.amount });
+
+          const from = this.nonFeeTransactions.find((t) => t.from.controlled)?.from;
+          const to = this.nonFeeTransactions.find((t) => t.to.controlled)?.to;
+          if (!from || !to) {
+            throw new Error(`A transfer to self must have at least one fromControlled address and one toControlled address. Offending bundle: ${JSON.stringify(this, null, 2)}`);
+          }
+
+          return {
+            timestamp: this.timestamp,
+            currency,
+            amount,
+            from,
+            to,
+            feeAmount: fee.amount,
+            feeCurrency: fee.currency,
+            feeDestructionHistory: destructions,
+            transactionIds: this.transactionIds,
+          } as TransferToSelfSummary;
         }
-        return {};
+
+        return null;
       }
 
       if (this.action === BundleAction.trade) {
@@ -225,97 +378,205 @@ class TransactionBundle {
         if (inboundAmount.currency === outboundAmount.currency) {
           throw new Error(`A trade should have an outbound and an inbound transaction for different currencies. Offending bundle: ${JSON.stringify(this, null, 2)}`);
         }
-
         if (outboundAmount.currency.isFiat && inboundAmount.currency.isFiat) {
-          throw new Error(`Trades are the sale, purchase or swap of crypto currencies. This trade seems to be between to fiat currencies. Offending bundle: ${JSON.stringify(this, null, 2)}`);
+          throw new Error(`Trades are the sale, purchase or swap of crypto currencies. This trade seems to be between two fiat currencies. Offending bundle: ${JSON.stringify(this, null, 2)}`);
         }
 
-        const feeCost = fee ? 0 : 0;// await fee.getCost();
-        if (fee) {
-          masterCostBasisTracker.destroy({ currency: fee.currency.ticker, amount: fee.amount });
-        }
+        const feeCost = fee ? await fee.getCost() : 0;
+        let feeConsumptions : any[] = [];
 
         if (outboundAmount.currency.isFiat) {
-        // Purchase of cryptos
+          // Purchase of cryptos
           masterCostBasisTracker.accrue({
             currency: inboundAmount.currency.ticker,
             entry: {
               amount: inboundAmount.amount,
               price: (outboundAmount.amount + feeCost) / inboundAmount.amount,
+              transactionBundle: this,
             },
           });
-        } else if (inboundAmount.currency.isFiat) {
-        // Sale of cryptos
-          const basis = masterCostBasisTracker.consume({
-            currency: outboundAmount.currency.ticker,
-            amount: outboundAmount.amount,
-          });
+
+          // We should consume fees always after an accrual has been registered: we can consider
+          // that the currency accrued can be used to pay for the fees.
+          if (fee && !fee.currency.isFiat) {
+            // If you paid a fee of 0.1 ETH acquired at $100 for a trade USDC <> CEL on uniswap,
+            // and at the time of the trade these 0.1 ETH are worth $200, these
+            // $200 count towards your cost basis.
+            // These 0.1 ETH were initially acquired as a purchase of 1ETH for $1000. You are
+            // now left with 0.9 ETH at a cost basis of $900.
+            // This is why the fee amount must be a consumption of cost basis, not a destruction.
+            feeConsumptions = masterCostBasisTracker
+              .consume({ currency: fee.currency.ticker, amount: fee.amount });
+          }
+
+          const to = this.atomicTransactions.find((at) => at.to.controlled)?.to;
+          if (!to) {
+            throw new Error(`A Buy transaction should have a currency sent to a toControlled address. Offending bundle: ${JSON.stringify(this, null, 2)}`);
+          }
 
           return {
-            benefit: inboundAmount.amount
-          - basis.reduce((memo, value) => memo + value.amount * value.price, 0),
-          };
-        } else {
-          const basis = masterCostBasisTracker.consume({
+            timestamp: this.timestamp,
+            currency: inboundAmount.currency,
+            amount: inboundAmount.amount,
+            fiatAmount: outboundAmount.amount,
+            fiatCurrency: outboundAmount.currency,
+            to,
+            feeAmount: fee?.amount || 0,
+            feeCurrency: fee?.currency || Currency.getInstance({ ticker: 'USD' }),
+            transactionIds: this.transactionIds,
+            feeConsumptionHistory: feeConsumptions,
+          } as BuySummary;
+        } if (inboundAmount.currency.isFiat) {
+        // Sale of cryptos
+          const consumptions = masterCostBasisTracker.consume({
             currency: outboundAmount.currency.ticker,
             amount: outboundAmount.amount,
           });
-          const currentCost = 0;// await outboundTransaction.getCost();
 
+          // We should consume fees always after an accrual has been registered: we can consider
+          // that the currency accrued can be used to pay for the fees.
+          if (fee && !fee.currency.isFiat) {
+            // If you paid a fee of 0.1 ETH acquired at $100 for a trade USDC <> CEL on uniswap,
+            // and at the time of the trade these 0.1 ETH are worth $200, these
+            // $200 count towards your cost basis.
+            // These 0.1 ETH were initially acquired as a purchase of 1ETH for $1000. You are
+            // now left with 0.9 ETH at a cost basis of $900.
+            // This is why the fee amount must be a consumption of cost basis, not a destruction.
+            feeConsumptions = masterCostBasisTracker
+              .consume({ currency: fee.currency.ticker, amount: fee.amount });
+          }
+
+          const from = this.atomicTransactions.find((at) => at.from.controlled)?.from;
+          if (!from) {
+            throw new Error(`A Sell transaction should have a currency sent from a fromControlled address. Offending bundle: ${JSON.stringify(this, null, 2)}`);
+          }
+
+          let cost = 0;
+          for (let i = 0; i < consumptions.length; i += 1) {
+            const consumption = consumptions[i];
+            cost += consumption.amount * consumption.price;
+          }
+
+          return {
+            timestamp: this.timestamp,
+            currency: outboundAmount.currency,
+            amount: outboundAmount.amount,
+            fiatAmount: inboundAmount.amount,
+            fiatCurrency: inboundAmount.currency,
+            transactionIds: this.transactionIds,
+            from,
+            feeAmount: fee?.amount || 0,
+            feeCurrency: fee?.currency || Currency.getInstance({ ticker: 'USD' }),
+            feeConsumptionHistory: feeConsumptions,
+            consumptions,
+            benefit: inboundAmount.amount - cost - feeCost,
+          } as SellSummary;
+        }
+        // Swap a crypto for another
+        const from = this.nonFeeTransactions.find((at) => at.from.controlled)?.from;
+        const to = this.nonFeeTransactions.find((at) => at.to.controlled)?.to;
+        if (!to || !from) {
+          throw new Error(`A crypto swap should result in sending a crypto from a controlled address and receiving some to a controlled address. Offending bundle: ${JSON.stringify(this, null, 2)}`);
+        }
+
+        const inboundPrice = await inboundAmount.currency.getPrice({ at: this.timestamp });
+
+        // The cost of the fee should not be included in the cost basis of the acquired coin:
+        // the cost will be discounted from the benefits of the "sale" of the coin that is being
+        // disposed. If we discount it from the benefit AND include it in the cost basis of the
+        // acquired coin, we're lowering our benefits twice, thus being taxed less in an unfair way.
+        // We can do either, but not both. Chosing here to count the loss due to the fee in the
+        // disposal as it immediately causes a reduction in taxes, vs a deferred one.
+        masterCostBasisTracker.accrue({
+          currency: inboundAmount.currency.ticker,
+          entry: {
+            amount: inboundAmount.amount,
+            price: inboundPrice,
+            transactionBundle: this,
+          },
+        });
+        const consumptions = masterCostBasisTracker.consume({
+          currency: outboundAmount.currency.ticker,
+          amount: outboundAmount.amount,
+        });
+        let cost = 0;
+        for (let i = 0; i < consumptions.length; i += 1) {
+          const consumption = consumptions[i];
+          cost += consumption.amount * consumption.price;
+        }
+
+        // We should consume fees always after an accrual has been registered: we can consider
+        // that the currency accrued can be used to pay for the fees.
+        if (fee && !fee.currency.isFiat) {
+          // If you paid a fee of 0.1 ETH acquired at $100 for a trade USDC <> CEL on uniswap,
+          // and at the time of the trade these 0.1 ETH are worth $200, these
+          // $200 count towards your cost basis.
+          // These 0.1 ETH were initially acquired as a purchase of 1ETH for $1000. You are
+          // now left with 0.9 ETH at a cost basis of $900.
+          // This is why the fee amount must be a consumption of cost basis, not a destruction.
+          feeConsumptions = masterCostBasisTracker
+            .consume({ currency: fee.currency.ticker, amount: fee.amount });
+        }
+
+        return {
+          timestamp: this.timestamp,
+          currencyOut: outboundAmount.currency,
+          amountOut: outboundAmount.amount,
+          currencyIn: inboundAmount.currency,
+          amountIn: inboundAmount.amount,
+          transactionIds: this.transactionIds,
+          from,
+          to,
+          feeAmount: fee?.amount || 0,
+          feeCurrency: fee?.currency || Currency.getInstance({ ticker: 'USD' }),
+          feeConsumptionHistory: feeConsumptions,
+          consumptions,
+          // inboundPrice * inboundAmount.amount == outboundPrice * outboundAmount.amount
+          benefit: inboundPrice * inboundAmount.amount - cost - feeCost,
+        } as SwapSummary;
+      }
+
+      if (this.action === BundleAction.getFree) {
+        if (outboundAmounts.length > 0) {
+          throw new Error(`A getFree action should not have any outbound amounts. Offending bundle: ${JSON.stringify(this, null, 2)}`);
+        }
+        const to = this.nonFeeTransactions.find((at) => at.to.controlled)?.to;
+        if (!to) {
+          throw new Error(`A getFree transaction should result in receiving some currencies to a controlled address. Offending bundle: ${JSON.stringify(this, null, 2)}`);
+        }
+        let feeCost = 0;
+        let feeDestructionHistory : any[] = [];
+        if (fee) {
+          feeCost = await fee.getCost();
+          feeDestructionHistory = masterCostBasisTracker
+            .destroy({ currency: fee.currency.ticker, amount: fee.amount });
+        }
+        let benefit = 0;
+        for (let i = 0; i < inboundAmounts.length; i += 1) {
+          const inboundAmount = inboundAmounts[i];
           masterCostBasisTracker.accrue({
             currency: inboundAmount.currency.ticker,
             entry: {
               amount: inboundAmount.amount,
-              price: (currentCost + feeCost) / inboundAmount.amount,
+              price: 0,
+              transactionBundle: this,
             },
           });
-
-          return {
-            benefit: currentCost
-          - basis.reduce((memo, value) => memo + value.amount * value.price, 0),
-          };
+          // eslint-disable-next-line no-await-in-loop
+          benefit += await (inboundAmount.currency.getPrice({ at: this.timestamp }))
+           * inboundAmount.amount;
         }
+
+        return {
+          timestamp: this.timestamp,
+          gain: inboundAmounts.map((ia) => ({ amount: ia.amount, currency: ia.currency })),
+          transactionIds: this.transactionIds,
+          benefit: benefit - feeCost,
+          to,
+          feeDestructionHistory,
+        } as GetFreeSummary;
       }
-
-      // Swap ETH against BTC (ETH in, BTC out)
-
-      // ETH in
-      // const feePrice = fee.toFiat();
-      // const price = getPriceOf(t.currency, t.amount);
-      // update(t.currency, t.createdAt, t.amount, price + feePrice);
-
-      // // BTC out
-      // const costBasis = getCostBasis('BTC', amount);
-      // remove(t.currency, t.createdAt, -t.amount);
-
-      // // Proceed
-      // (price - costBasis);
-
-      // Buy ETH
-      // const feePrice = fee.toFiat();
-      // const price = dollarValueOfTrade
-      // update(t.currency, t.createdAt, t.amount, price + feePrice);
-
-      // Sell ETH
-      // const feePrice = fee.toFiat();
-      // const costBasis = getCostBasis('ETH', amount);
-      // remove(t.currency, t.createdAt, -t.amount);
-      // // Proceed
-      // (price - costBasis);
-
-      // {
-      //   'eth': [
-      //     {
-      //       amount: 1,
-      //       price: 1000,
-      //     },
-      //     {
-      //       amount: 1,
-      //       price: 2000,
-      //     }
-      //   ]
-      // }
-      return {};
+      return null;
     } catch (e) {
       console.log(`Erroring bundle: ${JSON.stringify(this, null, 2)}`);
       throw e;
