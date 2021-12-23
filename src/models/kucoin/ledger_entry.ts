@@ -13,7 +13,7 @@ interface Attributes {
   fee: string,
   balance: string,
   accountType: 'MAIN' | 'TRADE' | 'MARGIN' | 'CONTRACT',
-  bizType: 'Withdrawal' | 'Transfer' | 'Exchange' | 'Deposit' | 'Rewards' | 'Staking' | 'Convert to KCS' | 'Soft Staking Profits' | 'Staking Profits' | 'Redemption',
+  bizType: 'Withdrawal' | 'Transfer' | 'Exchange' | 'Deposit' | 'Rewards' | 'Staking' | 'Convert to KCS' | 'Soft Staking Profits' | 'Staking Profits' | 'Redemption' | 'EARN - Profits' | 'EARN - Subscription',
   direction: 'out' | 'in',
   createdAt: number,
   context: string | null,
@@ -106,6 +106,7 @@ class LedgerEntry {
       case 'Soft Staking Profits':
       case 'Staking Profits':
       case 'Rewards':
+      case 'EARN - Profits':
         action = BundleAction.getFree;
         status = BundleStatus.complete;
         break;
@@ -117,6 +118,7 @@ class LedgerEntry {
       case 'Redemption':
       case 'Staking':
       case 'Transfer':
+      case 'EARN - Subscription':
         action = BundleAction.noOp;
         status = BundleStatus.complete;
         break;
@@ -153,6 +155,12 @@ class LedgerEntry {
         break;
       case 'Rewards':
         this.atomicTransactions = this.rewards();
+        break;
+      case 'EARN - Profits':
+        this.atomicTransactions = this.earnProfits();
+        break;
+      case 'EARN - Subscription':
+        this.atomicTransactions = this.earnSubscription();
         break;
       case 'Soft Staking Profits':
         this.atomicTransactions = this.softStakingProfits();
@@ -193,7 +201,7 @@ class LedgerEntry {
             platform: SupportedPlatform.KuCoin,
           }),
           to: VoidAddress.getInstance({ note: 'Kucoin' }),
-          amount: this.amount,
+          amount: this.fee,
           bundleId: this.bundleId,
         }),
       );
@@ -201,18 +209,30 @@ class LedgerEntry {
 
     let to;
     let from;
+    let amount;
     if (this.direction === 'in') {
+      // When the fee is born by the in transaction, it needs to be added
+      // from the in amount.
+      // Kucoin counts only the net amount that went in after discounting the fees, AND notes the
+      // fee amount which is already discounted in the in amount.
+      // Since we're counting the fees in a separate atomic transaction, we need to re-add them
       from = VoidAddress.getInstance({ note: 'Kucoin' });
       to = PlatformAddress.getInstance({
         nickname: this.accountNickname,
         platform: SupportedPlatform.KuCoin,
       });
+      amount = this.amount + this.fee;
     } else {
+      // When the fee is born by the out transaction, it needs to be removed
+      // from the out amount.
+      // Kucoin counts all that goes out in the out amount, AND notes the
+      // fee amount which is already included in the out amount.
       to = VoidAddress.getInstance({ note: 'Kucoin' });
       from = PlatformAddress.getInstance({
         nickname: this.accountNickname,
         platform: SupportedPlatform.KuCoin,
       });
+      amount = this.amount - this.fee;
     }
 
     transactions.push(
@@ -222,7 +242,7 @@ class LedgerEntry {
         currency: Currency.getInstance({ ticker: this.currency }),
         from,
         to,
-        amount: this.amount,
+        amount,
         bundleId: this.bundleId,
       }),
     );
@@ -264,6 +284,40 @@ class LedgerEntry {
         bundleId: this.bundleId,
       }),
     ];
+  }
+
+  earnProfits() {
+    if (this.direction === 'out') {
+      throw new Error(`EARN - Profits are not supposed to flow out of an account, only in. KuCoin ledger entry: ${JSON.stringify(this, null, 2)}`);
+    }
+    if (this.fee > 0) {
+      throw new Error(`EARN - Profits are not supposed to have fees. KuCoin ledger entry: ${JSON.stringify(this, null, 2)}`);
+    }
+    return [
+      new AtomicTransaction({
+        createdAt: this.createdAt,
+        action: '----------',
+        currency: Currency.getInstance({ ticker: this.currency }),
+        from: VoidAddress.getInstance({ note: 'Kucoin' }),
+        to: PlatformAddress.getInstance({
+          nickname: this.accountNickname,
+          platform: SupportedPlatform.KuCoin,
+        }),
+        amount: this.amount,
+        bundleId: this.bundleId,
+      }),
+    ];
+  }
+
+  earnSubscription() {
+    // This is locking your funds to get rewards. Funds do not really leave your custody.
+    if (this.direction === 'in') {
+      throw new Error(`EARN - Subscription amounts are not supposed to flow in an account, only out. KuCoin ledger entry: ${JSON.stringify(this, null, 2)}`);
+    }
+    if (this.fee > 0) {
+      throw new Error(`EARN - Subscription are not supposed to have fees. KuCoin ledger entry: ${JSON.stringify(this, null, 2)}`);
+    }
+    return [];
   }
 
   softStakingProfits() {
@@ -350,7 +404,7 @@ class LedgerEntry {
             platform: SupportedPlatform.KuCoin,
           }),
           to: VoidAddress.getInstance({ note: 'Kucoin' }),
-          amount: this.amount,
+          amount: this.fee,
           bundleId: this.bundleId,
         }),
       );
