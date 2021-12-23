@@ -66,29 +66,44 @@ class Conversion {
       return this.atomicTransactions;
     }
 
+    let usdcTo;
+    let usdcFrom;
+    if (this.amount > 0) {
+      usdcTo = PlatformAddress.getInstance({
+        nickname: this.accountNickname,
+        platform: SupportedPlatform.Coinbase,
+      });
+      usdcFrom = VoidAddress.getInstance({ note: 'Coinbase Inc.' });
+    } else {
+      usdcFrom = PlatformAddress.getInstance({
+        nickname: this.accountNickname,
+        platform: SupportedPlatform.Coinbase,
+      });
+      usdcTo = VoidAddress.getInstance({ note: 'Coinbase Inc.' });
+    }
+
+    const usdTo = usdcFrom;
+    const usdFrom = usdcTo;
+
+    const absAmount = Math.abs(this.amount);
+
     this.atomicTransactions = [
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: 'conversion',
         currency: Currency.getInstance({ ticker: 'USDC' }),
-        from: VoidAddress.getInstance({ note: 'Coinbase Inc.' }),
-        to: PlatformAddress.getInstance({
-          nickname: this.accountNickname,
-          platform: SupportedPlatform.Coinbase,
-        }),
-        amount: this.amount,
+        from: usdcFrom,
+        to: usdcTo,
+        amount: absAmount,
         bundleId: this.bundleId,
       }),
       new AtomicTransaction({
         createdAt: this.createdAt,
         action: 'conversion',
         currency: Currency.getInstance({ ticker: 'USD' }),
-        from: PlatformAddress.getInstance({
-          nickname: this.accountNickname,
-          platform: SupportedPlatform.Coinbase,
-        }),
-        to: VoidAddress.getInstance({ note: 'Coinbase Inc.' }),
-        amount: this.amount,
+        from: usdFrom,
+        to: usdTo,
+        amount: absAmount,
         bundleId: this.bundleId,
       }),
     ];
