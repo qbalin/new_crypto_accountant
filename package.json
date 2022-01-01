@@ -3,7 +3,7 @@
   "repository": "https://github.com/qbalin/new_crypto_accountant.git",
   "version": "1.0.0",
   "main": "./dist/src/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/src/index.d.ts",
   "author": "quentinbalin@gmail.com",
   "license": "MIT",
   "devDependencies": {
