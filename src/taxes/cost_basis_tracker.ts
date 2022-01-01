@@ -2,7 +2,7 @@
 import TransactionBundle from '../models/transaction_bundle';
 import { Heap } from '../utils';
 
-enum CostBasisUpdateType {
+export enum CostBasisUpdateType {
   accrual = 'accrual',
   destruction = 'destruction',
   consumption = 'consumption',
