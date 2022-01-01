@@ -1,7 +1,7 @@
 {
   "name": "@qbalin/new_crypto_accountant",
   "repository": "https://github.com/qbalin/new_crypto_accountant.git",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "./dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "author": "quentinbalin@gmail.com",
